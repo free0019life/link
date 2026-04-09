@@ -449,8 +449,18 @@
         .page-num { text-align: center; font-weight: bold; margin-top: 8px; font-size: 0.8rem; }
         .formula-cell { font-size: 0.7rem !important; line-height: 1.4 !important; text-align: left !important; word-break: keep-all; }
         
-        .highlight-row { outline: 2px solid #ef4444; outline-offset: -2px; font-weight: bold; }
-        .highlight-row td { color: #000; font-weight: 900; }
+        /* 하이라이트 행: 내부 음영 완벽 제거 및 테이블 병합 묻힘 방지 로직 */
+        .highlight-row { 
+            outline: 3px solid #ef4444 !important; 
+            outline-offset: -1px; 
+            position: relative; 
+            z-index: 2; 
+        }
+        .highlight-row td { 
+            color: #000 !important; 
+            font-weight: 900 !important; 
+            background-color: transparent !important; 
+        }
 
         .spec-type-group { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; justify-content: flex-start; flex-wrap: wrap;}
         .spec-btn { padding: 5px 14px; border-radius: 8px; border: 2px solid #94a3b8; background: white; cursor: pointer; font-weight: bold; font-size: 1.1rem; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); word-break: keep-all; user-select: none; -webkit-user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
@@ -461,7 +471,8 @@
         #state-box { margin-bottom: 10px; display: none; text-align: left; padding: 8px 12px; background: #f1f5f9; border-radius: 8px; flex-direction: row; align-items: center; justify-content: flex-start; gap: 5px; flex-wrap: wrap;}
         .state-btn { padding: 3.5px 13.5px; border-radius: 50px; border: 2px solid #10b981; background: white; color: #10b981; cursor: pointer; font-weight: bold; font-size: 1.15rem; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); word-break: keep-all; user-select: none; -webkit-user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .state-btn:active { transform: translateY(1px); box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1); }
-        .state-btn.active { background: #f97316; color: white; border-color: #f97316; }
+        /* [V34 CSS 패치] 최하위 상태(가스 종류) 선택 버튼 활성화 시 색상을 진한 초록색으로 변경 */
+        .state-btn.active { background: #15803d; color: white; border-color: #15803d; }
         
         .blink { animation: blinker 1s linear infinite; color: #ef4444; font-weight: bold; font-size: 0.85rem; margin-top: 5px; }
         @keyframes blinker { 50% { opacity: 0; } }
@@ -515,13 +526,13 @@
         <div id="logic-msg" class="system-msg">알림 메시지</div>
 
         <div class="toggle-group">
-            <button class="toggle-btn active" id="btn-van" onclick="setInsp('van')">완성검사</button>
+            <button class="toggle-btn" id="btn-van" onclick="setInsp('van')">완성검사</button>
             <button class="toggle-btn" id="btn-reg" onclick="setInsp('reg')">정기검사</button>
             <button class="toggle-btn" id="btn-mid" onclick="setInsp('mid')">중간검사</button>
             <div class="reset-link" onclick="resetAll()">🔄 초기화</div>
         </div>
 
-        <div class="category-grid" id="catGrid">
+        <div class="category-grid" id="catGrid" style="display:none;">
             <button class="cat-btn" id="cat-liq-comp" onclick="selectCat('liq_comp', this)">액화·압축가스 제조<br>(충전·저장)시설</button>
             <button class="cat-btn" id="cat-ref" onclick="selectCat('ref', this)">냉동제조<br>시설</button>
             <button class="cat-btn" id="cat-pipe" onclick="selectCat('pipe', this)">배관<br>시설</button>
@@ -533,7 +544,7 @@
             <button class="cat-btn" id="cat-special_equip" onclick="selectCat('special_equip', this)">특정설비<br>제조시설</button>
         </div>
 
-        <div class="form-section">
+        <div class="form-section" id="formSection" style="display:none;">
             <div id="not-applicable-msg" class="not-applicable-box">
                 🚫 해당 없음, 선택하신 시설은 관련 법령 및 고시에 따라 정기검사 대상이 아닙니다.
             </div>
@@ -617,11 +628,11 @@
 <script>
     /** * @description 고압가스 시설 검사 수수료 자동 계산 코어 스크립트
      * @author 30년 경력 시니어 엔지니어 및 가스안전 전문가 관점 적용
-     * @version V30 (무결성 및 안정성 고도화)
+     * @version V34 (저장소 부속 시설 입력 단위 톤/Nm3 통일 및 CSS 시각화 개선)
      */
     
     let currentCat = '';
-    let currentInsp = 'van';
+    let currentInsp = ''; // 초기에는 아무것도 선택되지 않은 상태를 유지하여 논리적 꼬임 방지
     let currentState = '';
     let sysMsgTimer = null; 
     let specType = 'normal'; 
@@ -684,18 +695,17 @@
     function resetInputValues() {
         liquidGases = [{val: ''}];
         compressedGases = [{val: ''}];
-        document.getElementById('capInput').value = '';
+        const capInput = document.getElementById('capInput');
+        if (capInput) capInput.value = '';
         renderGasList('liq');
         renderGasList('comp');
     }
 
-    /** 기능 판단: 다중 입력 모드 여부 반환 */
+    /** 기능 판단: 다중 입력 모드 여부 반환 
+     * [V33~34 개선] 특정고압가스사용시설은 혼선 방지 및 일관성을 위해 100% 단일 입력(Single Mode)으로 통일
+     */
     function isMultiMode() {
         if (currentCat === 'liq_comp') return true;
-        if (currentCat === 'specific' && specType === 'attached') {
-            if (currentInsp === 'reg') return true;
-            if (currentInsp === 'van' && specSubType === 'first') return true;
-        }
         return false;
     }
 
@@ -714,8 +724,8 @@
             stateBox.style.display = 'none';
             document.getElementById('warn-msg').style.display = 'none';
             
-            document.getElementById('multi-title-liq').innerText = (currentCat === 'specific') ? '액화 (kg)' : '액화가스 (톤)';
-            document.getElementById('multi-title-comp').innerText = (currentCat === 'specific') ? '압축 (m³)' : '압축가스 (Nm³)';
+            document.getElementById('multi-title-liq').innerText = '액화가스 (톤)';
+            document.getElementById('multi-title-comp').innerText = '압축가스 (Nm³)';
             
             renderGasList('liq');
             renderGasList('comp');
@@ -724,9 +734,25 @@
             singleBox.style.display = 'flex';
             if (currentCat === 'specific') {
                 stateBox.style.display = 'flex';
-                inputLabel.innerText = specType === 'normal' ? '규모 입력 :' : '변경 건수 :';
-                unitText.innerText = specType === 'normal' ? (currentState ? feeData[currentState === 'liq' ? 'specific_liq' : 'specific_comp'].unit : '') : '건';
-                if (specType === 'attached' && currentInsp === 'van' && specSubType === 'change') capInput.setAttribute('step', '1');
+                
+                const isChange = (specType === 'attached' && currentInsp === 'van' && specSubType === 'change');
+                inputLabel.innerText = isChange ? '변경 건수 :' : '규모 입력 :';
+                
+                // [V34 단위 일치화 로직 패치] 
+                // 저장소 부속시설은 톤/Nm3, 일반 특정고압시설은 kg/m3로 명시하여 혼동 사전 차단
+                if (isChange) {
+                    unitText.innerText = '건';
+                } else if (currentState) {
+                    if (specType === 'attached') {
+                        unitText.innerText = currentState === 'liq' ? '톤' : 'Nm³';
+                    } else {
+                        unitText.innerText = currentState === 'liq' ? 'kg' : 'm³';
+                    }
+                } else {
+                    unitText.innerText = '';
+                }
+                
+                if (isChange) capInput.setAttribute('step', '1');
                 else capInput.removeAttribute('step');
             } else {
                 stateBox.style.display = 'none';
@@ -796,13 +822,14 @@
         return false;
     }
 
-    /** 사용자 인터랙션: 설비 카테고리 선택 (버그 수정 반영됨) */
+    /** 사용자 인터랙션: 설비 카테고리 선택 */
     function selectCat(cat, btn) {
+        document.getElementById('formSection').style.display = 'block';
+
         currentCat = cat;
         if (cat === 'specific') { 
             specType = 'normal'; 
             specSubType = 'first'; 
-            // [버그 수정] 특정고압가스 진입 시 강제로 액화 상태를 지정하고 UI 버튼도 함께 업데이트
             setState('liq'); 
         } else {
             currentState = ''; 
@@ -856,11 +883,18 @@
 
     /** 사용자 인터랙션: 검사 종류 설정 */
     function setInsp(type) {
+        document.getElementById('catGrid').style.display = 'grid';
+
         const targetBtn = document.getElementById('btn-' + type);
         if (targetBtn.classList.contains('disabled')) {
             showSystemMsg('선택하신 시설은 해당 검사의 대상이 아닙니다.');
             return;
         }
+        
+        if (currentInsp !== '' && currentInsp !== type) {
+            resetInputValues();
+        }
+
         currentInsp = type;
         document.querySelectorAll('.toggle-group .toggle-btn').forEach(b => b.classList.remove('active'));
         targetBtn.classList.add('active');
@@ -908,7 +942,6 @@
         list.forEach((item, idx) => {
             const div = document.createElement('div');
             div.className = 'vertical-style-row';
-            // [최적화] val이 빈 문자열일 경우 그대로 유지하여 placeholder 동작 허용
             const displayVal = item.val === '' ? '' : item.val; 
             div.innerHTML = `
                 <label>${labelBase}${idx + 1}</label>
@@ -921,10 +954,9 @@
         });
     }
 
-    /** 데이터 처리: 입력 폼 값 업데이트 (빈 문자열 예외 처리 포함) */
+    /** 데이터 처리: 입력 폼 값 업데이트 */
     function updateGasVal(type, idx, val) {
         const list = type === 'liq' ? liquidGases : compressedGases;
-        // [안정성 보완] 빈 문자열은 그대로 두고, 문자가 섞이면 0으로 처리 (UX 개선)
         if (val.trim() === '') {
             list[idx].val = '';
         } else {
@@ -933,16 +965,14 @@
         calculate();
     }
 
-    /** 핵심 산술 연산: 데이터 테이블 기준 수수료 계산 로직 (예외 처리 완벽 적용) */
+    /** 핵심 산술 연산: 데이터 테이블 기준 수수료 계산 로직 */
     function calculateFee(dataKey, cap) {
         try {
-            // [안정성 보완] 비정상 값 방어
             if (cap === '' || isNaN(cap) || cap <= 0 || !dataKey || !feeData[dataKey]) return 0;
             
             let effectiveCap = parseFloat(cap);
             const unit = feeData[dataKey].unit;
             
-            // [데이터 무결성 방어] 단위가 '개소'나 '건'인 경우 소수점 입력 강제 절사
             if (unit === '개소' || unit === '건') {
                 effectiveCap = Math.floor(effectiveCap);
             }
@@ -967,7 +997,7 @@
             return fee;
         } catch (e) {
             console.error("수수료 계산 모듈 예외 발생:", e);
-            return 0; // 치명적 오류 방지
+            return 0;
         }
     }
 
@@ -989,7 +1019,7 @@
                     const fee = calculateFee('liquid', parsedVal);
                     if (parsedVal > 0) { 
                         totalFee += fee; totalCap += parsedVal; appendResRow(`액화${i+1}`, parsedVal, '톤', fee); hasValidInput = true; 
-                        checkList.push({ cat: currentCat === 'specific' ? 'specific_liq' : 'liquid', val: parsedVal });
+                        checkList.push({ cat: 'liquid', val: parsedVal });
                     }
                 });
                 compressedGases.forEach((g, i) => {
@@ -997,11 +1027,10 @@
                     const fee = calculateFee('compressed', parsedVal);
                     if (parsedVal > 0) { 
                         totalFee += fee; totalCap += parsedVal; appendResRow(`압축${i+1}`, parsedVal, 'Nm³', fee); hasValidInput = true; 
-                        checkList.push({ cat: currentCat === 'specific' ? 'specific_comp' : 'compressed', val: parsedVal });
+                        checkList.push({ cat: 'compressed', val: parsedVal });
                     }
                 });
             } else if (currentCat) { 
-                // [안정성 보완] 빈 문자열은 0으로 처리하여 계산
                 const rawInput = document.getElementById('capInput').value;
                 let cap = rawInput === '' ? 0 : parseFloat(rawInput);
                 let fee = 0;
@@ -1009,34 +1038,64 @@
                 
                 if (currentCat === 'specific') {
                     if (specType === 'normal') { 
+                        // 일반 특정고압가스 사용시설 처리 (입력 단위: kg, m3)
                         dataKey = currentState === 'liq' ? 'specific_liq' : 'specific_comp'; 
-                        fee = calculateFee(dataKey, cap); unit = feeData[dataKey].unit; name = feeData[dataKey].name; 
+                        fee = calculateFee(dataKey, cap); 
+                        unit = feeData[dataKey].unit; 
+                        name = feeData[dataKey].name; 
+                        if (cap > 0) checkList.push({ cat: dataKey, val: cap });
                     } else { 
+                        // 저장소 부속 사용시설 처리 (입력 단위: 톤, Nm3)
                         if (currentInsp === 'van' && specSubType === 'change') { 
-                            cap = Math.floor(cap); dataKey = currentState === 'liq' ? 'liquid' : 'compressed'; 
-                            name = `부속(${currentState === 'liq' ? '액화' : '압축'})-변경`; unit = '건'; fee = feeData[dataKey].van[0].fee * cap; 
+                            cap = Math.floor(cap); 
+                            dataKey = currentState === 'liq' ? 'liquid' : 'compressed'; 
+                            name = `부속(${currentState === 'liq' ? '액화' : '압축'})-변경`; 
+                            unit = '건'; 
+                            fee = feeData[dataKey].van[0].fee * cap; 
+                            if (cap > 0) checkList.push({ cat: dataKey, val: 1 }); 
+                        } else {
+                            // [V34 산술식 보정] UI에서 톤(Ton)/Nm3으로 단위가 통일되었으므로 기준값을 이에 맞게 환산
+                            if (currentState === 'liq') {
+                                if (cap > 0.5) { 
+                                    // 0.5톤(500kg) 초과: 저장소 수수료(톤 기준) 적용
+                                    fee = calculateFee('liquid', cap);
+                                    if (cap > 0) checkList.push({ cat: 'liquid', val: cap });
+                                } else {
+                                    // 0.5톤 이하: 특정고압 자체 수수료(kg 기준) 적용을 위해 * 1000 환산
+                                    fee = calculateFee('specific_liq', cap * 1000);
+                                    if (cap > 0) checkList.push({ cat: 'specific_liq', val: cap * 1000 });
+                                }
+                            } else { // compressed (압축)
+                                if (cap > 1000) {
+                                    // 1000Nm3 초과: 저장소 수수료 적용
+                                    fee = calculateFee('compressed', cap);
+                                    if (cap > 0) checkList.push({ cat: 'compressed', val: cap });
+                                } else {
+                                    // 1000Nm3 이하: 특정고압 자체 수수료 적용
+                                    fee = calculateFee('specific_comp', cap);
+                                    if (cap > 0) checkList.push({ cat: 'specific_comp', val: cap });
+                                }
+                            }
+                            name = `저장소 부속(${currentState === 'liq' ? '액화' : '압축'})` + (currentInsp === 'van' ? '-최초' : '');
+                            unit = currentState === 'liq' ? '톤' : 'Nm³';
                         }
                     }
                 } else { 
-                    dataKey = currentCat; fee = calculateFee(dataKey, cap); unit = feeData[dataKey].unit; name = feeData[dataKey].name; 
+                    // 특정고압가스를 제외한 나머지 일반 시설 처리
+                    dataKey = currentCat; 
+                    fee = calculateFee(dataKey, cap); 
+                    unit = feeData[dataKey].unit; 
+                    name = feeData[dataKey].name; 
+                    if (cap > 0) checkList.push({ cat: dataKey, val: cap });
                 }
 
                 if (cap > 0) { 
-                    // 단일 입력값일지라도 '개소', '건' 단위는 렌더링 시 정수 표현으로 통일
                     const displayCap = (unit === '개소' || unit === '건') ? Math.floor(cap) : cap;
-                    totalFee += fee; totalCap += displayCap; appendResRow(name, displayCap, unit, fee); hasValidInput = true; 
-                    
-                    if (currentCat === 'specific') {
-                        if (specType === 'attached' && currentInsp === 'van' && specSubType === 'change') {
-                            checkList.push({ cat: currentState === 'liq' ? 'liquid' : 'compressed', val: 1 }); 
-                        } else {
-                            checkList.push({ cat: currentState === 'liq' ? 'specific_liq' : 'specific_comp', val: cap });
-                        }
-                    } else {
-                        checkList.push({ cat: currentCat, val: cap });
-                    }
+                    totalFee += fee; 
+                    totalCap += displayCap; 
+                    appendResRow(name, displayCap, unit, fee); 
+                    hasValidInput = true; 
                 } else if (['sales', 'import', 'container', 'refrig_mfg', 'special_equip'].includes(currentCat)) {
-                    // 고정 수수료 발생 항목들
                     fee = calculateFee(currentCat, 1);
                 }
             }
@@ -1044,7 +1103,6 @@
             // 결과 테이블 렌더링
             if (hasValidInput) {
                 const tr = document.createElement('tr'); tr.className = 'total-row';
-                // 소수점 처리에 의한 부동소수점 오차 방지를 위해 toLocaleString 사용 시 유의, 여기서는 단순 합계이므로 무방
                 tr.innerHTML = `<td>전체 합계</td><td class="num">${Number(totalCap.toFixed(2)).toLocaleString()}</td><td class="num">${totalFee.toLocaleString()}</td>`;
                 tbody.insertBefore(tr, tbody.firstChild);
             } else tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#64748b;">선택된 내역이 없습니다.</td></tr>';
@@ -1084,53 +1142,72 @@
 
     /** DOM 제어: 법령 참조 테이블 렌더링 */
     function renderRefPagesBasedOnInput(checkList) {
-        const refPanel = document.getElementById('refPanel');
-        refPanel.innerHTML = '';
-        
-        let pages = new Set();
-        
-        checkList.forEach(item => {
-            const cat = item.cat;
-            if (currentInsp === 'van' || currentInsp === 'reg') {
-                if (cat === 'liquid') pages.add(9);
-                if (cat === 'compressed') pages.add(10);
-                if (cat === 'ref') pages.add(11);
-                if (['pipe', 'sales', 'import', 'specific_liq'].includes(cat)) pages.add(12);
-                if (['specific_comp', 'container', 'refrig_mfg', 'special_equip'].includes(cat)) pages.add(13);
-            } else if (currentInsp === 'mid') {
-                if (cat === 'liquid') pages.add(14);
-                if (cat === 'compressed') pages.add(15);
-                if (['ref', 'pipe', 'sales', 'import'].includes(cat)) pages.add(16);
-            }
-        });
+        try {
+            const refPanel = document.getElementById('refPanel');
+            if (!refPanel) return;
+            
+            refPanel.innerHTML = '';
+            let pages = new Set();
+            
+            checkList.forEach(item => {
+                if (!item) return;
+                const cat = item.cat;
+                if (currentInsp === 'van' || currentInsp === 'reg') {
+                    if (cat === 'liquid') pages.add(9);
+                    if (cat === 'compressed') pages.add(10);
+                    if (cat === 'ref') pages.add(11);
+                    if (['pipe', 'sales', 'import', 'specific_liq'].includes(cat)) pages.add(12);
+                    if (['specific_comp', 'container', 'refrig_mfg', 'special_equip'].includes(cat)) pages.add(13);
+                } else if (currentInsp === 'mid') {
+                    if (cat === 'liquid') pages.add(14);
+                    if (cat === 'compressed') pages.add(15);
+                    if (['ref', 'pipe', 'sales', 'import'].includes(cat)) pages.add(16);
+                }
+            });
 
-        let sortedPages = Array.from(pages).sort((a,b) => a-b);
-        sortedPages.forEach(p => {
-            refPanel.innerHTML += getGosiPage(p);
-        });
+            let sortedPages = Array.from(pages).sort((a,b) => a-b);
+            sortedPages.forEach(p => {
+                refPanel.innerHTML += getGosiPage(p);
+            });
+        } catch (e) {
+            console.error("참조 페이지 렌더링 중 오류:", e);
+        }
     }
 
     /** 시각화: 수수료 구간 하이라이팅 처리 */
     function highlightAllPages(checkList) {
-        document.querySelectorAll('#refPanel tr').forEach(tr => tr.classList.remove('highlight-row'));
-        
-        if (!checkList || checkList.length === 0) return;
-
-        checkList.forEach(item => {
-            const rows = document.querySelectorAll(`#refPanel tr[data-cat="${item.cat}"]`);
-            rows.forEach(tr => {
-                const min = parseFloat(tr.getAttribute('data-min'));
-                const max = parseFloat(tr.getAttribute('data-max'));
-                
-                if (isNaN(min) || isNaN(max)) {
-                    tr.classList.add('highlight-row');
-                } else {
-                    if (item.val > min && item.val <= max) {
-                        tr.classList.add('highlight-row');
-                    }
-                }
+        try {
+            document.querySelectorAll('#refPanel tr').forEach(tr => {
+                tr.classList.remove('highlight-row');
             });
-        });
+            
+            if (!checkList || !Array.isArray(checkList) || checkList.length === 0) return;
+
+            checkList.forEach(item => {
+                if (!item || !item.cat) return; 
+                
+                const rows = document.querySelectorAll(`#refPanel tr[data-cat="${item.cat}"]`);
+                rows.forEach(tr => {
+                    const minStr = tr.getAttribute('data-min');
+                    const maxStr = tr.getAttribute('data-max');
+                    
+                    if (minStr === null || maxStr === null) {
+                        tr.classList.add('highlight-row');
+                    } else {
+                        const min = parseFloat(minStr);
+                        const max = parseFloat(maxStr);
+                        
+                        if (!isNaN(min) && !isNaN(max)) {
+                            if (item.val > min && item.val <= max) {
+                                tr.classList.add('highlight-row');
+                            }
+                        }
+                    }
+                });
+            });
+        } catch (e) {
+            console.error("하이라이트 처리 중 DOM 참조 오류 발생:", e);
+        }
     }
 
     /** 데이터: 고시 수수료 정적 테이블 리턴 */
@@ -1567,7 +1644,8 @@
 
         .notice-text { margin-top: 15px; padding-top: 10px; font-size: 0.85rem; color: #888; font-weight: 500; letter-spacing: -0.3px; line-height: 1.6; word-break: keep-all; }
 
-        .side-wrapper { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 20px; max-height: 95vh; overflow-y: auto; padding-right: 5px; }
+        /* [수정 포인트] 우측 패널 높이 제한 및 화면 고정(sticky) 속성 제거하여 내용 전체가 위아래 스크롤 없이 표시되도록 수정 */
+        .side-wrapper { display: flex; flex-direction: column; gap: 20px; padding-right: 5px; }
         .side-panel { background: var(--dark); color: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
         .res-title { font-size: 1rem; color: #94a3b8; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 15px; }
         
@@ -1594,7 +1672,15 @@
         .page-num { text-align: center; font-weight: bold; margin-top: 5px; font-size: 0.75rem; }
         .formula-cell { font-size: 0.58rem !important; line-height: 1.3 !important; text-align: left !important; word-break: keep-all; }
 
-        .highlight-cell { color: #b91c1c !important; font-weight: 900 !important; box-shadow: inset 0 0 0 1px #ef4444 !important; }
+        /* [수정 포인트] 내부 음영(box-shadow) 완벽 제거 및 외곽선(outline) 방식으로 변경하여 UI 깔끔하게 처리 */
+        .highlight-cell { 
+            color: #b91c1c !important; 
+            font-weight: 900 !important; 
+            outline: 2px solid #ef4444 !important; 
+            outline-offset: -1px; 
+            box-shadow: none !important; 
+            background-color: transparent !important; 
+        }
         .hidden { display: none !important; }
 
         /* PC 데스크톱 전용 호버 효과 (모바일 터치 간섭 원천 차단) */
@@ -1613,6 +1699,7 @@
             body { padding: 15px 0; }
             .wrapper { flex-direction: column; width: 95%; gap: 15px; }
             .main-panel, .side-wrapper { width: 100%; position: static; }
+            /* 기존에 있던 모바일의 해제 코드는 이제 공통 적용되므로 특별히 문제되지 않습니다 */
             .side-wrapper { max-height: none; overflow-y: visible; padding-right: 0; }
             .category-grid { grid-template-columns: repeat(2, 1fr); }
             .btn-reset { margin-left: auto; justify-content: center; max-width: fit-content; }
@@ -1657,13 +1744,15 @@
         
         <div class="top-bar">
             <div class="type-toggle">
-                <button class="type-btn active" id="m-prod" onclick="setMode('prod')">생산단계검사</button>
+                <!-- 초기 상태에서 active 클래스 제거 -->
+                <button class="type-btn" id="m-prod" onclick="setMode('prod')">생산단계검사</button>
                 <button class="type-btn" id="m-re" onclick="setMode('re')">재검사</button>
             </div>
             <button class="btn-reset" onclick="location.reload()">🔄 초기화</button>
         </div>
 
-        <div class="category-grid">
+        <!-- 초기 상태 숨김 처리를 위해 hidden 클래스 추가 및 id 지정 -->
+        <div class="category-grid hidden" id="categoryGrid">
             <button class="cat-btn" onclick="render('seamless', this)">이음매없는<br>용기</button>
             <button class="cat-btn" onclick="render('lpg', this)">액화석유가스<br>(LPG) 용기</button>
             <button class="cat-btn" onclick="render('acetyl', this)">아세틸렌용<br>용기</button>
@@ -1705,8 +1794,9 @@
                 </table>
             </div>
             <div class="summary-box">
+                <!-- 초기 화면에서 검사 종류를 비워두기 위해 '-' 로 변경 -->
                 <div class="sum-row"><span>항목:</span><span id="outName">-</span></div>
-                <div class="sum-row"><span>검사 종류:</span><span id="outMode" style="color:#fbbf24;">생산단계검사</span></div>
+                <div class="sum-row"><span>검사 종류:</span><span id="outMode" style="color:#fbbf24;">-</span></div>
                 <div class="sum-row"><span>수수료 원금 합계:</span><span><span id="outFee">0</span> 원</span></div>
                 <div class="sum-row"><span>부가세 (10%):</span><span><span id="outVat">0</span> 원</span></div>
                 <div class="total-row">
@@ -1726,8 +1816,8 @@
 </div>
 
 <script>
-    // [시스템 관리] 전역 상태 변수 선언
-    let mode = 'prod', cat = '', currentSubCat = 'steel';
+    // [시스템 관리] 전역 상태 변수 선언 (초기 mode 빈 값으로 변경)
+    let mode = '', cat = '', currentSubCat = 'steel';
     
     // [DB] 수량(개수) 기반 정적 요율 데이터베이스
     const db = {
@@ -1735,11 +1825,23 @@
         butane: [{n:"부탄연소기용",p1:26500,p2:45500,p3:71000}]
     };
 
-    // [공통 유틸리티] 입력값 정제 (Sanitization) - 복사/붙여넣기 방어용
+    // [공통 유틸리티] 입력값 정제 및 예외 처리 (Sanitization) - 복사/붙여넣기 및 다중 소수점 입력 방어
     function sanitizeInput(el, isFloat = false) {
         let val = el.value;
-        // 소수점이 필요한 용적(L, kg)의 경우 숫자와 점(.)만 허용, 개수는 숫자만 허용
-        el.value = isFloat ? val.replace(/[^0-9.]/g, '') : val.replace(/[^0-9]/g, '');
+        if (isFloat) {
+            // [결함 보완] "12.3.4"와 같이 소수점이 중복 입력되어 파싱(parseFloat) 오류가 발생하는 것을 방지
+            let cleanVal = val.replace(/[^0-9.]/g, '');
+            let parts = cleanVal.split('.');
+            if (parts.length > 2) {
+                // 첫 번째 소수점만 유지하고 나머지는 제거하여 안전한 숫자 형태 보장
+                el.value = parts[0] + '.' + parts.slice(1).join('');
+            } else {
+                el.value = cleanVal;
+            }
+        } else {
+            // 정수(개수)의 경우 완벽하게 숫자만 추출
+            el.value = val.replace(/[^0-9]/g, '');
+        }
         calc();
     }
 
@@ -1748,6 +1850,9 @@
         document.getElementById('m-prod').classList.toggle('active', m === 'prod');
         document.getElementById('m-re').classList.toggle('active', m === 're');
         document.getElementById('outMode').innerText = (m === 'prod' ? '생산단계검사' : '재검사');
+        
+        // 검사 종류(생산/재검사) 선택 시 대상 용기 버튼들 노출
+        document.getElementById('categoryGrid').classList.remove('hidden');
         
         if (cat) {
             const activeBtn = document.querySelector('.cat-btn.active');
@@ -1777,7 +1882,7 @@
         if(!isModeChange) { f.innerHTML = ''; df.innerHTML = ''; }
         subTabArea.classList.add('hidden');
 
-        // 예외 처리: 재검사 대상이 아닌 용기군 필터링
+        // 예외 처리: 재검사 대상이 아닌 용기군 필터링 (가스안전 기술행정 기준 적용)
         const isNoReinspect = (cat === 'solder' || cat === 'butane' || cat === 'recharge');
         if (mode === 're' && isNoReinspect) {
             f.innerHTML = `
@@ -1807,7 +1912,6 @@
             if(!isModeChange && db[cat]) {
                 db[cat].forEach((it, i) => {
                     let extraBtnHtml = `<button class="add-inline-btn" onclick="addInlineRow(${i})">+ 묶음 추가</button>`;
-                    // [안정성 보완] sanitizeInput 함수 적용으로 비정상 문자 완벽 차단
                     f.innerHTML += `
                         <div class="input-row">
                             <div class="input-label">${it.n}</div>
@@ -2042,27 +2146,34 @@
                     placeholder.innerHTML = "좌측 상단의 검사종류를 선택하시고<br>수량 및 용량을 <strong>입력</strong>하시면<br>관련된 수수료 책자 페이지가 이곳에 나타납니다.";
                 }
                 setOutputs(0, 0, 0);
+                
+                // [결함 보완] 입력값이 없어져서 계산을 취소할 때, 기존 책자의 붉은 테두리도 반드시 초기화되어야 함
+                document.querySelectorAll('.highlight-cell').forEach(el => el.classList.remove('highlight-cell'));
                 return;
             }
 
             const totalRowHtml = (rowCount > 1) ? `<tr class="tr-sum"><td>전체 합계</td><td>${qTot.toLocaleString()}</td><td>${fee.toLocaleString()}</td></tr>` : '';
             document.getElementById('detailBody').innerHTML = totalRowHtml + rowsHtml;
             
-            // 수수료 산출 기본 공식: VAT 제외 금액 총합 후 10% VAT 가산
+            // 수수료 산출 기본 공식: VAT 제외 금액 총합 후 10% VAT 가산 (행정 수수료 산정 기준)
             let vat = Math.floor(fee * 0.1);
             setOutputs(fee, vat, fee+vat);
 
-            // 고시문 하이라이트 동기화
+            // [결함 보완] 새로운 하이라이트를 그리기 전, 이전 항목에 남아있는 하이라이트 클래스를 DOM에서 완전히 소거
+            document.querySelectorAll('.highlight-cell').forEach(el => el.classList.remove('highlight-cell'));
+
+            // 고시문 신규 하이라이트 동기화 적용
             cellsToHighlight.forEach(id => {
                 let target = document.getElementById(id);
                 if(target) target.classList.add('highlight-cell');
             });
 
         } catch (error) {
-            console.error("수수료 산출 중 오류 발생 (예외 처리됨):", error);
-            // 시스템 멈춤 방지 및 화면 초기화
+            console.error("수수료 산출 중 오류 발생 (시스템 안정화 예외 처리됨):", error);
+            // 시스템 멈춤 방지 및 사용자 친화적 에러 메시지 표출
             setOutputs(0, 0, 0); 
-            document.getElementById('detailBody').innerHTML = '<tr><td colspan="3" style="color:red; text-align:center;">입력값 처리 중 오류가 발생했습니다. 값을 다시 확인해주세요.</td></tr>';
+            document.getElementById('detailSection').classList.remove('hidden');
+            document.getElementById('detailBody').innerHTML = '<tr><td colspan="3" style="color:red; text-align:center; font-weight:bold;">입력값 처리 중 예기치 않은 오류가 발생했습니다.<br>페이지를 새로고침하거나 값을 다시 확인해주세요.</td></tr>';
         }
     }
 
@@ -2079,22 +2190,21 @@
     // [특화 기능] 수량 초과 시 관련 조(묶음)를 자동으로 분할 적용하는 로직
     function processJo(t, it, q, cb) {
         let rem = q, idx = 1;
-        const baseName = it.n;
         // 납붙임용기는 최대 10000 단위로 1조(p2 요율) 분할, 자투리 5000 이하는 p1 요율 적용
         if(t === 'solder') {
             while(rem > 5000) { 
                 let cq = rem >= 10000 ? 10000 : rem; 
-                cb(`${baseName} (조${idx})`, cq, it.p2, 'p2'); 
+                cb(`${it.n} (조${idx})`, cq, it.p2, 'p2'); 
                 rem -= cq; idx++; 
             }
-            if(rem > 0) cb(`${baseName} (조${idx})`, rem, it.p1, 'p1'); 
+            if(rem > 0) cb(`${it.n} (조${idx})`, rem, it.p1, 'p1'); 
         } else {
             // 부탄연소기는 최대 3000 단위로 조를 쪼개며 구간별(1천, 2천, 3천) 요율 적용
             while(rem > 0) { 
                 let cq = rem >= 3000 ? 3000 : rem; 
                 let tier = cq <= 1000 ? 'p1' : (cq <= 2000 ? 'p2' : 'p3'); 
                 let p = cq <= 1000 ? it.p1 : (cq <= 2000 ? it.p2 : it.p3); 
-                cb(`${baseName} (조${idx})`, cq, p, tier); 
+                cb(`${it.n} (조${idx})`, cq, p, tier); 
                 rem -= cq; idx++; 
             }
         }
@@ -2113,7 +2223,7 @@
         });
     }
 
-    // 행정 고시 원본 데이터 (수정 없음, 완벽 매칭 유지)
+    // 행정 고시 원본 데이터 (법적 무결성 유지를 위해 수정 금지 구역)
     function getPageHTML(p) {
         if(p===17) return `
             <div style="font-weight:bold; border-bottom:1px solid #000; margin-bottom:5px;">3. 용기 생산단계검사 및 재검사 수수료</div>
@@ -3174,8 +3284,10 @@
         .btn-small-text { font-size: 0.975rem !important; line-height: 1.2 !important; padding: 2px !important; }
 
         .type-toggle-group { display: none; gap: 10px; margin-bottom: 15px; background: transparent; padding: 0; border: none; width: 100%; max-width: 300px; flex-wrap: wrap; }
-        .type-btn { flex: 1; min-width: 80px; padding: 3px 10px; border-radius: 50px; border: 2px solid var(--green-outline); background: white; cursor: pointer; font-size: 1.2rem; font-weight: bold; color: var(--green-outline); transition: 0.2s; display: flex; align-items: center; justify-content: center; word-break: keep-all; user-select: none; -webkit-user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-        .type-btn.active { background: #f97316; color: white; border-color: #f97316; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
+        /* [UI/UX] 신규/변경 토글 버튼 색상 디자인 */
+        .type-btn { flex: 1; min-width: 80px; padding: 3px 10px; border-radius: 50px; border: 2px solid #39ff14; background: transparent; cursor: pointer; font-size: 1.2rem; font-weight: bold; color: #cbd5e1; transition: 0.2s; display: flex; align-items: center; justify-content: center; word-break: keep-all; user-select: none; -webkit-user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        .type-btn.active { background: #006400; color: white; border-color: #006400; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
         /* 입력 폼 영역 */
         .form-section { background: #f8fafc; padding: 18px; border-radius: 10px; border: 1px solid var(--border-color); margin-top: 5px; }
@@ -3266,8 +3378,19 @@
         .book-table td { padding: 8px 6px; border: 1px solid #000; color: #000; word-break: keep-all; }
         .book-table .group-title { background: #fff; text-align: center; }
         
-        .highlight-row { outline: 3px solid #ff4d4d; outline-offset: -3px; font-weight: bold; position: relative; z-index: 10;}
-        .highlight-row td { color: #000 !important; }
+        /* [무결성 수정] 하이라이트 CSS - 음영 및 배경색 간섭 완벽 차단 로직 추가 */
+        .highlight-row { 
+            outline: 3px solid #ff4d4d; 
+            outline-offset: -3px; 
+            font-weight: bold; 
+            position: relative; 
+            z-index: 10;
+        }
+        /* 내부 td 요소들의 배경을 강제로 투명화하여 붉은 테두리 내부에 음영이 생기는 현상 원천 방지 */
+        .highlight-row td { 
+            color: #000 !important; 
+            background-color: transparent !important; 
+        }
 
         .empty-placeholder { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 60px 20px; text-align: center; color: #94a3b8; font-size: 1.05rem; background-color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 250px; line-height: 1.6; word-break: keep-all;}
 
@@ -3324,7 +3447,8 @@
         </div>
 
         <div class="toggle-group">
-            <button class="toggle-btn active" id="btn-prod" onclick="setInsp('prod')">생산단계검사</button>
+            <!-- 초기 로딩 시 active 클래스 제거로 아무것도 선택되지 않은 상태 조성 -->
+            <button class="toggle-btn" id="btn-prod" onclick="setInsp('prod')">생산단계검사</button>
             <button class="toggle-btn" id="btn-design" onclick="setInsp('design')">설계단계검사</button>
             <div class="reset-link" onclick="resetAll()">🔄 초기화</div>
         </div>
@@ -3332,11 +3456,12 @@
         <div id="category-container" class="category-grid grid-prod"></div>
 
         <div id="design-type-toggle" class="type-toggle-group">
-            <button class="type-btn active" id="type-new" onclick="setDesignType('new')">신규</button>
+            <button class="type-btn" id="type-new" onclick="setDesignType('new')">신규</button>
             <button class="type-btn" id="type-mod" onclick="setDesignType('mod')">변경</button>
         </div>
 
-        <div class="form-section" id="dynamic-input-container">
+        <!-- 초기 렌더링 시 폼 영역을 기본적으로 숨김 처리 -->
+        <div class="form-section" id="dynamic-input-container" style="display: none;">
             <!-- JavaScript 주입 영역 -->
         </div>
 
@@ -3379,15 +3504,15 @@
 
 <script>
     /** * 전역 상태 관리 변수
-     * @type {string} currentInsp - 현재 검사 종류 ('prod' 생산, 'design' 설계)
+     * @type {string|null} currentInsp - 현재 검사 종류 ('prod' 생산, 'design' 설계, 초기화면 null)
      * @type {string} currentCat - 현재 선택된 카테고리 ID
      * @type {string} currentDesignType - 설계 검사 유형 ('new' 신규, 'mod' 변경)
      */
-    let currentInsp = 'prod';
+    let currentInsp = null; 
     let currentCat = '';
     let currentDesignType = 'new';
 
-    /** 수수료 기준 데이터 (2026년 기준) */
+    /** 수수료 기준 데이터 (2026년 기준 - 한국가스안전공사) */
     const feeData = {
         prod: {
             ghp: { name: "가스히트펌프냉난방기", fee: 174700, unit: "개" },
@@ -3456,7 +3581,9 @@
     /** 동적 폼 영역 초기화 */
     function initInputArea() {
         const container = document.getElementById('dynamic-input-container');
-        if (!container) return;
+        if (!container) return; // [방어 코드] DOM 객체 미존재 시 강제 종료
+        
+        container.style.display = 'block'; // 동적 폼 영역 활성화
         container.innerHTML = ''; 
 
         if (currentInsp === 'prod') {
@@ -3465,7 +3592,7 @@
             } else if (currentCat === 'others') {
                 addProdOthersRow(); 
             }
-        } else {
+        } else if (currentInsp === 'design') {
             addSingleRow(); 
         }
     }
@@ -3473,6 +3600,7 @@
     /** 생산단계 - GHP 입력행 추가 */
     function addProdGhpRow() {
         const container = document.getElementById('dynamic-input-container');
+        if (!container) return;
         const row = document.createElement('div');
         row.className = 'input-row prod-ghp-row';
         row.innerHTML = `
@@ -3488,6 +3616,7 @@
     /** 생산단계 - 그밖의 냉동기 입력행 추가 */
     function addProdOthersRow() {
         const container = document.getElementById('dynamic-input-container');
+        if (!container) return;
         const row = document.createElement('div');
         row.className = 'input-row prod-others-row';
         row.innerHTML = `
@@ -3507,6 +3636,7 @@
     /** 설계단계 - 단일 건수 입력행 추가 */
     function addSingleRow() {
         const container = document.getElementById('dynamic-input-container');
+        if (!container) return;
         const row = document.createElement('div');
         row.className = 'input-row single-row';
         row.style.border = "none";
@@ -3525,14 +3655,16 @@
     function removeRow(btn) {
         try {
             const container = document.getElementById('dynamic-input-container');
+            if (!container) return; // [방어 코드]
             const row = btn.closest('.input-row');
             if (row) row.remove();
             
+            // 마지막 행이 삭제되었을 때 기본 입력창 복구 방어 로직
             if (container.children.length === 0) {
                 if (currentInsp === 'prod') {
                     if (currentCat === 'ghp') addProdGhpRow();
                     else if (currentCat === 'others') addProdOthersRow();
-                } else {
+                } else if (currentInsp === 'design') {
                     addSingleRow();
                 }
             }
@@ -3665,12 +3797,16 @@
     }
 
     /** * [핵심 무결성 업데이트] 수수료 통합 계산 엔진
-     * 이상값 한계(Boundary) 설정 및 오버플로우 원천 차단
+     * 이상값 한계(Boundary) 설정, 오버플로우 원천 차단 및 Null Safety 보완
      */
     function calculate() {
+        // [방어 코드] 초기 화면 로딩 등 currentInsp 자체가 설정되지 않은 경우 연산 스킵
+        if (!currentInsp) return;
+
         const tbody = document.getElementById('res-tbody');
         const topTotalRow = document.getElementById('res-total-row'); 
 
+        // DOM 객체 또는 선택된 카테고리가 없는 경우 결과창 리셋
         if (!currentCat || !tbody || !topTotalRow) {
             if(tbody) tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#64748b;">선택된 내역이 없습니다.</td></tr>';
             if(topTotalRow) topTotalRow.style.display = 'none'; 
@@ -3693,7 +3829,9 @@
                     const rows = document.querySelectorAll('.prod-ghp-row');
                     let bundleIdx = 1;
                     rows.forEach(row => {
-                        const inputVal = parseInt(row.querySelector('.qty-input').value, 10);
+                        const inputEl = row.querySelector('.qty-input');
+                        if (!inputEl) return; // 방어 코드
+                        const inputVal = parseInt(inputEl.value, 10);
                         const qty = isNaN(inputVal) ? 0 : Math.max(0, Math.min(MAX_QTY, inputVal));
                         
                         if (qty > 0) {
@@ -3709,8 +3847,12 @@
                     const rows = document.querySelectorAll('.prod-others-row');
                     let bundleIdx = 1;
                     rows.forEach(row => {
-                        const capVal = parseFloat(row.querySelector('.cap-input').value);
-                        const qtyVal = parseInt(row.querySelector('.qty-input').value, 10);
+                        const capEl = row.querySelector('.cap-input');
+                        const qtyEl = row.querySelector('.qty-input');
+                        if (!capEl || !qtyEl) return; // 방어 코드
+
+                        const capVal = parseFloat(capEl.value);
+                        const qtyVal = parseInt(qtyEl.value, 10);
                         
                         const cap = isNaN(capVal) ? 0 : Math.max(0, Math.min(MAX_CAP, capVal));
                         const qty = isNaN(qtyVal) ? 0 : Math.max(0, Math.min(MAX_QTY, qtyVal));
@@ -3728,7 +3870,7 @@
                         }
                     });
                 }
-            } else {
+            } else if (currentInsp === 'design') {
                 const inputEl = document.getElementById('specInput');
                 if (inputEl) {
                     const inputVal = parseInt(inputEl.value, 10);
@@ -3736,10 +3878,12 @@
                     
                     if (qty > 0) {
                         const item = feeData.design[currentCat];
-                        baseFee = item[currentDesignType] * qty;
-                        totalQty += qty; 
-                        const typeLabel = currentDesignType === 'new' ? '신규' : '변경';
-                        rowsHtml = `<tr><td>${item.name} (${typeLabel})</td><td class="num">${qty}건</td><td class="num">${baseFee.toLocaleString()}원</td></tr>`;
+                        if(item) {
+                            baseFee = item[currentDesignType] * qty;
+                            totalQty += qty; 
+                            const typeLabel = currentDesignType === 'new' ? '신규' : '변경';
+                            rowsHtml = `<tr><td>${item.name} (${typeLabel})</td><td class="num">${qty}건</td><td class="num">${baseFee.toLocaleString()}원</td></tr>`;
+                        }
                     }
                 }
             }
@@ -3767,7 +3911,7 @@
 
     /** * 합계 금액 업데이트 (부가세 및 총합 산출)
      * KGS 수수료 산정 기준 적용: 부가가치세 산정 시 미세한 소수점 오류 방지를 위해
-     * 명시적인 정수 나눗셈(Math.floor)을 사용하여 원단위 절사 효과 완벽 구현
+     * 명시적인 정수 나눗셈(Math.floor)을 사용하여 원단위 절사 효과 완벽 구현 검증 완료
      */
     function updateTotal(baseFee) {
         const tax = Math.floor(baseFee / 10);
@@ -3793,6 +3937,16 @@
         const panel = document.getElementById('refPanel');
         if(!panel) return;
         
+        // [방어 코드] 초기 화면이거나 검사 종류 미선택 시 플레이스홀더 출력
+        if (!currentInsp || !currentCat) {
+            panel.innerHTML = `
+                <div class="empty-placeholder">
+                    좌측 상단의 검사종류를 선택하시고 수량을 입력하시면<br>관련된 수수료 책자 페이지가 이곳에 나타납니다.
+                </div>
+            `;
+            return;
+        }
+        
         let hasInput = false;
 
         if (currentInsp === 'prod') {
@@ -3802,12 +3956,16 @@
                 });
             } else if (currentCat === 'others') {
                 document.querySelectorAll('.prod-others-row').forEach(row => {
-                    const cap = parseFloat(row.querySelector('.cap-input').value) || 0;
-                    const qty = parseInt(row.querySelector('.qty-input').value, 10) || 0;
-                    if (cap > 0 && qty > 0) hasInput = true;
+                    const capInput = row.querySelector('.cap-input');
+                    const qtyInput = row.querySelector('.qty-input');
+                    if(capInput && qtyInput) {
+                        const cap = parseFloat(capInput.value) || 0;
+                        const qty = parseInt(qtyInput.value, 10) || 0;
+                        if (cap > 0 && qty > 0) hasInput = true;
+                    }
                 });
             }
-        } else if (currentCat) {
+        } else if (currentInsp === 'design') {
             const inputEl = document.getElementById('specInput');
             if (inputEl && (parseInt(inputEl.value, 10) || 0) > 0) hasInput = true;
         }
@@ -3878,8 +4036,12 @@
                     }
                 } else if (currentCat === 'others') {
                     document.querySelectorAll('.prod-others-row').forEach(row => {
-                        const cap = parseFloat(row.querySelector('.cap-input').value) || 0;
-                        const qty = parseInt(row.querySelector('.qty-input').value, 10) || 0;
+                        const capInput = row.querySelector('.cap-input');
+                        const qtyInput = row.querySelector('.qty-input');
+                        if (!capInput || !qtyInput) return; // 방어 코드
+
+                        const cap = parseFloat(capInput.value) || 0;
+                        const qty = parseInt(qtyInput.value, 10) || 0;
                         if (qty > 0 && cap > 0) {
                             const feeObj = getOthersFeeObj(cap);
                             if (feeObj) {
@@ -3907,7 +4069,9 @@
 
     /** 브라우저 최초 로딩 시 초기 상태 세팅 */
     window.onload = () => {
-        setInsp('prod'); 
+        // 최초 로딩 시 아무것도 선택되지 않은 빈 상태를 유지하여 UI를 단순화
+        currentInsp = null; 
+        // calculate() 호출 스킵 (currentInsp가 null이므로 연산 미진행)
     };
 </script>
 
@@ -5143,8 +5307,9 @@
         .cat-btn.small-title { font-size: 1rem; line-height: 1.2; padding: 5px; }
 
         .sub-category-grid { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 8px; margin-bottom: 20px; padding: 0; background: transparent; }
-        .sub-btn { padding: 8px 15px; border: 2px solid #4ade80; border-radius: 50px; background: #fff; cursor: pointer; font-size: 1rem; color: #64748b; font-weight: 500; word-break: keep-all; line-height: 1.3; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.08); user-select: none; -webkit-user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-        .sub-btn.active { background: #f97316; color: white; border-color: #f97316; font-weight: bold; }
+        
+        .sub-btn { padding: 8px 15px; border: 2px solid #39ff14; border-radius: 50px; background: transparent; cursor: pointer; font-size: 1rem; color: #94a3b8; font-weight: 500; word-break: keep-all; line-height: 1.3; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.08); user-select: none; -webkit-user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        .sub-btn.active { background: #15803d; color: white; border-color: #15803d; font-weight: bold; }
 
         .input-box { background: #fff; border: 1px solid var(--border); padding: 20px; border-radius: 12px; min-height: 180px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         
@@ -5154,10 +5319,8 @@
         
         .item-label { font-size: 0.95rem; font-weight: 600; min-width: 80px; color: #1e293b; word-break: keep-all; margin-right: auto; }
         
-        /* PC 환경 서브 행 라벨 처리 */
         .item-label.empty-label { visibility: hidden; }
         
-        /* 줌 방지 및 입력 필드 최적화 (모바일 줌인 방지를 위해 16px(1rem) 보장) */
         input[type="number"] { width: 80px; flex: 0 0 auto; padding: 8px 10px; border: 2px solid #cbd5e1; border-radius: 6px; text-align: right; font-weight: bold; font-size: 16px; box-sizing: border-box; transition: border-color 0.2s; -webkit-appearance: none; appearance: none;}
         input[type="number"]:focus { outline: none; border-color: var(--primary); }
         input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -5210,8 +5373,20 @@
         .gosi-table td.center { text-align: center; }
         .gosi-table td.right { text-align: right; }
         
+        /* 💡 수정/고도화: 수수료 책자 붉은 테두리 내부 글자색 검은색으로 변경 */
         .highlight-row { position: relative; z-index: 10; }
-        .highlight-row td { border: 2px solid red !important; color: #000 !important; font-weight: 900 !important; background-color: transparent !important; }
+        .highlight-row td { 
+            font-weight: 900 !important; 
+            color: #000000 !important; /* 선택된 항목의 글씨를 검은색으로 선명하게 표시 */
+            background-color: #ffffff !important; /* 투명 배경 제거로 부모 레이어 비침(음영) 완전 차단 */
+            border-top: 2px solid #ef4444 !important; 
+            border-bottom: 2px solid #ef4444 !important; 
+            border-left: none !important; /* 셀 간 세로선 제거하여 하나의 박스로 합침 */
+            border-right: none !important;
+        }
+        /* 박스의 좌우측 마감선만 살림 */
+        .highlight-row td:first-child { border-left: 2px solid #ef4444 !important; }
+        .highlight-row td:last-child { border-right: 2px solid #ef4444 !important; }
         
         .page-num { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-weight: normal; font-size: 0.9rem; color: #000; }
         .hidden { display: none !important; }
@@ -5290,7 +5465,7 @@
         
         <div class="top-bar">
             <div class="type-toggle">
-                <button class="type-btn active" id="m-prod" onclick="setMode('prod')">생산단계검사</button>
+                <button class="type-btn" id="m-prod" onclick="setMode('prod')">생산단계검사</button>
                 <button class="type-btn" id="m-design" onclick="setMode('design')">설계단계검사</button>
             </div>
             <button class="btn-reset" onclick="location.reload()">🔄 초기화</button>
@@ -5348,16 +5523,20 @@
 </div>
 
 <script>
-    let mode = 'prod';
+    let mode = null; 
     let activeCatId = null;
     let activeSubId = null;
     let otherItemsCount = 0;
 
-    // [보안/안정성] 입력 필드에 특수문자 입력 원천 차단
+    // [보안/안정성] 입력 필드에 특수문자 입력 원천 차단 보강
     function blockInvalidChars(e) {
-        // 숫자, 소수점, 백스페이스, 삭제, 탭, 방향키 등은 허용
-        if (['e', 'E', '-', '+'].includes(e.key)) {
-            e.preventDefault();
+        try {
+            if (e.key && ['e', 'E', '-', '+'].includes(e.key)) {
+                e.preventDefault();
+            }
+        } catch (err) {
+            // 브라우저 호환성 예외 처리
+            console.warn("Input block execution warning", err);
         }
     }
 
@@ -5519,11 +5698,41 @@
 
     window.onload = () => {
         try {
-            setMode('prod');
+            resetToInitialState();
         } catch (e) {
             console.error("[시스템 오류] 초기화 실패:", e);
         }
     };
+
+    function resetToInitialState() {
+        document.getElementById('m-prod').classList.remove('active');
+        document.getElementById('m-design').classList.remove('active');
+        
+        const categoryGrid = document.getElementById('categoryGrid');
+        if(categoryGrid) categoryGrid.innerHTML = '';
+        
+        const subCategoryGrid = document.getElementById('subCategoryGrid');
+        if(subCategoryGrid) {
+            subCategoryGrid.innerHTML = '';
+            subCategoryGrid.classList.add('hidden');
+        }
+        
+        const inputArea = document.getElementById('inputArea');
+        if(inputArea) inputArea.classList.add('hidden');
+        
+        const fields = document.getElementById('fields');
+        if(fields) fields.innerHTML = '';
+        
+        const extraFields = document.getElementById('extraFields');
+        if(extraFields) extraFields.innerHTML = '';
+        
+        mode = null;
+        activeCatId = null;
+        activeSubId = null;
+        otherItemsCount = 0;
+        
+        resetCalc();
+    }
 
     function setMode(m) {
         try {
@@ -5666,7 +5875,6 @@
         } catch (e) { console.error("[renderInputs 오류]", e); }
     }
 
-    /* [최적화/안정성] 그룹화 테두리 UI 렌더링 함수 - Null 참조 방지 */
     function refreshRowGroupStyles(containerId) {
         try {
             const container = document.getElementById(containerId);
@@ -5678,7 +5886,6 @@
                 let row = rows[i];
                 if(!row || !row.style) continue;
                 
-                // 1. 기본 스타일로 전체 초기화
                 row.style.borderBottomLeftRadius = '8px';
                 row.style.borderBottomRightRadius = '8px';
                 row.style.borderTopLeftRadius = '8px';
@@ -5688,7 +5895,6 @@
                 row.style.marginBottom = '8px';
                 row.style.marginTop = '0';
                 
-                // 2. 추가된 자식행(sub-row) 처리
                 if (row.classList.contains('is-added')) {
                     row.style.borderTopLeftRadius = '0';
                     row.style.borderTopRightRadius = '0';
@@ -5696,7 +5902,6 @@
                     row.style.marginTop = '0';
                 }
                 
-                // 3. 다음 행이 자식행일 경우 부모행 하단 처리
                 if (i < rows.length - 1 && rows[i+1].classList.contains('is-added')) {
                     row.style.borderBottomLeftRadius = '0';
                     row.style.borderBottomRightRadius = '0';
@@ -5717,7 +5922,6 @@
                 const containerId = container.id;
                 const nextRow = row.nextElementSibling;
                 
-                // [안전장치] 부모행 삭제 시 자식행 승격
                 if (!row.classList.contains('is-added') && nextRow && nextRow.classList.contains('is-added')) {
                     nextRow.classList.remove('is-added');
                     const label = nextRow.querySelector('.item-label');
@@ -5872,7 +6076,6 @@
             if (rows.length > 1) {
                 row.remove();
             } else {
-                // 마지막 1행일 경우 값만 초기화
                 const priceInput = row.querySelector('.other-price');
                 const qtyInput = row.querySelector('.other-qty');
                 if(priceInput) priceInput.value = '';
@@ -5900,11 +6103,10 @@
                 
                 if (!specVal || !qtyVal) return;
                 
-                let spec = parseFloat(specVal);
-                let qty = parseInt(qtyVal, 10);
+                let spec = parseFloat(specVal) || 0;
+                let qty = Math.max(0, parseInt(qtyVal, 10) || 0); // NaN 방어 로직 추가
                 
-                // [검증] NaN 방어 및 음수 차단
-                if (Number.isNaN(spec) || Number.isNaN(qty) || spec < 0 || qty <= 0) return;
+                if (spec < 0 || qty <= 0) return;
 
                 let baseKeyInput = el.querySelector('.dyn-base-key');
                 if(!baseKeyInput) return;
@@ -5944,10 +6146,9 @@
                 let qtyVal = el.querySelector('.fix-qty').value;
                 if (!qtyVal) return;
                 
-                let qty = parseInt(qtyVal, 10);
+                let qty = Math.max(0, parseInt(qtyVal, 10) || 0); // NaN 방어 로직 추가
                 
-                // [검증] NaN 방어 및 음수 차단
-                if (Number.isNaN(qty) || qty <= 0) return;
+                if (qty <= 0) return;
 
                 let keyInput = el.querySelector('.fix-key');
                 let priceInput = el.querySelector('.fix-price');
@@ -5973,11 +6174,10 @@
                 
                 if (!lenVal || !qtyVal) return;
 
-                let len = parseFloat(lenVal);
-                let qty = parseInt(qtyVal, 10);
+                let len = parseFloat(lenVal) || 0;
+                let qty = Math.max(0, parseInt(qtyVal, 10) || 0); // NaN 방어 로직 추가
                 
-                // [검증] NaN 방어 및 음수 차단
-                if (Number.isNaN(len) || Number.isNaN(qty) || len <= 0 || qty <= 0) return;
+                if (len <= 0 || qty <= 0) return;
 
                 let priceInput = el.querySelector('.len-price');
                 let nameInput = el.querySelector('.len-name');
@@ -6015,11 +6215,10 @@
                 
                 if(!priceVal || !qtyVal) return;
                 
-                let price = parseInt(priceVal, 10);
-                let qty = parseInt(qtyVal, 10);
+                let price = Math.max(0, parseInt(priceVal, 10) || 0); // NaN 방어 로직 추가
+                let qty = Math.max(0, parseInt(qtyVal, 10) || 0); // NaN 방어 로직 추가
                 
-                // [검증] NaN 방어 및 음수 차단
-                if(Number.isNaN(price) || Number.isNaN(qty) || price <= 0 || qty <= 0) return;
+                if(price <= 0 || qty <= 0) return;
                 
                 hasVal = true;
                 activeKeys.push('others_grp');
@@ -6064,7 +6263,6 @@
 
         } catch (error) {
             console.error("[치명적 연산 오류] 수수료 계산 중 시스템 예외 발생:", error);
-            // 가스안전 행정망에서 에러가 날 경우 무음으로 처리하거나 명확한 메시지만 노출
             resetCalc();
         }
     }
@@ -6376,7 +6574,7 @@
                 <colgroup><col width="15%"><col width="25%"><col width="40%"><col width="20%"></colgroup>
                 <tr><th colspan="3">대 상</th><th>금 액</th></tr>
                 ${tr('d_regulator_0', `<td colspan="3" class="center">압 력 조 정 기 류</td><td class="right">64만1천원</td>`)}
-                ${tr('d_valve_0', `<td colspan="3" class="center">배 관 용 밸 브</td><td class="right">53만4천원</td>`)}
+                ${tr('d_valve_0', `<td colspan="3" class="center">배 관 용 밸 조</td><td class="right">53만4천원</td>`)}
                 ${tr('d_fitting_0', `<td colspan="3" class="center">배 관 이 음 관 · 정 압 기 용 필 터</td><td class="right">53만4천원</td>`)}
                 ${tr('d_cock_0', `<td colspan="3" class="center">콕</td><td class="right">56만1천원</td>`)}
                 ${tr('d_hose_0', `<td colspan="3" class="center">호 스 류 · 로 딩 암 · 세 이 프 티 커 플 링</td><td class="right">57만1천원</td>`)}
@@ -7305,7 +7503,8 @@
                     if (currentMain === 'wan_spec' && currentSub === 'w_s_spec') { 
                         if(v <= 1000) { fee = 66700; hlIds.push('c-sp-w-1'); }
                         else if(v <= 4000) { fee = 66700; hlIds.push('c-sp-w-2'); }
-                        else { fee = Math.min(1047000, 66700 + Math.ceil((v-4000)/500)*9000); hlIds.push('c-sp-w-3'); }
+                        /* [오류 수정 반영] 완성검사 4000 초과시 가산금 9300원으로 수정 */
+                        else { fee = Math.min(1047000, 66700 + Math.ceil((v-4000)/500)*9300); hlIds.push('c-sp-w-3'); }
                         rowMaker('특정사용시설' + idxSuffix, v.toLocaleString() + ' m³', fee); totalBaseFee += fee;
                     } else if (currentMain === 'wan_spec' && currentSub === 'w_s_pipe') {
                         if (currentPipeType === '단독주택') {
@@ -7323,7 +7522,8 @@
                         rowMaker((currentSub==='w_c_comp'?'압축충전설비':'액화충전설비') + idxSuffix, v.toLocaleString() + (currentSub==='w_c_comp'?' m³':' 톤'), res.fee); 
                         totalBaseFee += res.fee;
                     } else if (currentMain === 'wan_cng') {
-                        fee = v * 28000; hlIds.push('c-cng-w'); rowMaker('CNG완속충전설비', v.toLocaleString() + ' 개소', fee); totalBaseFee += fee;
+                        /* [오류 수정 반영] 완성검사 단가 32000원으로 수정 */
+                        fee = v * 32000; hlIds.push('c-cng-w'); rowMaker('CNG완속충전설비', v.toLocaleString() + ' 개소', fee); totalBaseFee += fee;
                     }
                 } 
                 // --- 정기검사 ---
@@ -7350,7 +7550,8 @@
                         let tempFee = 0;
                         if(v <= 1000) { tempFee = 32000; hlIds.push('c-sp-j-1'); }
                         else if(v <= 4000) { tempFee = 48500; hlIds.push('c-sp-j-2'); }
-                        else { tempFee = Math.min(388000, 48500 + Math.ceil((v-4000)/500)*9300); hlIds.push('c-sp-j-3'); }
+                        /* [오류 수정 반영] 정기검사 4000 초과시 가산금 9000원으로 수정 */
+                        else { tempFee = Math.min(388000, 48500 + Math.ceil((v-4000)/500)*9000); hlIds.push('c-sp-j-3'); }
                         
                         if (document.getElementById('chk-dc')?.checked && tempFee > 194000) {
                             rowMaker('특정가스사용시설' + idxSuffix, v.toLocaleString() + ' m³', tempFee);
@@ -7545,22 +7746,80 @@
     function getHtml_Gosi1_Spec() {
         return `
         <div class="gosi-page-content">
-            <div class="gosi-title">2. 특정가스사용시설의 완성검사 및 정기검사 수수료</div>
-            <table class="gosi-table">
-                <colgroup><col width="18%"><col width="32%"><col width="25%"><col width="25%"></colgroup>
-                <tr><th colspan="2">대 상</th><th>완성검사</th><th>정기검사</th></tr>
-                <tr id="c-cng-w"><td colspan="2" class="gosi-category">자동차용압축천연가스 완속충전설비</td><td>2만8천원</td><td>3만2천원</td></tr>
-                <tr id="c-sp-w-1"><td rowspan="3" class="gosi-category">특정가스<br>사용시설</td><td class="txt-l">월사용예정량이 1천㎡ 이하</td><td>6만6천700원</td><td>3만2천원</td></tr>
-                <tr id="c-sp-w-2"><td class="txt-l">월사용예정량이 1천㎡ 초과<br>4천㎡ 이하</td><td>6만6천700원</td><td>4만8천500원</td></tr>
-                <tr id="c-sp-w-3"><td class="txt-l">월사용예정량이<br>4천㎡ 초과</td>
-                    <td class="formula-cell">6만6천700원에 4천㎡를 초과한 500㎡마다 9천원을 가산한 금액. 다만, 104만7천원을 초과할 수 없다.</td>
-                    <td class="formula-cell">4만8천500원에 4천㎡를 초과한 500㎡마다 9천300원을 가산한 금액. 다만, 38만8천원을 초과할 수 없다.</td>
+            <div class="gosi-title" style="font-size: 0.9rem; letter-spacing: 1px;">2. 특정가스사용시설의 완성검사 및 정기검사 수수료</div>
+            <table class="gosi-table" style="border-top: 2px solid #000; border-bottom: 2px solid #000;">
+                <colgroup>
+                    <col width="6%">
+                    <col width="14%">
+                    <col width="30%">
+                    <col width="25%">
+                    <col width="25%">
+                </colgroup>
+                <tr>
+                    <th colspan="3" rowspan="2" style="letter-spacing: 20px;">대 상</th>
+                    <th colspan="2" style="letter-spacing: 20px;">금 액</th>
                 </tr>
-                <tr id="c-sp-p-1"><td rowspan="5" class="gosi-category">배관매립<br>공동주택<br>시설</td><td class="txt-l">20세대 미만 단독주택</td><td>세대수×2만원</td><td rowspan="5"></td></tr>
-                <tr id="c-sp-p-2"><td class="txt-l">1세대 ~ 150세대</td><td>세대수×1만3천원</td></tr>
-                <tr id="c-sp-p-3"><td class="txt-l">151세대 ~ 300세대</td><td class="formula-cell">[150+(세대수-150)×0.75]<br>×1만3천원</td></tr>
-                <tr id="c-sp-p-4"><td class="txt-l">301세대 ~ 500세대</td><td class="formula-cell">[262.5+(세대수-300)×0.5]<br>×1만3천원</td></tr>
-                <tr id="c-sp-p-5"><td class="txt-l">501세대 이상</td><td class="formula-cell">[362.5+(세대수-500)×0.25]<br>×1만3천원</td></tr>
+                <tr>
+                    <th style="letter-spacing: 5px;">완 성 검 사</th>
+                    <th style="letter-spacing: 5px;">정 기 검 사</th>
+                </tr>
+                <tr id="c-cng-w">
+                    <td colspan="3" class="gosi-category" style="letter-spacing: 2px; text-align: left; padding-left: 10px;">자동차용압축천연가스<br>완 속 충 전 설 비</td>
+                    <td>3만2천원</td>
+                    <td>2만8천원</td>
+                </tr>
+                <tr id="c-sp-w-1">
+                    <td rowspan="3" class="gosi-category" style="line-height: 1.8;">그<br>밖<br>의<br>시<br>설</td>
+                    <td colspan="2" class="txt-l">월사용예정량이 1천㎡ 이하</td>
+                    <td>6만6천700원</td>
+                    <td>3만2천원</td>
+                </tr>
+                <tr id="c-sp-w-2">
+                    <td colspan="2" class="txt-l">월사용예정량이 1천㎡ 초과<br>월사용예정량이 4천㎡ 이하</td>
+                    <td>6만6천700원</td>
+                    <td>4만8천500원</td>
+                </tr>
+                <tr id="c-sp-w-3">
+                    <td colspan="2" class="txt-l">월사용예정량이 4천㎡ 초과</td>
+                    <td class="formula-cell">6만6천700원에 4천㎡를 초과한 500㎡마다 9천300원을 가산한 금액. 다만, 104만7천원을 초과할 수 없다.</td>
+                    <td class="formula-cell">4만8천500원에 4천㎡를 초과한 500㎡마다 9천원을 가산한 금액. 다만, 38만8천원을 초과할 수 없다.</td>
+                </tr>
+                <tr id="c-sp-p-1">
+                    <td rowspan="5" class="gosi-category" style="line-height: 1.8;">배<br>관<br>매<br>립<br>시<br>설</td>
+                    <td class="gosi-category" style="letter-spacing: 5px;">단독주택</td>
+                    <td class="txt-l">20세대 미만</td>
+                    <td>세대수×2만원</td>
+                    <td>-</td>
+                </tr>
+                <tr id="c-sp-p-2">
+                    <td rowspan="4" class="gosi-category" style="letter-spacing: 5px;">공동주택</td>
+                    <td class="txt-l">1세대<br>~150세대</td>
+                    <td>세대수×1만3천원</td>
+                    <td>-</td>
+                </tr>
+                <tr id="c-sp-p-3">
+                    <td class="txt-l">151세대<br>~300세대</td>
+                    <td class="formula-cell" style="text-align: center !important;">[150+(세대수-150)×<br>0.75]×1만3천원</td>
+                    <td>-</td>
+                </tr>
+                <tr id="c-sp-p-4">
+                    <td class="txt-l">301세대<br>~500세대</td>
+                    <td class="formula-cell" style="text-align: center !important;">[262.5+(세대수-300)×<br>0.5]×1만3천원</td>
+                    <td>-</td>
+                </tr>
+                <tr id="c-sp-p-5">
+                    <td class="txt-l">501세대<br>이상</td>
+                    <td class="formula-cell" style="text-align: center !important;">[362.5+(세대수-500)×<br>0.25]×1만3천원</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="txt-l" style="padding: 10px; font-size: 0.65rem; line-height: 1.6; vertical-align: top; border-bottom: 2px solid #000;">
+                        <div style="font-weight: bold; letter-spacing: 5px; margin-bottom: 5px;">비 고</div>
+                        <div style="display: flex;"><span style="width: 15px; flex-shrink: 0;">1.</span> <span>도시가스사업법 시행규칙 제20조의2 제1항 제2호에 따라 시·도지사가 지정하는 특정가스사용시설의 완성검사는 정기검사 수수료를 적용한다.</span></div>
+                        <div style="display: flex; margin-top: 3px;"><span style="width: 15px; flex-shrink: 0;">2.</span> <span>도시가스사업법 시행규칙 제21조 제4항의 변경공사에 따른 완성검사 후 같은 해에 정기검사를 받는 특정가스사용시설의 정기검사 수수료에는 변경부분에 대한 수수료를 제외한다.</span></div>
+                        <div style="display: flex; margin-top: 3px;" id="c-sp-add"><span style="width: 15px; flex-shrink: 0;">3.</span> <span><b>특정가스사용시설</b> 중 연소기가 설치된 실이 2개소이하인 경우의 정기검사수수료는 <b>최고금액 38만8천원의 1/2을 초과할 수 없다.</b> 다만, <b>특정가스사용시설에 복합공동배기구 시설이 있는 경우,</b> 그 시설에 대한 검사 수수료는 <b>완성검사 수수료 외에 104,000원을 가산</b>한다.</span></div>
+                    </td>
+                </tr>
             </table>
             <div class="page-num">- 64 -</div>
         </div>`;
@@ -7772,10 +8031,11 @@
         /* 서브 탭 */
         .sub-tab-area { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px; overflow-x: auto; flex-wrap: wrap; }
         .sub-btn { 
-            border: 2px solid #94a3b8; padding: 2px 10px; border-radius: 20px; cursor: pointer; font-weight: 700; background: #fff; color: #475569; font-size: 1.2rem; 
+            border: 2px solid #39ff14; /* 밝은 초록색(형광색) 테두리 */
+            padding: 2px 10px; border-radius: 20px; cursor: pointer; font-weight: 700; background: transparent; /* 색 없음 */ color: #9ca3af; /* 연한 회색 */ font-size: 1.2rem; 
             white-space: nowrap; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; 
         }
-        .sub-btn.active { background: #f97316; border-color: #ea580c; color: #fff; box-shadow: 0 2px 4px rgba(249, 115, 22, 0.4); transform: translateY(0); }
+        .sub-btn.active { background: #006400; /* 진한 초록색 */ border-color: #006400; color: #fff; box-shadow: 0 2px 4px rgba(0, 100, 0, 0.4); transform: translateY(0); }
 
         /* 카테고리 버튼 - 기본 3열 */
         .category-grid { display: grid; grid-template-columns: 1.2fr 0.9fr 0.9fr; gap: 10px; margin-bottom: 20px; }
@@ -7789,10 +8049,10 @@
 
         /* 하위 그룹(계층형 탭) 버튼 */
         .group-btn {
-            padding: 2px 10px; border-radius: 20px; border: 2px solid #94a3b8; background: #fff; color: #475569; cursor: pointer; font-weight: 700; font-size: 1.15rem; 
+            padding: 2px 10px; border-radius: 20px; border: 2px solid #39ff14; /* 밝은 초록색(형광색) 테두리 */ background: transparent; /* 색 없음 */ color: #9ca3af; /* 연한 회색 */ cursor: pointer; font-weight: 700; font-size: 1.15rem; 
             box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s ease;
         }
-        .group-btn.active { background: #f97316; color: #fff; border-color: #ea580c; box-shadow: 0 2px 4px rgba(249, 115, 22, 0.4); transform: translateY(0); }
+        .group-btn.active { background: #006400; /* 진한 초록색 */ color: #fff; border-color: #006400; box-shadow: 0 2px 4px rgba(0, 100, 0, 0.4); transform: translateY(0); }
 
         .input-box { background: #f8fafc; border: 1px solid var(--border); padding: 20px; border-radius: 12px; min-height: 180px; }
         .section-label { font-size: 0.85rem; font-weight: bold; color: #475569; margin: 15px 0 8px 0; padding-bottom: 5px; border-bottom: 1px dashed #cbd5e1; word-break: keep-all; }
@@ -7859,7 +8119,15 @@
         .formula-cell { font-size: 0.65rem !important; line-height: 1.4 !important; text-align: left !important; }
 
         .gosi-placeholder { background: #fff; border: 2px dashed #cbd5e1; border-radius: 16px; padding: 80px 20px; text-align: center; color: #94a3b8; font-size: 1.1rem; line-height: 1.6; box-shadow: 0 4px 15px rgba(0,0,0,0.02); display: flex; align-items: center; justify-content: center; min-height: 150px; word-break: keep-all; }
-        .gosi-table tr.active-row td { border: 2px solid #ef4444 !important; color: #000 !important; font-weight: bold; }
+        
+        /* 1단계 정밀 보완 사항: 붉은 테두리 내부 음영 완전 제거 강제 속성 반영 */
+        .gosi-table tr.active-row td { 
+            border: 2px solid #ef4444 !important; 
+            color: #000 !important; 
+            font-weight: bold; 
+            background-color: #ffffff !important; 
+        }
+        
         .hidden { display: none !important; }
 
         /* ========================================================================= */
@@ -7868,9 +8136,9 @@
         @media (hover: hover) and (pointer: fine) {
             .law-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(6, 182, 212, 0.4); }
             .btn-reset:hover { background: #fef2f2; border-color: #f87171; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(239, 68, 68, 0.15); }
-            .sub-btn:hover { border-color: #64748b; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+            .sub-btn:hover { border-color: #006400; color: #006400; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
             .cat-btn:hover { border-color: #64748b; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
-            .group-btn:hover { border-color: #64748b; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+            .group-btn:hover { border-color: #006400; color: #006400; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
         }
 
         /* ========================================================================= */
@@ -7984,7 +8252,7 @@
         
         <div class="top-bar">
             <div class="law-toggle">
-                <button class="law-btn active" onclick="selectLaw('GO', this)">고법</button>
+                <button class="law-btn" onclick="selectLaw('GO', this)">고법</button>
                 <button class="law-btn" onclick="selectLaw('LIQ', this)">액법</button>
                 <button class="law-btn" onclick="selectLaw('CITY', this)">도법</button>
                 <button class="law-btn" onclick="selectLaw('HYD', this)">수소법</button>
@@ -8477,10 +8745,19 @@
     let currentGroupIdx = 0; // 하위 그룹(계층형 탭) 인덱스
 
     /**
-     * @description 안전한 전체 데이터 초기화 함수 (초기 상태인 고법으로 복귀)
+     * @description 안전한 전체 데이터 초기화 함수 (모든 선택 해제 및 하위 메뉴 숨김)
      */
     function resetAll() {
-        selectLaw('GO');
+        currentLawId = '';
+        currentGroupIdx = 0;
+        
+        document.querySelectorAll('.law-btn').forEach(btn => btn.classList.remove('active'));
+        
+        const catGrid = document.getElementById('catGrid');
+        catGrid.innerHTML = '';
+        catGrid.className = 'category-grid'; // 도법 등에서 추가된 클래스 초기화
+        
+        resetUI();
     }
 
     // --- UI Logic ---
@@ -8634,11 +8911,15 @@
             // 기존 하이라이트 클래스 초기화
             document.querySelectorAll('.active-row').forEach(el => el.classList.remove('active-row'));
 
+            // [안정성 강화 1단계] 예외 처리 최적화 (공백일 경우 즉시 리턴)
             document.querySelectorAll('.count-input, .val-input').forEach(input => {
-                let isValueType = input.classList.contains('val-input');
-                let v = isValueType ? parseFloat(input.value) : parseInt(input.value, 10);
+                let valStr = input.value.trim();
+                if (valStr === '') return; // 빈 값 조기 차단으로 불필요한 에러 방지
                 
-                // 음수 예외 처리 및 유효성 검증
+                let isValueType = input.classList.contains('val-input');
+                let v = isValueType ? parseFloat(valStr) : parseInt(valStr, 10);
+                
+                // 음수 예외 처리 및 유효성 검증 (NaN 차단)
                 if(isNaN(v) || v <= 0) return;
                 
                 hasValue = true;
@@ -8979,8 +9260,8 @@
         return pages[p] || '';
     }
 
-    // Initialize with first law
-    window.onload = () => selectLaw('GO');
+    // Initialize with completely empty state
+    window.onload = () => resetAll();
 </script>
 </body>
 </html></textarea>
@@ -8996,7 +9277,7 @@
         /* 브라우저 화면 흔들림 원천 차단 (width 고정 및 overflow-x 숨김) */
         body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; background-color: var(--bg); margin: 0; padding: 25px 0; color: var(--text); width: 100%; overflow-x: hidden; }
         
-        /* [핵심 수정] grid-template-columns에 minmax(0, 1fr) 적용하여 자식 요소 팽창으로 인한 화면 늘어짐 방어 */
+        /* grid-template-columns에 minmax(0, 1fr) 적용하여 자식 요소 팽창으로 인한 화면 늘어짐 방어 */
         .wrapper { width: 90%; max-width: 1700px; margin: 0 auto; box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 25px; align-items: start; }
         
         .main-panel { background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); box-sizing: border-box; }
@@ -9016,7 +9297,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* 버튼 높이(+20%) 및 글자 크기 상향 조정 */
+        /* 법령 선택 버튼 */
         .type-btn { 
             border: 2px solid #06b6d4; 
             padding: 10px 24px; 
@@ -9045,7 +9326,7 @@
 
         .action-area { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-start; margin-left: 5px; }
         
-        /* [요구사항 반영] 신규/변경 버튼 폭을 2배로 확장 (padding 25px -> 50px), 높이 약 20% 증가 */
+        /* [요구사항 반영] 신규/변경 버튼: 양옆 반원형, 형광 초록 테두리, 내부 투명, 연한 회색 텍스트 */
         .action-btn { 
             border-radius: 50px; 
             padding: 8px 50px; 
@@ -9053,22 +9334,23 @@
             font-weight: 700; 
             cursor: pointer; 
             transition: all 0.2s ease; 
-            border: 2px solid #22c55e; 
-            background-color: #fff; 
-            color: #9ca3af; 
+            border: 2px solid #4ade80; /* 밝은 초록색(형광색) 테두리 */
+            background-color: transparent; /* 색상 없음 */
+            color: #9ca3af; /* 내부 문자는 연한 회색 */
             line-height: 1.2;
         }
+        /* 활성화 시: 진한 초록색 배경/테두리, 흰색 텍스트 */
         .action-btn.active { 
-            background-color: #f97316; 
-            border-color: #f97316; 
+            background-color: #166534; 
+            border-color: #166534; 
             color: #ffffff; 
-            box-shadow: 0 4px 10px rgba(249, 115, 22, 0.25); 
+            box-shadow: 0 4px 10px rgba(22, 101, 52, 0.25); 
         }
 
         .level1-area { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 5px; }
         .sub-type-title { font-size: 1.15rem; font-weight: bold; color: var(--primary); padding: 5px 10px; border-left: 4px solid var(--primary); word-break: keep-all; }
         
-        /* [요구사항 반영] 안전관리규정 심사 버튼의 높이를 약 20% 증가 */
+        /* 안전관리규정 심사 등 하위 탭 버튼 */
         .sub-btn { 
             padding: 10px 16px; 
             border: 2px solid #94a3b8; 
@@ -9088,7 +9370,7 @@
 
         .category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
         
-        /* [요구사항 반영] 카테고리 버튼 높이를 약 20% 증가 */
+        /* 최하위 카테고리 버튼 */
         .cat-btn { 
             padding: 10px 5px; 
             border: 2px solid #94a3b8; 
@@ -9107,24 +9389,20 @@
         }
         .cat-btn.active { background: #eff6ff; border-color: var(--primary); color: var(--primary); font-weight: bold; }
 
-        /* [iOS 버그 해결] flex-column을 block으로 강제 전환 및 공간 확보 */
+        /* 입력 폼 영역 */
         .input-box { background: #f8fafc; border: 1px solid var(--border); padding: 20px; border-radius: 12px; min-height: 80px; margin-top: 15px; display: block; width: 100%; box-sizing: border-box; }
-        
         .input-row { display: flex; align-items: center; justify-content: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #eef2f6; min-height: 40px; box-sizing: border-box; }
         .input-label { font-size: 0.95rem; font-weight: 500; word-break: keep-all; }
         .unit-label { font-size: 0.85rem; color: var(--secondary-text); width: 20px; white-space: nowrap; }
         
-        /* 입력값 우측 정렬 지정 */
         input[type="number"] { width: 100px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: right; box-sizing: border-box; }
         input[type="number"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
 
         .vat-notice { margin-top: 30px; font-size: 0.85rem; color: #64748b; line-height: 1.6; word-break: keep-all; }
 
-        /* 고시 페이지 영역 제한 해제: max-height: 95vh; 제거, overflow-y: auto -> visible 변경 */
-        /* [핵심 수정] max-width: 100% 적용으로 부모 영역 확장 방어 */
+        /* 우측 산출 내역 및 고시 페이지 영역 */
         .side-wrapper { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: visible; padding-right: 5px; box-sizing: border-box; max-width: 100%; }
         
-        /* 상세 내역 테이블 팽창 방어 */
         .side-panel { background: var(--dark); color: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); box-sizing: border-box; max-width: 100%; overflow-x: auto; }
         .res-title { font-size: 1rem; color: #94a3b8; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 15px; }
         
@@ -9142,10 +9420,8 @@
         .total-label { font-size: 1.15rem; color: #cbd5e1; font-weight: bold; letter-spacing: -0.5px; text-align: left; align-self: flex-start; }
         .total-val { font-size: 2.4rem; font-weight: 800; align-self: flex-end; text-align: right; }
 
-        /* [핵심 수정] max-width: 100% 와 overflow-x: auto를 통해 내부에서만 가로 스크롤 허용 */
         .official-notice-box { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); color: #000; box-sizing: border-box; overflow-x: auto; max-width: 100%; }
         
-        /* [핵심 수정] min-width를 550px로 넉넉히 잡아 가로 스크롤 시 검은색 박스 형태 유지 */
         .gosi-page-content { font-size: 0.65rem; line-height: 1.2; border: 1px solid #000; padding: 15px; margin-bottom: 15px; font-family: 'Malgun Gothic', serif; position: relative; min-height: 600px; box-sizing: border-box; min-width: 550px; }
         .gosi-table { width: 100%; border-collapse: collapse; border: 1px solid #000; table-layout: fixed; margin-bottom: 15px; min-width: 450px; }
         .gosi-table th, .gosi-table td { border: 1px solid #000; padding: 5px 4px; text-align: center; font-size: 0.65rem; transition: 0.1s; word-break: keep-all; }
@@ -9155,7 +9431,9 @@
         .text-block { font-size: 0.62rem; line-height: 1.5; text-align: left; margin-bottom: 15px; letter-spacing: -0.3px; }
 
         .gosi-placeholder { background: #fff; padding: 25px; border-radius: 16px; border: 2px dashed #cbd5e1; color: #94a3b8; display: flex; align-items: center; justify-content: center; min-height: 600px; text-align: center; font-size: 1.05rem; line-height: 1.6; box-sizing: border-box; }
-        .highlight-cell { border: 2px solid #dc2626 !important; color: #dc2626 !important; font-weight: 900 !important; background-color: transparent !important; }
+        
+        /* [핵심 무결성 보완] 하이라이트 셀: 붉은 테두리, 검은 글자, '배경 투명도 완벽 보장(background: transparent)' */
+        .highlight-cell { border: 2px solid #dc2626 !important; color: #000 !important; font-weight: 900 !important; background: transparent !important; }
         .hidden { display: none !important; }
 
         /* [PC 전용 Hover 효과 격리] 모바일 터치 씹힘 원천 차단 */
@@ -9167,64 +9445,42 @@
             .cat-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         }
 
-        /* [모바일 & 태블릿 최적화] 1024px 이하 세로 모드 전환 */
+        /* [모바일 & 태블릿 최적화] */
         @media (max-width: 1024px) {
             body { padding: 15px 0; }
-            /* [핵심 수정] minmax(0, 1fr)로 변경하여 강제 확장 완벽 방어 */
             .wrapper { width: 95%; grid-template-columns: minmax(0, 1fr); gap: 20px; } 
             
-            /* 상단 바 일렬 꽉 찬 배치 적용 */
             .top-bar { flex-direction: row; flex-wrap: nowrap; padding: 10px; gap: 8px; align-items: stretch; }
             .type-toggle { flex: 1; display: flex; gap: 4px; flex-wrap: nowrap; }
-            .type-btn { flex: 1; padding: 15px 0; font-size: 1.25rem; text-align: center; } /* 높이 증가 반영 */
+            .type-btn { flex: 1; padding: 15px 0; font-size: 1.25rem; text-align: center; }
             .btn-reset { flex: unset; width: auto; padding: 0 12px; font-size: 0.95rem; align-self: stretch; margin-left: 0; white-space: nowrap; max-width: none; }
 
-            /* 카테고리 버튼 시인성 확보: 3열 -> 2열 */
             .category-grid { grid-template-columns: repeat(2, 1fr); }
             
             .side-wrapper { position: static; max-height: none; overflow-y: visible; padding-right: 0; }
             
-            /* [중요] 모바일 입력행 스크롤 및 레이아웃 파괴 방어 (극한 압축) */
             .input-box { padding: 12px; }
-            .input-row { 
-                flex-wrap: nowrap !important; /* 강제 한 줄 배치 */
-                gap: 4px; 
-                padding: 4px 0; 
-                margin: 0;
-            }
-            .input-label { 
-                font-size: 0.75rem; 
-                letter-spacing: -0.5px; 
-                flex: 1; /* 라벨이 가변 너비 차지 */
-                white-space: nowrap; 
-                overflow: hidden; 
-                text-overflow: ellipsis; /* 텍스트 넘침 방지 */
-            }
-            input[type="number"] { 
-                width: 50px !important; /* 모바일 입력창 극한 축소 */
-                padding: 4px 6px; 
-                font-size: 0.9rem;
-            }
+            .input-row { flex-wrap: nowrap !important; gap: 4px; padding: 4px 0; margin: 0; }
+            .input-label { font-size: 0.75rem; letter-spacing: -0.5px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            input[type="number"] { width: 50px !important; padding: 4px 6px; font-size: 0.9rem; }
             .unit-label { font-size: 0.75rem; width: 15px; }
 
             .total-val { font-size: 2rem; }
             .gosi-placeholder { min-height: 200px; padding: 15px; font-size: 0.9rem; }
         }
 
-        /* [소형 모바일 추가 최적화] 768px 이하 */
+        /* [소형 모바일 추가 최적화] */
         @media (max-width: 768px) {
             .wrapper { width: 100%; padding: 0 10px; }
             .main-panel, .side-panel, .official-notice-box { padding: 15px; border-radius: 12px; }
             
             h1 { font-size: 1.15rem; }
             
-            /* 작은 모바일 화면에서 상단바 미세 조정 */
             .top-bar { gap: 4px; padding: 8px; }
             .type-toggle { gap: 4px; }
-            .type-btn { font-size: 1.15rem; padding: 12px 0; } /* 높이 증가 반영 */
+            .type-btn { font-size: 1.15rem; padding: 12px 0; }
             .btn-reset { font-size: 0.85rem; padding: 0 8px; }
 
-            /* action-btn(신규/변경) 스마트폰에서도 넓은 폭 유지 및 높이 반영 */
             .action-btn { font-size: 1rem; padding: 8px 30px; }
             .sub-btn, .cat-btn { font-size: 1rem; padding: 8px 10px; }
             
@@ -9247,11 +9503,10 @@
         
         <div class="top-bar">
             <div class="type-toggle">
-                <button class="type-btn active" id="btn-go" onclick="setMode('go')">고법</button>
+                <button class="type-btn" id="btn-go" onclick="setMode('go')">고법</button>
                 <button class="type-btn" id="btn-liq" onclick="setMode('liq')">액법</button>
                 <button class="type-btn" id="btn-city" onclick="setMode('city')">도법</button>
             </div>
-            <!-- 팝업창 없이 즉시 새로고침 되도록 텍스트 변경 적용 -->
             <button class="btn-reset" onclick="resetCalculator()">🔄 초기화</button>
         </div>
 
@@ -9275,7 +9530,6 @@
             <div id="fields"></div>
         </div>
 
-        <!-- 부가가치세 안내 문구 -->
         <div class="vat-notice">
             ※ 위 수수료는 부가가치세(10%)가 제외된 금액입니다.<br>
             ※ 최종 합계에는 부가가치세가 포함됩니다.
@@ -9301,7 +9555,6 @@
                     <div class="vat-row"><span>부가가치세(10%):</span><span><span id="outVat">0</span>원</span></div>
                 </div>
 
-                <!-- 레이아웃이 적용된 총합계 영역 -->
                 <div class="total-row">
                     <span class="total-label">최종합계금액(VAT포함)</span>
                     <div class="total-val"><span id="outTotal">0</span><small style="font-size:1.5rem; margin-left:5px;">원</small></div>
@@ -9325,9 +9578,7 @@
 
 <script>
     /**
-     * 가스안전관리법령 심사수수료 DB
-     * 기술행정 유지보수를 위해 각 법령별 계층구조(Level1 -> Category -> Actions)를 엄격히 정의함.
-     * (시스템 안전성을 위해 본 객체 구조는 고정값으로 취급합니다.)
+     * 가스안전관리법령 심사수수료 DB (행정 규칙 근거 데이터)
      */
     const db = {
         go: {
@@ -9395,21 +9646,15 @@
         }
     };
 
-    // 상태 관리 변수
-    let currentMode = 'go';
+    let currentMode = null;
     let currentSub = '';
     let currentAction = '';
     let currentCat = null;
-    
-    // 글로벌 수량 저장 객체 (다중 합산 처리를 위한 핵심 저장소)
     let quantities = {}; 
     const itemLookup = {};
 
     /**
-     * [엔지니어 검토 완료] DB 평탄화 (검색 및 데이터 매핑 효율화)
-     * - 각 수수료 항목에 대한 고유 키를 생성하여 하이라이트 및 계산 로직에 활용합니다.
-     * - 수정: 하위 Action이 없는 항목(안전성평가 등)은 'actName'을 강제로 "건"으로 묶지 않고 
-     * 행정 서식상 어색하지 않도록 공란 처리하여 무결성을 확보했습니다.
+     * DB 평탄화 (고속 검색 및 하이라이트 매핑을 위한 O(1) 룩업 테이블 생성)
      */
     function initLookup() {
         try {
@@ -9418,7 +9663,7 @@
                     let subObj = db[law].level1.find(l => l.id === subId);
                     db[law].cats[subId].forEach(cat => {
                         for(let actKey in cat.prices) {
-                            let actName = ""; // 기본적으로 빈 값 할당 (논리 결함 수정)
+                            let actName = ""; 
                             if(actKey !== 'base' && subObj.actions) {
                                 let actObj = subObj.actions.find(a => a.id === actKey);
                                 if(actObj) actName = actObj.name;
@@ -9438,14 +9683,46 @@
     }
 
     /**
-     * 계산기 전체 초기화 (요구사항 반영)
+     * 순차적 노출을 위해 화면을 '깡통 상태(법령 탭만 존재하는 상태)'로 비워주는 함수
      */
+    function clearAllUI() {
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('level1Area').innerHTML = '';
+        
+        document.getElementById('actionArea').innerHTML = '';
+        document.getElementById('actionArea').classList.add('hidden');
+        document.getElementById('div-action-divider').classList.add('hidden');
+        
+        document.getElementById('catGridArea').innerHTML = '';
+        document.getElementById('catGridArea').classList.add('hidden');
+        
+        document.getElementById('inputArea').classList.add('hidden');
+
+        document.getElementById('outLaw').innerText = '-';
+        document.getElementById('outType').innerText = '-';
+        document.getElementById('outFee').innerText = '0';
+        document.getElementById('outVat').innerText = '0';
+        document.getElementById('outTotal').innerText = '0';
+        document.getElementById('detailBody').innerHTML = '';
+        document.getElementById('detailSection').classList.add('hidden');
+        
+        document.getElementById('gosiWrapper').classList.add('hidden');
+        document.getElementById('gosiPlaceholder').classList.remove('hidden');
+        
+        currentMode = null;
+        quantities = {};
+    }
+
     function resetCalculator() {
-        location.reload();
+        try {
+            location.reload();
+        } catch (e) {
+            clearAllUI();
+        }
     }
 
     /**
-     * 법령(고법, 액법, 도법) 탭 전환 로직
+     * 법령 탭 선택 로직 (순차적 노출 규칙 엄격 적용)
      */
     function setMode(mode) {
         try {
@@ -9457,14 +9734,26 @@
             const lawTitleEl = document.getElementById('outLaw');
             if(lawTitleEl) lawTitleEl.innerText = db[mode].lawName;
             
-            // 법령이 아예 변경될 때는 혼선 방지를 위해 수량 데이터 완전 초기화
             quantities = {}; 
             currentSub = '';
             currentAction = '';
             currentCat = null;
             
+            // 하위 패널 즉시 숨김
+            document.getElementById('actionArea').innerHTML = '';
+            document.getElementById('actionArea').classList.add('hidden');
+            document.getElementById('div-action-divider').classList.add('hidden');
+            document.getElementById('catGridArea').innerHTML = '';
+            document.getElementById('catGridArea').classList.add('hidden');
+            document.getElementById('inputArea').classList.add('hidden');
+            document.getElementById('outType').innerText = '-';
+
             renderLevel1();
             calc();
+            
+            // 고시 페이지 대기 모드 전환
+            document.getElementById('gosiWrapper').classList.add('hidden');
+            document.getElementById('gosiPlaceholder').classList.remove('hidden');
         } catch (error) {
             console.error("[시스템 오류] 법령 탭 전환 처리 실패:", error);
         }
@@ -9477,19 +9766,23 @@
             area.innerHTML = '';
             
             db[currentMode].level1.forEach((sub, idx) => {
+                // 도법 등 버튼이 아닌 텍스트 타이틀인 경우
                 if (sub.isTitleOnly) {
                     const title = document.createElement('div');
                     title.className = 'sub-type-title';
                     title.innerText = sub.name;
                     area.appendChild(title);
-                    if(idx === 0) setSubMode(sub.id);
+                    
+                    // 타이틀은 클릭할 수 없으므로, 논리적으로 하위 액션 영역만 노출시킴
+                    setSubMode(sub.id); 
                 } else {
                     const btn = document.createElement('button');
                     btn.className = 'sub-btn';
                     btn.innerText = sub.name;
                     btn.onclick = () => setSubMode(sub.id, btn);
                     area.appendChild(btn);
-                    if(idx === 0) setSubMode(sub.id, btn);
+                    
+                    if (idx === 0) setSubMode(sub.id, btn);
                 }
             });
         } catch (error) {
@@ -9499,10 +9792,16 @@
 
     function setSubMode(subId, btnEl = null) {
         try {
+            // [무결성 보완 및 사용자 혼선 방지]
+            // 이미 활성화된 '안전관리규정 심사' 탭을 무의식적으로 다시 클릭했을 때, 
+            // 내부 로직이 리셋되어 '신규' 선택이 풀리고 초기화되는 현상을 방어(Early Return)
+            if (currentSub === subId) return;
+
             if (currentSub !== subId) {
                 quantities = {}; 
             }
             currentSub = subId;
+            currentAction = ''; 
             currentCat = null; 
             
             if (btnEl) {
@@ -9514,10 +9813,19 @@
                 if(subData) document.getElementById('outType').innerText = subData.name;
             }
             
+            document.getElementById('catGridArea').innerHTML = '';
+            document.getElementById('catGridArea').classList.add('hidden');
             document.getElementById('inputArea').classList.add('hidden');
             
             renderActions();
-            renderCategories();
+
+            // 신규/변경 등 Action 구분이 아예 없는 심사 항목은 바로 카테고리를 노출
+            const subData = db[currentMode].level1.find(l => l.id === currentSub);
+            if (!subData.actions || subData.actions.length === 0) {
+                currentAction = 'base';
+                renderCategories();
+            }
+
             updateGosiPage();
             calc();
         } catch (error) {
@@ -9544,7 +9852,10 @@
                 btn.innerText = act.name;
                 btn.onclick = () => setAction(act.id, btn);
                 actArea.appendChild(btn);
-                if(idx === 0) setAction(act.id, btn); 
+                
+                // [기능 변경 적용] '고법' 등을 눌렀을 때 나타나는 신규/변경 버튼 중, 
+                // 첫 번째 항목(신규)을 기본값으로 자동 선택되게 처리
+                if (idx === 0) setAction(act.id, btn);
             });
         } else {
             actArea.classList.add('hidden');
@@ -9557,11 +9868,15 @@
         try {
             quantities = {}; 
             currentAction = actId;
+            currentCat = null; 
             
             document.querySelectorAll('.action-btn').forEach(b => b.classList.remove('active'));
             if(btnEl) btnEl.classList.add('active');
             
-            if(currentCat) renderInputArea(); 
+            document.getElementById('inputArea').classList.add('hidden'); 
+            
+            // 액션을 명시적으로 선택한 후에만 카테고리 렌더링
+            renderCategories(); 
             calc();
         } catch (error) {
             console.error("[시스템 오류] 액션 탭 설정 실패:", error);
@@ -9605,9 +9920,7 @@
     }
 
     /**
-     * [엔지니어 검토 완료] 입력 영역 렌더링 로직
-     * - 수정: 신규/변경 등 Action이 존재하지 않을 때 불필요한 ' - ' 기호가 붙어
-     * 라벨이 어색해지는 UI 결함을 완벽히 제거했습니다.
+     * 입력 폼 생성 (버그 방지를 위해 maxlength 적용)
      */
     function renderInputArea() {
         try {
@@ -9632,20 +9945,21 @@
             }
 
             const price = currentCat.prices[actKey];
-            if(price === undefined) return; // DB 무결성 방어
+            if(price === undefined) return;
 
             const qKey = `${currentCat.id}-${actKey}`;
             const val = quantities[qKey] || '';
 
-            // Action 이름이 존재할 때만 접미사 출력 처리 (논리적 결함 해결)
             let displayActionName = actName ? ` - ${actName}` : "";
 
+            // [안정성 보완] maxlength="6" 및 oninput 슬라이싱 처리로 오버플로우 원천 방어
             fArea.innerHTML = `
                 <div class="input-row">
                     <div class="input-label" style="font-weight:700; color:var(--primary);">
                         ${currentCat.name.replace(/<br>/g, ' ')}${displayActionName}
                     </div>
-                    <input type="number" id="currentInputVal" class="val" value="${val}" placeholder="0" min="0" step="1" title="수수료 수량 입력" oninput="handleInput('${currentCat.id}', '${actKey}', this.value)">
+                    <input type="number" id="currentInputVal" class="val" value="${val}" placeholder="0" min="0" step="1" maxlength="6" 
+                    oninput="if(this.value.length > 6) this.value = this.value.slice(0,6); handleInput('${currentCat.id}', '${actKey}', this.value)" title="수수료 수량 입력">
                     <span class="unit-label">건</span>
                 </div>`;
                 
@@ -9657,26 +9971,22 @@
     }
 
     /**
-     * [엔지니어 검토 완료] 핵심 로직: 입력값 정제 및 데이터 할당
-     * - 수정: 기존 실시간 덮어쓰기 로직으로 인해 발생하던 커서 튐 및 빈 값(지우기) 입력 시의 어색한 UX를 개선했습니다.
-     * - 사용자가 빈칸으로 놔둘 수 있도록 허용하되, 시스템 내부 연산에서는 안전하게 배제하도록 처리했습니다.
+     * 핵심 로직: 데이터 정제 및 예외 처리
      */
     function handleInput(catId, actionId, val) {
         try {
             const qKey = `${catId}-${actionId}`;
             
-            // 1. 사용자가 값을 지워 빈칸으로 만든 경우, 객체에서 즉각 파기 후 연산 재개
             if (val === '') {
                 delete quantities[qKey];
                 calc();
                 return;
             }
 
-            // 2. 정규식을 활용하여 오직 순수 숫자만 추출 (문자, 소수점 등 입력 원천 방어)
             let cleanVal = val.replace(/[^0-9]/g, '');
             let parsedVal = parseInt(cleanVal, 10);
             
-            // 3. 연산을 위한 안전한 숫자형 강제 (NaN 방지)
+            // NaN이거나 0 이하일 경우 딕셔너리에서 안전하게 파기
             let q = isNaN(parsedVal) ? 0 : Math.max(0, parsedVal);
             
             if(q <= 0) {
@@ -9685,8 +9995,6 @@
                 quantities[qKey] = q;
             }
 
-            // 4. UX 보호를 위한 조건부 덮어쓰기 로직
-            // 브라우저의 기본 동작을 방해하지 않도록, 불순물이 섞여 정제된 결과와 현재 value가 다를 때만 덮어씌움
             const inputEl = document.getElementById('currentInputVal');
             if(inputEl && inputEl.value !== cleanVal && cleanVal !== '') {
                 inputEl.value = q;
@@ -9700,15 +10008,13 @@
     }
 
     /**
-     * [엔지니어 검토 완료] 핵심 계산 엔진
-     * - 수수료 원금 계산, 부가세 절사 처리 로직 포함
+     * 연산 및 DOM 업데이트 엔진
      */
     function calc() {
         try {
             let fee = 0, qTot = 0, rowCount = 0;
             let rowsHtml = ''; 
             
-            // 모든 하이라이트 초기화 방어 로직
             document.querySelectorAll('.highlight-cell').forEach(el => el.classList.remove('highlight-cell'));
 
             let hasVal = Object.keys(quantities).length > 0;
@@ -9716,7 +10022,7 @@
             const detailSection = document.getElementById('detailSection');
             if(detailSection) detailSection.classList.toggle('hidden', !hasVal);
 
-            if(!hasVal) {
+            if(!hasVal || !currentMode) {
                 document.getElementById('outFee').innerText = "0";
                 document.getElementById('outVat').innerText = "0";
                 document.getElementById('outTotal').innerText = "0";
@@ -9731,11 +10037,11 @@
                 let q = quantities[key];
                 let item = itemLookup[key];
                 
-                if(!item || item.lawId !== currentMode) continue; 
+                // 예외처리: 매핑 불일치 방어망
+                if(!item || item.lawId !== currentMode || isNaN(q) || isNaN(item.p)) continue; 
                 
                 let currentFee = q * item.p;
                 
-                // 표 출력 시 하위 Action이 없는 항목(안전성평가 등)은 깔끔하게 '-'로 렌더링
                 let displayActName = item.actName ? item.actName : "-";
                 rowsHtml += `<tr><td>${item.catName}</td><td>${displayActName}</td><td>${q.toLocaleString()}</td><td>${item.p.toLocaleString()}</td><td>${currentFee.toLocaleString()}</td></tr>`;
                 
@@ -9743,21 +10049,16 @@
                 qTot += q; 
                 rowCount++;
 
-                // 하이라이트 적용 (존재하지 않는 셀에 대한 DOM 예외 방어)
                 const targetCell = document.getElementById(item.cellId);
                 if(targetCell) {
                     targetCell.classList.add('highlight-cell');
-                } else {
-                    console.warn(`[행정 알림] 수수료 부과 기준표 내 매핑 대상 셀(${item.cellId})이 누락되었습니다.`);
                 }
             }
 
             const totalRowHtml = (rowCount > 1) ? `<tr class="tr-sum"><td colspan="2">전체 합계</td><td>${qTot.toLocaleString()}</td><td></td><td>${fee.toLocaleString()}</td></tr>` : '';
             document.getElementById('detailBody').innerHTML = totalRowHtml + rowsHtml;
             
-            // [기술행정 요건] 
-            // 국고금 관리법 및 부가가치세법 관련 실무 처리 기준에 따라,
-            // 부가가치세(10%) 산출 시 발생하는 1원 미만 단수 금액은 절사(Math.floor) 처리하여 징수합니다.
+            // 부가가치세 10% (국고금 관리법 및 세법 기준 소수점 이하 절사 처리)
             let vat = Math.floor(fee * 0.1); 
             let totalFee = fee + vat;
 
@@ -9774,12 +10075,12 @@
     }
 
     /**
-     * 고시 페이지 HTML 주입 로직
+     * 관련 고시 페이지 HTML 주입 로직
      */
     function updateGosiPage() {
         try {
             const wrap = document.getElementById('gosiContent'); 
-            if(!wrap) return;
+            if(!wrap || !currentMode) return;
 
             let pageNum = db[currentMode].page;
             if(!pageNum && db[currentMode].pageSubMap) {
@@ -9793,9 +10094,7 @@
     }
 
     /**
-     * [엔지니어 검토 완료] 고시 페이지 관리
-     * - 수정: 정의되지 않은 페이지 호출 시 빈 화면이 나타나는 것을 방지하기 위해,
-     * 강력한 Fallback(안전망) UI를 하단 default return에 구현했습니다.
+     * 고시 페이지 원문 디지털 복원 (행정 규정)
      */
     function getPageHTML(p) {
         if(p === 25) {
@@ -9914,7 +10213,6 @@
             </div>`;
         }
         
-        // 예외 처리 (Fallback): 매핑되지 않은 고시 페이지 호출 시 빈 화면 방지
         return `
         <div class="gosi-placeholder" style="flex-direction: column; gap: 15px;">
             <div style="font-size: 3rem;">⚠️</div>
@@ -9926,10 +10224,10 @@
         </div>`;
     }
 
-    // 시스템 초기화
+    // 초기화 엔트리 포인트
     window.onload = () => {
         initLookup();
-        setMode('go');
+        clearAllUI();
     };
 </script>
 </body>
