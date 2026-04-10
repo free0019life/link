@@ -382,6 +382,26 @@
             box-shadow: inset 0 2px 4px rgba(239, 68, 68, 0.1);
         }
 
+        /* [V35 개선] 액화, 압축 하위 토글 버튼 디자인 */
+        .liq-comp-btn-group { display: flex; gap: 8px; margin-bottom: 15px; align-items: center; flex-wrap: wrap; }
+        .btn-liq-comp { 
+            padding: 6px 20px; 
+            border-radius: 50px; 
+            border: 2px solid #39ff14; 
+            background: transparent; 
+            color: #94a3b8; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 1.15rem; 
+            transition: all 0.2s ease; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+            word-break: keep-all; user-select: none; -webkit-user-select: none; touch-action: manipulation; 
+        }
+        .btn-liq-comp.active { 
+            background: #15803d; 
+            color: #ffffff; 
+        }
+
         /* 다중 입력 폼 세로 정렬 관련 스타일 */
         .multi-input-container-vertical { display: flex; flex-direction: column; gap: 15px; width: 100%; align-items: stretch; }
         .input-col-vertical { display: block; width: 100%; } 
@@ -559,6 +579,12 @@
                 <button class="spec-btn" id="spst-change" onclick="setSpecSubType('change')">변경완성</button>
             </div>
 
+            <!-- [V35 개선] 액화, 압축 선택 토글 버튼 -->
+            <div id="liq-comp-btn-group" class="liq-comp-btn-group" style="display:none;">
+                <button class="btn-liq-comp active" id="btn-lc-liq" onclick="setLiqCompState('liq')">액화가스</button>
+                <button class="btn-liq-comp" id="btn-lc-comp" onclick="setLiqCompState('comp')">압축가스</button>
+            </div>
+
             <div id="state-box">
                 <button class="state-btn" id="st-liq" onclick="setState('liq')">액화 (kg/톤)</button>
                 <button class="state-btn" id="st-comp" onclick="setState('comp')">압축 (m³)</button>
@@ -628,7 +654,7 @@
 <script>
     /** * @description 고압가스 시설 검사 수수료 자동 계산 코어 스크립트
      * @author 30년 경력 시니어 엔지니어 및 가스안전 전문가 관점 적용
-     * @version V34 (저장소 부속 시설 입력 단위 톤/Nm3 통일 및 CSS 시각화 개선)
+     * @version V35 (합산 용량 기준 수수료 1회 산출 및 다중입력 토글 UI 개선 적용)
      */
     
     let currentCat = '';
@@ -639,6 +665,7 @@
     let specSubType = 'first'; 
     let liquidGases = [{val: ''}];
     let compressedGases = [{val: ''}];
+    let liqCompState = 'liq'; // [V35] 액화/압축 제조시설의 현재 선택된 폼 상태 관리
 
     const feeData = {
         liquid: {
@@ -702,11 +729,29 @@
     }
 
     /** 기능 판단: 다중 입력 모드 여부 반환 
-     * [V33~34 개선] 특정고압가스사용시설은 혼선 방지 및 일관성을 위해 100% 단일 입력(Single Mode)으로 통일
+     * [V35 개선] 제조시설과 저장부속사용시설의 체계를 동일하게 합산 체계(다중 입력)로 일치화 
      */
     function isMultiMode() {
         if (currentCat === 'liq_comp') return true;
+        if (currentCat === 'specific' && specType === 'attached') {
+            // 변경완성 건수입력은 다중 입력 모드에서 제외
+            if (currentInsp === 'van' && specSubType === 'change') return false;
+            return true;
+        }
         return false;
+    }
+
+    /** [V35] UX 제어: 액화/압축 제조시설의 폼 토글 기능 */
+    function setLiqCompState(state) {
+        liqCompState = state;
+        document.getElementById('btn-lc-liq').classList.remove('active');
+        document.getElementById('btn-lc-comp').classList.remove('active');
+        document.getElementById('btn-lc-' + state).classList.add('active');
+        
+        document.querySelector('.gas-liq').style.display = state === 'liq' ? 'block' : 'none';
+        document.querySelector('.gas-comp').style.display = state === 'comp' ? 'block' : 'none';
+        
+        calculate();
     }
 
     /** UI 제어: 선택된 분류에 따라 입력 폼 영역 업데이트 */
@@ -717,12 +762,24 @@
         const unitText = document.getElementById('unitText');
         const inputLabel = document.getElementById('inputLabel');
         const capInput = document.getElementById('capInput');
+        const liqCompBtnGroup = document.getElementById('liq-comp-btn-group');
 
         if (isMultiMode()) {
             multiBox.style.display = 'flex';
             singleBox.style.display = 'none';
-            stateBox.style.display = 'none';
             document.getElementById('warn-msg').style.display = 'none';
+            
+            if (currentCat === 'liq_comp') {
+                stateBox.style.display = 'none';
+                liqCompBtnGroup.style.display = 'flex';
+                setLiqCompState(liqCompState || 'liq'); // 버튼 활성화 및 필드 노출 토글
+            } else if (currentCat === 'specific') {
+                liqCompBtnGroup.style.display = 'none';
+                stateBox.style.display = 'flex';
+                // specific(부속시설)의 경우 currentState 에 따라 토글
+                document.querySelector('.gas-liq').style.display = currentState === 'liq' ? 'block' : 'none';
+                document.querySelector('.gas-comp').style.display = currentState === 'comp' ? 'block' : 'none';
+            }
             
             document.getElementById('multi-title-liq').innerText = '액화가스 (톤)';
             document.getElementById('multi-title-comp').innerText = '압축가스 (Nm³)';
@@ -731,15 +788,15 @@
             renderGasList('comp');
         } else if (currentCat) {
             multiBox.style.display = 'none';
+            liqCompBtnGroup.style.display = 'none';
             singleBox.style.display = 'flex';
+            
             if (currentCat === 'specific') {
                 stateBox.style.display = 'flex';
                 
                 const isChange = (specType === 'attached' && currentInsp === 'van' && specSubType === 'change');
                 inputLabel.innerText = isChange ? '변경 건수 :' : '규모 입력 :';
                 
-                // [V34 단위 일치화 로직 패치] 
-                // 저장소 부속시설은 톤/Nm3, 일반 특정고압시설은 kg/m3로 명시하여 혼동 사전 차단
                 if (isChange) {
                     unitText.innerText = '건';
                 } else if (currentState) {
@@ -764,6 +821,7 @@
             multiBox.style.display = 'none';
             singleBox.style.display = 'none';
             stateBox.style.display = 'none';
+            liqCompBtnGroup.style.display = 'none';
         }
     }
 
@@ -800,6 +858,7 @@
             document.getElementById('multi-input-box').style.display = 'none';
             document.getElementById('single-input-box').style.display = 'none';
             document.getElementById('state-box').style.display = 'none';
+            document.getElementById('liq-comp-btn-group').style.display = 'none';
             document.getElementById('specific-type-box').style.display = 'none';
             document.getElementById('specific-sub-type-box').style.display = 'none';
             document.getElementById('specific-notice').style.display = 'none';
@@ -831,6 +890,9 @@
             specType = 'normal'; 
             specSubType = 'first'; 
             setState('liq'); 
+        } else if (cat === 'liq_comp') {
+            currentState = '';
+            setLiqCompState('liq'); // 액화가스 기본 선택
         } else {
             currentState = ''; 
         }
@@ -1013,23 +1075,59 @@
             let hasValidInput = false;
             let checkList = []; 
 
+            // [V35] 다중 입력 시 합산 계산 로직으로 완전 개편
             if (isMultiMode()) {
-                liquidGases.forEach((g, i) => {
+                let activeState = currentCat === 'liq_comp' ? liqCompState : currentState;
+                let activeList = activeState === 'liq' ? liquidGases : compressedGases;
+                let unitStr = activeState === 'liq' ? '톤' : 'Nm³';
+                let labelBase = activeState === 'liq' ? '액화' : '압축';
+
+                let sumCap = 0;
+                activeList.forEach((g, i) => {
                     const parsedVal = g.val === '' ? 0 : parseFloat(g.val);
-                    const fee = calculateFee('liquid', parsedVal);
-                    if (parsedVal > 0) { 
-                        totalFee += fee; totalCap += parsedVal; appendResRow(`액화${i+1}`, parsedVal, '톤', fee); hasValidInput = true; 
-                        checkList.push({ cat: 'liquid', val: parsedVal });
+                    if (parsedVal > 0) {
+                        sumCap += parsedVal;
+                        let nameStr = currentCat === 'specific' ? `저장소 부속(${labelBase}${i+1})` : `${labelBase}${i+1}`;
+                        // 개별 항목은 수수료 "-" 표기
+                        appendResRow(nameStr, parsedVal, unitStr, '-');
                     }
                 });
-                compressedGases.forEach((g, i) => {
-                    const parsedVal = g.val === '' ? 0 : parseFloat(g.val);
-                    const fee = calculateFee('compressed', parsedVal);
-                    if (parsedVal > 0) { 
-                        totalFee += fee; totalCap += parsedVal; appendResRow(`압축${i+1}`, parsedVal, 'Nm³', fee); hasValidInput = true; 
-                        checkList.push({ cat: 'compressed', val: parsedVal });
+
+                if (sumCap > 0) {
+                    let fee = 0;
+                    let dataKey = activeState === 'liq' ? 'liquid' : 'compressed'; 
+                    let checkKey = dataKey; 
+                    
+                    if (currentCat === 'specific') {
+                        // 특정고압 부속시설의 합산 용량 기준 수수료 분기 적용
+                        if (activeState === 'liq') {
+                            if (sumCap > 0.5) {
+                                fee = calculateFee('liquid', sumCap);
+                                checkKey = 'liquid';
+                            } else {
+                                fee = calculateFee('specific_liq', sumCap * 1000);
+                                checkKey = 'specific_liq';
+                            }
+                        } else { 
+                            if (sumCap > 1000) {
+                                fee = calculateFee('compressed', sumCap);
+                                checkKey = 'compressed';
+                            } else {
+                                fee = calculateFee('specific_comp', sumCap);
+                                checkKey = 'specific_comp';
+                            }
+                        }
+                    } else {
+                        // 일반 제조시설 수수료 산출
+                        fee = calculateFee(dataKey, sumCap);
                     }
-                });
+
+                    totalCap += sumCap;
+                    totalFee += fee;
+                    hasValidInput = true;
+                    // 전체합계 설비능력 기준 단 1건의 하이라이트만 생성
+                    checkList.push({ cat: checkKey, val: (currentCat === 'specific' && activeState === 'liq' && sumCap <= 0.5) ? sumCap * 1000 : sumCap });
+                }
             } else if (currentCat) { 
                 const rawInput = document.getElementById('capInput').value;
                 let cap = rawInput === '' ? 0 : parseFloat(rawInput);
@@ -1038,50 +1136,20 @@
                 
                 if (currentCat === 'specific') {
                     if (specType === 'normal') { 
-                        // 일반 특정고압가스 사용시설 처리 (입력 단위: kg, m3)
                         dataKey = currentState === 'liq' ? 'specific_liq' : 'specific_comp'; 
                         fee = calculateFee(dataKey, cap); 
                         unit = feeData[dataKey].unit; 
                         name = feeData[dataKey].name; 
                         if (cap > 0) checkList.push({ cat: dataKey, val: cap });
-                    } else { 
-                        // 저장소 부속 사용시설 처리 (입력 단위: 톤, Nm3)
-                        if (currentInsp === 'van' && specSubType === 'change') { 
-                            cap = Math.floor(cap); 
-                            dataKey = currentState === 'liq' ? 'liquid' : 'compressed'; 
-                            name = `부속(${currentState === 'liq' ? '액화' : '압축'})-변경`; 
-                            unit = '건'; 
-                            fee = feeData[dataKey].van[0].fee * cap; 
-                            if (cap > 0) checkList.push({ cat: dataKey, val: 1 }); 
-                        } else {
-                            // [V34 산술식 보정] UI에서 톤(Ton)/Nm3으로 단위가 통일되었으므로 기준값을 이에 맞게 환산
-                            if (currentState === 'liq') {
-                                if (cap > 0.5) { 
-                                    // 0.5톤(500kg) 초과: 저장소 수수료(톤 기준) 적용
-                                    fee = calculateFee('liquid', cap);
-                                    if (cap > 0) checkList.push({ cat: 'liquid', val: cap });
-                                } else {
-                                    // 0.5톤 이하: 특정고압 자체 수수료(kg 기준) 적용을 위해 * 1000 환산
-                                    fee = calculateFee('specific_liq', cap * 1000);
-                                    if (cap > 0) checkList.push({ cat: 'specific_liq', val: cap * 1000 });
-                                }
-                            } else { // compressed (압축)
-                                if (cap > 1000) {
-                                    // 1000Nm3 초과: 저장소 수수료 적용
-                                    fee = calculateFee('compressed', cap);
-                                    if (cap > 0) checkList.push({ cat: 'compressed', val: cap });
-                                } else {
-                                    // 1000Nm3 이하: 특정고압 자체 수수료 적용
-                                    fee = calculateFee('specific_comp', cap);
-                                    if (cap > 0) checkList.push({ cat: 'specific_comp', val: cap });
-                                }
-                            }
-                            name = `저장소 부속(${currentState === 'liq' ? '액화' : '압축'})` + (currentInsp === 'van' ? '-최초' : '');
-                            unit = currentState === 'liq' ? '톤' : 'Nm³';
-                        }
+                    } else if (specType === 'attached' && currentInsp === 'van' && specSubType === 'change') { 
+                        cap = Math.floor(cap); 
+                        dataKey = currentState === 'liq' ? 'liquid' : 'compressed'; 
+                        name = `부속(${currentState === 'liq' ? '액화' : '압축'})-변경`; 
+                        unit = '건'; 
+                        fee = feeData[dataKey].van[0].fee * cap; 
+                        if (cap > 0) checkList.push({ cat: dataKey, val: 1 }); 
                     }
                 } else { 
-                    // 특정고압가스를 제외한 나머지 일반 시설 처리
                     dataKey = currentCat; 
                     fee = calculateFee(dataKey, cap); 
                     unit = feeData[dataKey].unit; 
@@ -1100,10 +1168,10 @@
                 }
             }
 
-            // 결과 테이블 렌더링
+            // 결과 테이블 렌더링 (전체 합계 표시)
             if (hasValidInput) {
                 const tr = document.createElement('tr'); tr.className = 'total-row';
-                tr.innerHTML = `<td>전체 합계</td><td class="num">${Number(totalCap.toFixed(2)).toLocaleString()}</td><td class="num">${totalFee.toLocaleString()}</td>`;
+                tr.innerHTML = `<td>전체 합계</td><td class="num">${Number(totalCap.toFixed(2)).toLocaleString()}</td><td class="num">${totalFee.toLocaleString()}원</td>`;
                 tbody.insertBefore(tr, tbody.firstChild);
             } else tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#64748b;">선택된 내역이 없습니다.</td></tr>';
             
@@ -1133,10 +1201,12 @@
         }
     }
 
+    /** [V35 수정] 개별 수수료 문자열('-') 전달 기능 호환 추가 */
     function appendResRow(name, cap, unit, fee) {
         const tbody = document.getElementById('res-tbody');
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${name}</td><td class="num">${cap.toLocaleString()}${unit}</td><td class="num">${fee.toLocaleString()}원</td>`;
+        let feeStr = fee === '-' ? '-' : fee.toLocaleString() + '원';
+        tr.innerHTML = `<td>${name}</td><td class="num">${cap.toLocaleString()}${unit}</td><td class="num">${feeStr}</td>`;
         tbody.appendChild(tr);
     }
 
@@ -1514,8 +1584,16 @@
         document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active')); 
         const activeBtn = document.getElementById('st-' + st);
         if (activeBtn) activeBtn.classList.add('active'); 
-        updateInputUI(); 
-        calculate(); 
+        
+        // 특정고압 부속 다중입력 상태일 때 노출 즉시 토글
+        if (isMultiMode() && currentCat === 'specific') {
+            document.querySelector('.gas-liq').style.display = st === 'liq' ? 'block' : 'none';
+            document.querySelector('.gas-comp').style.display = st === 'comp' ? 'block' : 'none';
+            calculate(); 
+        } else {
+            updateInputUI(); 
+            calculate(); 
+        }
     }
     
     /** 시스템: 페이지 새로고침을 통한 완전 초기화 */
@@ -2476,18 +2554,28 @@
             .total-val { font-size: 2.8rem; }
         }
 
+        /* 스마트폰용 모바일 스타일 - 텍스트 겹침 문제 완벽 해결을 위해 정밀 조정 */
         @media (max-width: 480px) {
             .toggle-btn { font-size: 1.1rem; padding: 4px 10px; }
             .cat-btn { font-size: 1.05rem; min-height: 50px; }
             .sub-btn { font-size: 0.95rem; padding: 4px 2px; }
             .sub-btn-group { grid-template-columns: repeat(4, 1fr); gap: 3px; }
+            
+            /* 다중 행 간격 및 정렬 조절 */
             .multi-row { flex-wrap: nowrap !important; gap: 2px; padding: 4px 0; }
-            .multi-group { gap: 2px; }
-            .multi-label { font-size: 0.85rem; width: auto; letter-spacing: -0.5px; }
-            .multi-row input.multi-size, .multi-row input.multi-qty { width: 55px !important; font-size: 0.95rem; padding: 6px 4px; }
-            .multi-unit { font-size: 0.8rem; width: 15px; text-align: center; }
-            .multi-action-group { gap: 3px; }
-            .row-btn { font-size: 0.8rem; padding: 4px 6px; gap: 1px; }
+            .multi-group { gap: 1px; } /* 내부 요소 간격 축소 */
+            
+            /* 라벨 크기 및 자간 축소로 공간 확보 */
+            .multi-label { font-size: 0.8rem; width: auto; letter-spacing: -1px; }
+            
+            /* 입력칸을 4자리 크기(45px)로 축소하여 여유 확보 */
+            .multi-row input.multi-size, .multi-row input.multi-qty { width: 45px !important; font-size: 0.95rem; padding: 6px 2px; }
+            
+            /* 단위 텍스트 겹침 해결의 핵심: 고정 15px -> auto로 변경하여 내용만큼 늘어나게 함 */
+            .multi-unit { font-size: 0.8rem; width: auto; min-width: 12px; text-align: left; letter-spacing: -0.5px; margin-right: 2px; }
+            
+            .multi-action-group { gap: 2px; }
+            .row-btn { font-size: 0.75rem; padding: 4px 5px; gap: 1px; letter-spacing: -0.5px; } /* 버튼 크기 축소 */
         }
     </style>
 </head>
