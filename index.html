@@ -6832,7 +6832,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         .main-panel::-webkit-scrollbar { width: 6px; }
         .main-panel::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
         
-        /* 시스템 에러 알림 배너 (추가됨) */
+        /* 시스템 에러 알림 배너 */
         #errorBanner {
             display: none;
             background-color: #fef2f2;
@@ -7044,16 +7044,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         .page-num { text-align: center; font-weight: bold; margin-top: 10px; font-size: 0.75rem; }
         .gosi-title { font-weight: bold; margin-bottom: 8px; font-size: 0.8rem; border-bottom: 1px solid #000; padding-bottom: 4px; }
         
-        .gosi-table tr.hl, .gosi-table td.hl { background-color: transparent !important; outline: 3px solid #ef4444; outline-offset: -3px; position: relative; z-index: 10; }
-        
-        .gamri-page { padding: 30px; border: 1px solid #cbd5e1; box-shadow: inset 0 2px 10px rgba(0,0,0,0.05); }
-        .gamri-text-p { margin: 6px 0; text-align: justify; word-break: keep-all; font-size: 0.75rem; line-height: 1.5; }
-        .article-title { font-weight: bold; }
-        .indent-1 { padding-left: 15px; margin-top: 5px; }
-        .text-center { text-align: center !important; }
-        .font-bold { font-weight: bold !important; }
-        
-        .highlight-cell { outline: 3px solid #ef4444 !important; outline-offset: -3px; color: #000 !important; background-color: transparent !important; position: relative; z-index: 10; }
+        /* [수정사항] 강조 시 어떠한 그림자, 내부 음영도 덮이지 않도록 강제(box-shadow: none !important) 처리 */
+        .gosi-table tr.hl, .gosi-table td.hl { background-color: transparent !important; outline: 3px solid #ef4444; outline-offset: -3px; position: relative; z-index: 10; box-shadow: none !important; }
+        .highlight-cell { outline: 3px solid #ef4444 !important; outline-offset: -3px; color: #000 !important; background-color: transparent !important; position: relative; z-index: 10; box-shadow: none !important; }
         .hidden { display: none !important; }
 
         @media (hover: hover) and (pointer: fine) {
@@ -7109,7 +7102,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
         </div>
         
-        <!-- 에러 발생 시 노출되는 배너 추가 (무결성 강화를 위한 피드백 UI) -->
         <div id="errorBanner">
             <span>⚠️</span>
             <span id="errorMsgText">수수료 산출 중 시스템 오류가 발생했습니다. 입력값을 다시 확인해주세요.</span>
@@ -7117,7 +7109,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <div class="top-bar">
             <div class="type-toggle">
-                <button class="type-btn active" id="btn_mode_wan" onclick="setMode('wan')">완성검사</button>
+                <!-- '완성검사' 버튼의 active 클래스를 제거하여 초기 화면에서 활성화되지 않도록 유지 -->
+                <button class="type-btn" id="btn_mode_wan" onclick="setMode('wan')">완성검사</button>
                 <button class="type-btn" id="btn_mode_jung" onclick="setMode('jung')">정기검사</button>
                 <button class="type-btn" id="btn_mode_mid" onclick="setMode('mid')">중간검사</button>
                 <button class="type-btn" id="btn_mode_gamri" onclick="setMode('gamri')">시공감리</button>
@@ -7183,7 +7176,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         jung: [
             { id: 'jung_sup', label: '가스공급시설' },
             { id: 'jung_spec', label: '특정가스사용시설' },
-            { id: 'jung_charge', label: '도시가스충전' }
+            { id: 'jung_charge', label: '도시가스충전' },
+            // [결함 수정] 정기검사 탭에 기능 누락되어 있던 CNG완속충전설비 항목을 완벽히 복원
+            { id: 'jung_cng', label: 'CNG완속충전설비' } 
         ],
         mid: [
             { id: 'mid_comp', label: '압축' }, 
@@ -7234,15 +7229,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     let currentPipeType = '단독주택';
     let dynInputCount = 1;
 
-    /**
-     * 검사 모드(대분류) 설정 - 상태 누수(State Leak) 원천 차단
-     */
     function setMode(mode) {
-        // [수정사항] 모든 전역 변수 명시적 초기화 (메모리 잔상 방지)
         currentMode = mode; currentMain = ''; currentSub = ''; currentSubSub = ''; gamriLabelName = '';
         currentPipeType = '단독주택'; dynInputCount = 1; isInstantCalc = false;
         
-        hideError(); // 모드 변경 시 에러 배너 초기화
+        hideError(); 
 
         document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(`btn_mode_${mode}`).classList.add('active');
@@ -7305,7 +7296,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             
             btn.innerHTML = item.label;
             btn.onclick = () => {
-                hideError(); // 그리드 클릭 시 기존 에러 가림
+                hideError(); 
                 Array.from(cont.children).forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 callback(item.id, item.label);
@@ -7379,14 +7370,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         calc();
     };
 
-    /**
-     * [수정사항] 입력값 무결성 방어 로직 (Input Event Sanitizer)
-     * type="number" 필드에서 e, E, +, - 입력 원천 차단
-     */
     function attachNumberIntegrityGuard() {
         const inputs = document.querySelectorAll('input[type="number"]');
         inputs.forEach(input => {
-            // 중복 리스너 부착 방지
             input.removeEventListener('keydown', preventInvalidChars); 
             input.addEventListener('keydown', preventInvalidChars);
         });
@@ -7398,10 +7384,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
     }
 
-    /**
-     * [수정사항] 다중 산출 아키텍처 - 인덱스 재정렬 로직(Re-indexing)
-     * 요소가 중간에 삭제되더라도 라벨 번호가 순차적(1, 2, 3...)으로 유지되도록 DOM을 스캔하여 재부여합니다.
-     */
     function reindexDynInputs(labelPrefix) {
         const dynRows = document.querySelectorAll('.dyn-row');
         dynRows.forEach((row, index) => {
@@ -7410,7 +7392,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 labelEl.innerText = `${labelPrefix} ${index + 1}`;
             }
         });
-        dynInputCount = dynRows.length; // 전역 카운터 동기화
+        dynInputCount = dynRows.length;
         calc();
     }
 
@@ -7426,7 +7408,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
         `;
         document.getElementById('dyn-container').insertAdjacentHTML('beforeend', rowHtml);
-        attachNumberIntegrityGuard(); // 새로 추가된 DOM에도 방어 로직 즉시 적용
+        attachNumberIntegrityGuard(); 
         calc();
     };
 
@@ -7444,9 +7426,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>`;
     };
 
-    /**
-     * 최종 입력 폼 생성 루틴
-     */
     function showInput() {
         const area = document.getElementById('inputArea');
         area.innerHTML = '';
@@ -7530,6 +7509,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 html += makeCheck('chk-dc', '실 2개소 이하 할인 (최고금액 194,000원 제한)');
             } else if (currentSub === 'j_c_comp' || currentSub === 'j_c_liq') {
                 html += makeDynInitRow('처리 능력', currentSub === 'j_c_comp' ? 'm³' : '톤'); 
+            } else if (currentMain === 'jung_cng') { // [결함 수정] 정기검사 탭 CNG 입력폼 렌더링
+                html += makeRow('설치 개소', '<input type="number" id="inp-v" placeholder="0" min="0" oninput="calc()">', '개소');
             }
         }
         else if (currentMode === 'mid') {
@@ -7537,9 +7518,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         area.innerHTML = html;
-        attachNumberIntegrityGuard(); // 렌더링된 모든 input[type="number"]에 무결성 방어 탑재
+        attachNumberIntegrityGuard(); 
         
-        if (isInstantCalc || (currentMode === 'wan' && currentMain === 'wan_cng') || (currentMode === 'gamri' && currentMain !== 'g_pipe')) {
+        if (isInstantCalc || ((currentMode === 'wan' || currentMode === 'jung') && (currentMain === 'wan_cng' || currentMain === 'jung_cng')) || (currentMode === 'gamri' && currentMain !== 'g_pipe')) {
             calc(); 
         } else {
             resetResult();
@@ -7557,7 +7538,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
     }
 
-    // 에러 배너 제어
     function showError() { document.getElementById('errorBanner').style.display = 'flex'; }
     function hideError() { document.getElementById('errorBanner').style.display = 'none'; }
 
@@ -7571,22 +7551,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         document.getElementById('outName').innerText = '-';
         document.getElementById('gosiContent').innerHTML = '';
         gamriLabelName = '';
-        hideError(); // 리셋 시 에러 알림도 초기화
+        hideError(); 
     }
 
-    /**
-     * [핵심 비즈니스 로직] 다중 산출 대응 및 부동소수점(VAT) 완벽 예외 처리
-     */
     function calc() {
         try {
-            hideError(); // 정상 산출 진입 시 에러 배너 숨김 처리
+            hideError(); 
             
             let totalBaseFee = 0;
             let addFee = 0;
             let rowsData = [];
             let hlIds = [];
 
-            // 동적 인풋 배열화 
             let vArr = [];
             let dynRows = document.querySelectorAll('.dyn-row');
             
@@ -7596,7 +7572,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     let lblNode = row.querySelector('.input-label');
                     let lblStr = lblNode ? lblNode.innerText : '';
                     vArr.push({ 
-                        val: Math.max(0, parseFloat(inp.value) || 0), 
+                        val: Math.max(0, parseFloat(inp?.value) || 0), 
                         label: lblStr 
                     });
                 });
@@ -7619,7 +7595,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
             const rowMaker = (name, qty, amt) => { rowsData.push({name, qty, amt}); };
 
-            // 다중 산출 배열 순회 계산
             vArr.forEach((item, index) => {
                 let v = item.val;
                 let inputLabel = item.label;
@@ -7629,7 +7604,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 let fee = 0;
                 let targetId = '';
                 
-                // [수정사항] 텍스트 파싱 대신 순수 배열 Index 기반의 강력한 라벨링
                 let idxSuffix = vArr.length > 1 ? ` #${index + 1}` : '';
 
                 // --- 시공감리 ---
@@ -7675,7 +7649,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     if (currentMain === 'wan_spec' && currentSub === 'w_s_spec') { 
                         if(v <= 1000) { fee = 66700; hlIds.push('c-sp-w-1'); }
                         else if(v <= 4000) { fee = 66700; hlIds.push('c-sp-w-2'); }
-                        /* [오류 수정 반영] 완성검사 4000 초과시 가산금 9300원으로 수정 */
                         else { fee = Math.min(1047000, 66700 + Math.ceil((v-4000)/500)*9300); hlIds.push('c-sp-w-3'); }
                         rowMaker('특정사용시설' + idxSuffix, v.toLocaleString() + ' m³', fee); totalBaseFee += fee;
                     } else if (currentMain === 'wan_spec' && currentSub === 'w_s_pipe') {
@@ -7694,14 +7667,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         rowMaker((currentSub==='w_c_comp'?'압축충전설비':'액화충전설비') + idxSuffix, v.toLocaleString() + (currentSub==='w_c_comp'?' m³':' 톤'), res.fee); 
                         totalBaseFee += res.fee;
                     } else if (currentMain === 'wan_cng') {
-                        /* [오류 수정 반영] 완성검사 단가 32000원으로 수정 */
                         fee = v * 32000; hlIds.push('c-cng-w'); rowMaker('CNG완속충전설비', v.toLocaleString() + ' 개소', fee); totalBaseFee += fee;
                     }
                 } 
                 // --- 정기검사 ---
                 else if (currentMode === 'jung') {
                     if (currentMain === 'jung_sup') {
-                        // 즉시 산출 로직에 대한 명시적 분기 (v=0이더라도 통과됨)
                         if (currentSub === 'j_s_jejo') {
                             if (currentSubSub === 'j_s_j_dome') { fee = 1030000; hlIds.push('c-su-m-1'); rowMaker('제조소(가스도매)', '-', fee); }
                             else if (currentSubSub === 'j_s_j_ilban') { fee = 545000; hlIds.push('c-su-m-2'); rowMaker('제조소(일반도시)', '-', fee); }
@@ -7709,7 +7680,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         } else if (currentSub === 'j_s_gong') { fee = 245000; hlIds.push('c-su-s'); rowMaker('공급소', '-', fee); totalBaseFee += fee; }
                         else if (currentSub === 'j_s_v') { fee = 197000; hlIds.push('c-su-v'); rowMaker('정압(밸브)기지', '-', fee); totalBaseFee += fee; }
                         else if (currentSub === 'j_s_p') { fee = 88000; hlIds.push('c-su-p'); rowMaker('정압기', '-', fee); totalBaseFee += fee; }
-                        else if (currentSub === 'j_s_pipe' && v > 0) { // 동적 산출값 검증
+                        else if (currentSub === 'j_s_pipe' && v > 0) { 
                             if(v < 2) { fee = 56000; hlIds.push('c-su-pp-1'); }
                             else if(v < 5) { fee = 115000; hlIds.push('c-su-pp-2'); }
                             else if(v < 10) { fee = 203000; hlIds.push('c-su-pp-3'); }
@@ -7722,7 +7693,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         let tempFee = 0;
                         if(v <= 1000) { tempFee = 32000; hlIds.push('c-sp-j-1'); }
                         else if(v <= 4000) { tempFee = 48500; hlIds.push('c-sp-j-2'); }
-                        /* [오류 수정 반영] 정기검사 4000 초과시 가산금 9000원으로 수정 */
                         else { tempFee = Math.min(388000, 48500 + Math.ceil((v-4000)/500)*9000); hlIds.push('c-sp-j-3'); }
                         
                         if (document.getElementById('chk-dc')?.checked && tempFee > 194000) {
@@ -7736,6 +7706,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         let res = calcCharge(currentSub==='j_c_comp'?'c':'l', 'j', v); hlIds.push(res.id);
                         rowMaker((currentSub==='j_c_comp'?'압축충전설비':'액화충전설비') + idxSuffix, v.toLocaleString() + (currentSub==='j_c_comp'?' m³':' 톤'), res.fee);
                         totalBaseFee += res.fee;
+                    } else if (currentMain === 'jung_cng') {
+                        // [결함 수정] 정기검사 탭 CNG 산출 로직 복원 (단가 28,000원 적용)
+                        fee = v * 28000; hlIds.push('c-cng-w'); 
+                        rowMaker('CNG완속충전설비', v.toLocaleString() + ' 개소', fee); totalBaseFee += fee;
                     }
                 }
                 // --- 중간검사 ---
@@ -7746,7 +7720,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 }
             });
 
-            // --- 비반복 공통 및 단일 처리 항목 ---
             if (currentMode === 'wan' && currentMain === 'wan_spec' && document.getElementById('chk-add')?.checked) {
                 addFee = 104000; hlIds.push('c-sp-add'); rowMaker('<span style="color:#ef4444;">가산금(복합공동배기구)</span>', '-', addFee);
             }
@@ -7766,7 +7739,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 }
             }
 
-            // --- UI 렌더링 반영 ---
             if (totalBaseFee === 0 && addFee === 0 && !isInstantCalc) { resetResult(); return; }
 
             document.getElementById('detailSection').classList.remove('hidden');
@@ -7775,9 +7747,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             
             let totalFee = totalBaseFee + addFee;
 
-            /** * [국세청 세법 부가세 10원 단위 절사 논리 방어] 
-             * IEEE754 부동소수점 오차 방지를 위해 안전한 나눗셈과 내림 기반 구현.
-             */
             let rawVat = Math.floor(totalFee / 10); 
             let vat = Math.floor(rawVat / 10) * 10; 
             
@@ -7806,16 +7775,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             renderGosiPage(hlIds);
             
         } catch (error) {
-            // [수정사항] Silent Failure 방지 - 사용자에게 명확한 에러 발생 사실 고지
             console.error("수수료 산출 중 시스템 오류가 발생했습니다:", error);
             resetResult();
             showError();
         }
     }
 
-    /**
-     * 충전시설(압축/액화) 공통 수수료 계산 함수
-     */
     function calcCharge(type, mode, v) {
         let fee = 0; let id = '';
         if (type === 'l') { 
@@ -7854,9 +7819,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         return { fee, id };
     }
 
-    /**
-     * 고시 페이지 렌더링 및 하이라이트 처리
-     */
     function renderGosiPage(hlIds) {
         const wrap = document.getElementById('gosiContent');
         wrap.innerHTML = '';
@@ -8059,6 +8021,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <p class="gamri-text-p">1. 가산금은 건별 감리시간 1시간 단위로(1시간 미만인 경우에는 1시간으로 계산) 부과한다. 다만, 동일 현장에서 2건 이상(시공자가 동일한 경우에 한함)의 가스공급시설을 동시에 감리하는 경우 1건에 한하여 가산금을 부과한다.</p>
                 <p class="gamri-text-p">2. 휴일은 법정 공휴일로 하고, 연장·야간 근로 시간은 평일 18시부터 (토요일은 09시부터) 익일 09시까지로 일한다.</p>
             </div>
+            <!-- [수정사항] '가장한다'를 올바른 행정 용어인 '한다'로 교정 -->
             <p class="gamri-text-p" style="margin-top:10px;">③ 액법 고시 별표7의 나목 및 도법 고시 별표5 나목에 의한 감리원의 1일 단가는 공사 기술인력(4급 이하)의 비율에 따른 산술평균치를 적용하여 87만2천원으로 한다.</p>
             <p class="gamri-text-p" style="margin-top:15px;"><span class="article-title">제4조(시공감리수수료)</span> ① 제3조의 산출방법에 의하여 산출된 시공감리 수수료는 아래 표와 같다.</p>
             <div style="text-align:right; font-size:0.7rem; margin-top:10px;">(단위 : 원)</div>
