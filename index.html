@@ -572,7 +572,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         .page-num { text-align: center; font-weight: bold; margin-top: 8px; font-size: 0.8rem; }
         .formula-cell { font-size: 0.7rem !important; line-height: 1.4 !important; text-align: left !important; word-break: keep-all; }
         
-        /* 💡 최적화: 하이라이트 행 내부 음영 원천 차단 강력 보강 (V41) */
+        /* 하이라이트 행: 내부 음영 완벽 제거 및 테이블 병합 묻힘 방지 로직 (V41) */
         .highlight-row { 
             outline: 3px solid #ef4444 !important; 
             outline-offset: -1px; 
@@ -584,8 +584,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             color: #000 !important; 
             font-weight: 900 !important; 
             background-color: transparent !important; 
-            background: none !important; /* 물리적 배경 스타일 추가 억제 */
-            box-shadow: none !important; /* 혹시 모를 그림자 색상 억제 */
+            background: none !important; 
+            box-shadow: none !important; 
         }
 
         .spec-type-group { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; justify-content: flex-start; flex-wrap: wrap;}
@@ -620,7 +620,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             body { padding: 15px 0; }
             .main-container { flex-direction: column; width: 95%; gap: 15px; }
             .input-panel, .side-panel { width: 100%; position: static; }
-            .reset-link { margin-left: 0; margin-top: 5px; flex: 1 1 auto; justify-content: center; max-width: fit-content; }
+            .reset-link { margin-left: 0; margin-top: 5px; flex: 1 1 auto; justify-content: flex-start; max-width: fit-content; }
             .category-grid { grid-template-columns: repeat(2, 1fr); }
             .total-val { font-size: 2.8rem; }
             /* 모바일 및 태블릿 화면에서는 인쇄 기능 차단 */
@@ -628,7 +628,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         @media (max-width: 480px) {
-            .type-btn { font-size: 0.95rem !important; padding: 8px 2px !important; width: 100% !important; display: flex !important; align-items: center !important; justify-content: center !important; box-sizing: border-box; }
+            /* 💡 모바일 상단 메인 버튼 3개 1열 배치 및 텍스트 최적화 */
+            .toggle-group { gap: 5px !important; }
+            .type-btn { font-size: 0.9rem !important; padding: 8px 0 !important; width: auto !important; flex: 1 1 30% !important; display: flex !important; align-items: center !important; justify-content: center !important; box-sizing: border-box; letter-spacing: -0.5px; word-break: keep-all; }
+            
+            /* 💡 초기화 버튼 그 아래 좌측으로 정렬 강제 지정 */
+            .reset-link { flex: 0 0 auto !important; margin-left: 0 !important; margin-right: auto !important; width: fit-content !important; margin-top: 5px !important; }
+
             .cat-btn { font-size: 1.05rem; min-height: 50px;}
             .vertical-style-row { flex-wrap: nowrap !important; gap: 4px; padding: 0 2px; }
             .vertical-style-row label { width: 45px !important; font-size: 0.9rem; }
@@ -735,7 +741,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- 결과 판넬 -->
     <div class="side-panel">
         <div class="result-panel">
-            <!-- 인쇄 버튼 헤더 컨테이너 (그대로 유지) -->
             <div class="result-header">
                 <h3>산출 근거 상세 내역</h3>
                 <button class="print-btn" onclick="openPrintWindow()">🖨️ 출력하기</button>
@@ -770,7 +775,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script>
     /** * @description 고압가스 시설 검사 수수료 자동 계산 코어 스크립트
      * @author 30년 경력 시니어 엔지니어 및 가스안전 전문가 관점 적용
-     * @version V41 (안정성 고도화: 예외 처리 보강 및 책자 하이라이트 강제 투명화 완결)
+     * @version V42 (모바일 화면 UI 최적화: 3개 메인버튼 1열 나란히 배치 및 초기화 버튼 좌측 하단 분리정렬)
      */
     
     let currentCat = '';
@@ -1024,7 +1029,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 calculate();
             }
         } catch(e) {
-            console.error("카테고리 선택 중 예외 발생:", e);
+            console.error("카테고 선택 중 예외 발생:", e);
         }
     }
 
