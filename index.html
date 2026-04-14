@@ -2162,14 +2162,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         .page-num { text-align: center; font-weight: bold; margin-top: 5px; font-size: 0.75rem; }
         .formula-cell { font-size: 0.58rem !important; line-height: 1.3 !important; text-align: left !important; word-break: keep-all; }
 
-        /* [무결성 확인 완료] 내부 그림자(box-shadow) 원천 차단 및 배경 투명화. outline 방식으로 테두리만 생성됨 */
+        /* [무결성 최적화] 내부 그림자(box-shadow) 원천 차단 및 배경 완전 투명화 보장 */
         .highlight-cell { 
             color: #b91c1c !important; 
             font-weight: 900 !important; 
             outline: 2px solid #ef4444 !important; 
             outline-offset: -1px; 
             box-shadow: none !important; 
-            background-color: transparent !important; 
+            background: transparent !important; 
         }
         .hidden { display: none !important; }
 
@@ -2251,6 +2251,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             
             .cat-btn { font-size: 1.05rem; min-height: 50px; }
             
+            /* [수정 포인트] 서브 탭(LPG 강제용기, 복합재료) 모바일 한 줄 배치 및 줄바꿈 방지 */
+            .sub-tabs { flex-wrap: nowrap; padding: 8px 5px; gap: 5px; margin-bottom: 15px; }
+            .sub-tab-btn { 
+                min-width: 0; 
+                padding: 8px 4px; 
+                font-size: 0.85rem; 
+                white-space: nowrap; 
+                letter-spacing: -0.5px; 
+            }
+            /* 글자 수에 비례하여 강제용기 폭은 줄이고, 복합재료 폭은 늘려 한 줄에 표시되도록 설정 */
+            #sub-lpg-steel { flex: 0.8; }
+            #sub-lpg-comp { flex: 1.2; }
+            
             /* 동적 입력란 모바일 폭 대폭 축소 및 빈 여백 제거 */
             .input-row, .dynamic-row, .extra-row-inline { padding: 6px 2px; gap: 2px; overflow-x: hidden; flex-wrap: nowrap; justify-content: flex-start; }
             .input-label, .sub-label { width: 75px !important; font-size: 0.75rem; letter-spacing: -0.5px; }
@@ -2301,12 +2314,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <button class="cat-btn" onclick="render('parts', this)">용기 부속품<br>(밸브 등)</button>
         </div>
 
-        <!-- [수정 포인트] 해당 없음 경고창 독립 컨테이너 분리 (데이터 소멸 방지) -->
+        <!-- [수정 포인트] 해당 없음 및 한계초과 경고창 공용 컨테이너 -->
         <div id="warningArea" class="hidden" style="padding: 30px 20px; color: #ef4444; font-weight: bold; text-align: center; line-height: 1.6; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 12px; margin-bottom: 15px;">
-            <span style="font-size: 1.5rem; display:block; margin-bottom: 10px;">🚫 해당 없음</span>
-            선택하신 용기는 관련 법령 및 고시에 따라<br>
-            <strong>재검사 대상이 아닙니다.</strong><br>
-            <span style="font-size: 0.85rem; color: #991b1b; font-weight: normal; margin-top: 10px; display: inline-block;">상단의 '생산단계검사'를 선택해 주세요.</span>
         </div>
 
         <div id="inputArea" class="input-box hidden">
@@ -2407,11 +2416,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
     }
 
+    // [무결성 최적화] activeBtn 널 포인트 방지 로직 적용
     function setSubCat(sub) {
         currentSubCat = sub;
         document.getElementById('sub-lpg-steel').classList.toggle('active', sub === 'steel');
         document.getElementById('sub-lpg-comp').classList.toggle('active', sub === 'comp');
-        render('lpg', document.querySelector('.cat-btn.active'), false); 
+        const activeBtn = document.querySelector('.cat-btn.active');
+        if (activeBtn) render('lpg', activeBtn, false); 
     }
 
     function render(c, btn, isModeChange = false) {
@@ -2425,10 +2436,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         const df = document.getElementById('dynamicFields');
         const subTabArea = document.getElementById('subTabArea');
         
-        // [수정 포인트] 예외 처리 로직 분리: 재검사 대상이 아닌 경우 기존 입력값 보존 및 경고창 토글 처리
+        // [수정 포인트] 재검사 대상이 아닌 경우 경고창 동적 재생성 및 보존
         const isNoReinspect = (cat === 'solder' || cat === 'butane' || cat === 'recharge');
         if (mode === 're' && isNoReinspect) {
             inputArea.classList.add('hidden');
+            warningArea.innerHTML = `
+                <span style="font-size: 1.5rem; display:block; margin-bottom: 10px;">🚫 해당 없음</span>
+                선택하신 용기는 관련 법령 및 고시에 따라<br>
+                <strong>재검사 대상이 아닙니다.</strong><br>
+                <span style="font-size: 0.85rem; color: #991b1b; font-weight: normal; margin-top: 10px; display: inline-block;">상단의 '생산단계검사'를 선택해 주세요.</span>
+            `;
             warningArea.classList.remove('hidden');
             calc(); 
             return;
@@ -2551,7 +2568,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             if(cap < 10) { fee = isProd ? 710 : 740; id = '0'; name = '10kg 미만'; }
             else if(cap < 20) { fee = isProd ? 850 : 1210; id = '1'; name = '10~20kg 미만'; }
             else if(cap < 50) { fee = isProd ? 950 : 1540; id = '2'; name = '20~50kg 미만'; }
-            else { fee = isProd ? 1660 : 1920; id = '3'; name = '50kg 이상'; } 
+            else { fee = isProd ? 1660 : 1920; id = '3'; name = '50kg 이상 100kg 미만'; } // 행정 고시 명칭 완벽 동기화
             return { fee, name: `강제용기 (${name})`, hl: `cell-lpg-${m}-${id}` };
         }
         if(c === 'cryo') {
@@ -2602,10 +2619,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             let rowsHtml = ''; 
             let hasVal = false; 
             let cellsToHighlight = new Set();
+            let capacityLimitMsg = null; // [신규] 용량 초과 검증용 변수
 
             const isNoReinspect = (cat === 'solder' || cat === 'butane' || cat === 'recharge');
             const gosiWrapper = document.getElementById('gosiWrapper');
             const placeholder = document.getElementById('gosiPlaceholder');
+            const warningArea = document.getElementById('warningArea');
 
             if (mode === 're' && isNoReinspect) {
                 document.getElementById('detailSection').classList.add('hidden');
@@ -2655,13 +2674,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         let capInput = row.querySelector('.dyn-cap');
                         let cap = Math.max(0, parseFloat(capInput.value)) || 0;
                         if (cap > 0) {
-                            hasVal = true;
-                            let info = getDynamicInfo(cat, currentSubCat, cap, mode);
-                            if(info.fee > 0) {
-                                let currentFee = info.fee * qty;
-                                rowsHtml += `<tr><td>${info.name}</td><td>${qty.toLocaleString()}</td><td>${currentFee.toLocaleString()}</td></tr>`;
-                                fee += currentFee; qTot += qty; rowCount++;
-                                cellsToHighlight.add(info.hl);
+                            // [수정 포인트] 수수료 책자에 기반한 각 용기별 최대 내용적(충전량) 한계선 방어 로직
+                            if (cat === 'seamless' && cap >= 95) capacityLimitMsg = "이음매없는 용기의 최대 내용적은 95L 미만입니다.";
+                            else if (cat === 'acetyl' && cap >= 10) capacityLimitMsg = "아세틸렌 용기의 최대 내용적(충전량)은 10kg 미만입니다.";
+                            else if (cat === 'recharge' && cap >= 40) capacityLimitMsg = "재충전 금지 용기의 최대 내용적(충전량)은 40kg(L) 미만입니다.";
+                            else if (cat === 'lpg' && currentSubCat === 'steel' && cap >= 100) capacityLimitMsg = "액화석유가스(LPG) 강제용기의 최대 내용적(충전량)은 100kg 미만입니다.";
+
+                            // 한계를 벗어나지 않았을 경우에만 계산 수행
+                            if (!capacityLimitMsg) {
+                                hasVal = true;
+                                let info = getDynamicInfo(cat, currentSubCat, cap, mode);
+                                if(info.fee > 0) {
+                                    let currentFee = info.fee * qty;
+                                    rowsHtml += `<tr><td>${info.name}</td><td>${qty.toLocaleString()}</td><td>${currentFee.toLocaleString()}</td></tr>`;
+                                    fee += currentFee; qTot += qty; rowCount++;
+                                    cellsToHighlight.add(info.hl);
+                                }
                             }
                         }
                     } else {
@@ -2676,6 +2704,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     }
                 }
             });
+
+            // [수정 포인트] 규정된 용량 한계를 초과하여 입력한 경우 산출을 중단하고 경고창 표출
+            if (capacityLimitMsg) {
+                document.getElementById('detailSection').classList.add('hidden');
+                gosiWrapper.classList.add('hidden');
+                if(placeholder) placeholder.classList.add('hidden');
+                setOutputs(0, 0, 0);
+                
+                warningArea.innerHTML = `
+                    <span style="font-size: 1.5rem; display:block; margin-bottom: 10px;">⚠️ 용량 초과</span>
+                    <strong>${capacityLimitMsg}</strong><br>
+                    <span style="font-size: 0.85rem; color: #991b1b; font-weight: normal; margin-top: 10px; display: inline-block;">수수료 책자에 규정된 수치 미만으로 다시 입력해 주세요.</span>
+                `;
+                warningArea.classList.remove('hidden');
+                document.querySelectorAll('.highlight-cell').forEach(el => el.classList.remove('highlight-cell'));
+                return;
+            } else {
+                warningArea.classList.add('hidden');
+            }
 
             // 계산 결과가 있을 때만 상세내역 테이블 표출
             document.getElementById('detailSection').classList.toggle('hidden', !hasVal);
@@ -2875,7 +2922,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     function openPrintWindow() {
         try {
-            // 원본 로직 유지: 현재 HTML 구조에 맞춰 식별자(ID)만 수정 연동 (res-tbody -> detailBody 등)
             const tbodyHtml = document.getElementById('detailBody').innerHTML;
             
             if (tbodyHtml.trim() === '' || tbodyHtml.includes('선택된 내역이 없습니다')) {
@@ -2891,7 +2937,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const taxText = document.getElementById('outVat').innerText;
 
             let inspName = '';
-            // 원본 로직 유지: 검사종류 변수를 현재 문서의 `mode` 변수에 맞게 매핑 수정
             if (typeof mode !== 'undefined') {
                 if (mode === 'prod') inspName = '생산단계검사';
                 else if (mode === 're') inspName = '재검사';
@@ -2951,6 +2996,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const today = new Date();
             const dateStr = today.getFullYear() + '년 ' + (today.getMonth() + 1) + '월 ' + today.getDate() + '일';
 
+            // [무결성 최적화] 일부 브라우저 엔진에서 빈 페이지가 출력되는 오류를 막기 위해 setTimeout 안전망 추가
             const htmlContent = "<!DOCTYPE html>" +
                 "<html lang='ko'>" +
                 "<head>" +
@@ -3005,7 +3051,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 "        <div class='total-korean'>금 " + koreanMoney + "원정</div>" +
                 "    </div>" +
                 "    <script>" +
-                "        window.onload = function() { window.focus(); window.print(); }" +
+                "        window.onload = function() { window.focus(); setTimeout(function() { window.print(); }, 150); }" +
                 "    <\/script>" +
                 "</body>" +
                 "</html>";
