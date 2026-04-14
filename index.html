@@ -47,9 +47,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 padding: 20px 80px 50px 80px; width: 100%; max-width: 1600px; min-width: 1200px; 
                 margin: 0 auto; min-height: 100vh; box-sizing: border-box; 
             }
+            /* 수정됨: 헤더 하단 여백을 24px -> 12px, 12px -> 6px로 50% 축소 */
             #main-view-pc .header-container {
                 display: flex; justify-content: space-between; align-items: flex-end;
-                width: 100%; max-width: 100%; margin-bottom: 24px; border-bottom: 2px solid #1e293b; padding-bottom: 12px;
+                width: 100%; max-width: 100%; margin-bottom: 12px; border-bottom: 2px solid #1e293b; padding-bottom: 6px;
             }
             #main-view-pc .header-title { font-size: 32px; font-weight: 900; margin: 0; color: #1e293b; letter-spacing: -1px; }
             #main-view-pc .title-date { font-size: 0.5em; vertical-align: middle; color: #475569; font-weight: 700; }
@@ -57,13 +58,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             #main-view-pc .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; width: 100%; max-width: 100%; align-items: stretch; }
             #main-view-pc .laws-frame { grid-column: span 4; background-color: #eff6ff; border: 2px solid #3b82f6; border-radius: 16px; padding: 16px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15); display: flex; flex-direction: column; }
             #main-view-pc .laws-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; flex-grow: 1; }
-            #main-view-pc .category-section { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+            /* 수정됨: 박스 패딩을 16px에서 8px 16px(상하 50% 축소)로 변경 */
+            #main-view-pc .category-section { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
             #main-view-pc .laws-grid .category-section { background-color: #ffffff; border: 1px solid #cbd5e1; }
             #main-view-pc .recent-section { background-color: #f8fafc; border: 1px solid #cbd5e1; box-shadow: 0 0 5px #cbd5e1, 0 0 10px rgba(148, 163, 184, 0.4), inset 0 0 5px rgba(148, 163, 184, 0.2); }
             #main-view-pc .recent-section .category-title { color: #334155; border-bottom: 2px solid #cbd5e1; }
             #main-view-pc .empty-recent { text-align: center; color: #475569; font-size: 14px; font-weight: bold; padding: 40px 0; line-height: 1.6; }
-            #main-view-pc .category-title { font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 16px; color: #334155; border-bottom: 2px solid #cbd5e1; padding-bottom: 8px; }
-            #main-view-pc .laws-grid .category-title { border: 1.5px dashed #94a3b8; border-radius: 50px; width: 110%; margin-left: -5%; padding-top: 2px; padding-bottom: 2px; font-size: 18px; background-color: #ffffff; transition: all 0.3s ease; box-sizing: border-box; margin-bottom: 16px; }
+            /* 수정됨: 제목 하단 여백을 16px -> 8px, 8px -> 4px로 50% 축소 */
+            #main-view-pc .category-title { font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 8px; color: #334155; border-bottom: 2px solid #cbd5e1; padding-bottom: 4px; }
+            /* 수정됨: 제목 하단 마진 16px -> 8px */
+            #main-view-pc .laws-grid .category-title { border: 1.5px dashed #94a3b8; border-radius: 50px; width: 110%; margin-left: -5%; padding-top: 2px; padding-bottom: 2px; font-size: 18px; background-color: #ffffff; transition: all 0.3s ease; box-sizing: border-box; margin-bottom: 8px; }
             #main-view-pc .laws-grid .category-section:has(.calc-btn:hover) .category-title,
             #main-view-pc .laws-grid .category-section.btn-hovered .category-title { border-color: #3b82f6; color: #1d4ed8; background-color: #eff6ff; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.1); }
             #main-view-pc .title-with-reset { position: relative; display: flex; justify-content: center; align-items: center; }
@@ -92,7 +96,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
             /* PC용 모듈 뷰 버튼 스타일 */
             .back-btn-wrapper { position: absolute; top: 4px; left: 20mm; z-index: 1000; pointer-events: none; }
-            #back-btn { pointer-events: auto; background-color: #f97316; color: #ffffff; border: 2px solid #ea580c; border-radius: 6px; padding: 6px 12px; font-size: 10px; font-weight: 900; cursor: pointer; box-shadow: 0 3px 0 #c2410c, 0 4px 6px rgba(0,0,0,0.2); transition: background-color 0.2s ease; display: flex; align-items: center; gap: 4px; animation: pcBackPulse 1s infinite ease-in-out; }
+            #back-btn { pointer-events: auto; background-color: #f97316; color: #ffffff; border: 2px solid #ea580c; border-radius: 6px; padding: 6px 14px; font-size: 13px; font-weight: 900; cursor: pointer; box-shadow: 0 3px 0 #c2410c, 0 4px 6px rgba(0,0,0,0.2); transition: background-color 0.2s ease; display: flex; align-items: center; gap: 4px; animation: pcBackPulse 1s infinite ease-in-out; }
             #back-btn:hover { background-color: #ea580c; animation-play-state: paused; transform: translateY(-2px) scale(1.02); box-shadow: 0 5px 0 #c2410c, 0 6px 12px rgba(0,0,0,0.25); }
             #back-btn:active { animation-play-state: paused; transform: translateY(0) scale(1); box-shadow: 0 0 0 #c2410c, 0 1px 2px rgba(0,0,0,0.2); }
             @keyframes pcBackPulse {
@@ -114,13 +118,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 display: flex; flex-direction: column; align-items: center; 
                 padding: 8px 10px 10px 10px; width: 100%; margin: 0 auto; min-height: 100vh; background-color: #ffffff; 
             }
-            #main-view-mobile .header-container { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; margin-bottom: 8px; border-bottom: 2px solid #1e293b; padding-bottom: 6px; }
+            /* 수정됨: 헤더 마진 8px->4px, 패딩 6px->3px로 50% 축소 */
+            #main-view-mobile .header-container { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; margin-bottom: 4px; border-bottom: 2px solid #1e293b; padding-bottom: 3px; }
             #main-view-mobile .header-title { font-size: clamp(1.6rem, 6.5vw, 2.2rem); font-weight: 900; margin: 0; color: #0f172a; letter-spacing: -1px; text-align: center; }
-            #main-view-mobile .title-date { font-size: clamp(0.85rem, 3.5vw, 1rem); color: #475569; font-weight: 700; text-align: center; margin-top: 2px; }
+            /* 수정됨: 날짜 위 마진 2px -> 0 으로 축소 */
+            #main-view-mobile .title-date { font-size: clamp(0.85rem, 3.5vw, 1rem); color: #475569; font-weight: 700; text-align: center; margin-top: 0; }
             
-            #main-view-mobile .laws-frame { width: 100%; background-color: #ffffff; border: none; padding: 2px; display: flex; flex-direction: column; gap: 10px; }
-            #main-view-mobile .category-section { background-color: #e2e8f0; border-radius: 8px; padding: 8px; border: 0.5px solid #86efac; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); }
-            #main-view-mobile .category-title { font-size: clamp(1.2rem, 5.5vw, 1.6rem); font-weight: 900; text-align: center; margin-bottom: 4px; color: #1e3a8a; text-shadow: 2px 3px 6px rgba(0, 0, 0, 0.3); border-bottom: 1px solid #86efac; padding-bottom: 4px; }
+            /* 수정됨: 각 범주 박스 간의 gap을 10px에서 8px로 축소 */
+            #main-view-mobile .laws-frame { width: 100%; background-color: #ffffff; border: none; padding: 2px; display: flex; flex-direction: column; gap: 8px; }
+            /* 수정됨: 박스 내부 패딩을 기존 8px에서 4px 8px 8px 8px로 변경하여 상단 제목과의 여백을 50% 줄임 */
+            #main-view-mobile .category-section { background-color: #e2e8f0; border-radius: 8px; padding: 4px 8px 8px 8px; border: 0.5px solid #86efac; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); }
+            /* 수정됨: 제목 하단 여백을 4px -> 2px, 4px -> 2px로 50% 축소 */
+            #main-view-mobile .category-title { font-size: clamp(1.2rem, 5.5vw, 1.6rem); font-weight: 900; text-align: center; margin-bottom: 2px; color: #1e3a8a; text-shadow: 2px 3px 6px rgba(0, 0, 0, 0.3); border-bottom: 1px solid #86efac; padding-bottom: 2px; }
             
             #main-view-mobile .button-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
             #main-view-mobile .calc-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; min-height: 48px; padding: 6px 4px; background-color: #e0f2fe; color: #0f172a; border: 1px solid #0284c7; border-radius: 8px; font-size: clamp(0.95rem, 4.5vw, 2rem); min-width: 0; word-break: break-all; white-space: normal; font-weight: 900; cursor: pointer; transition: all 0.1s ease; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25); text-align: center; line-height: 1.15; }
@@ -136,24 +145,24 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             #main-view-mobile .footer-copyright { color: #64748b; font-size: clamp(0.9rem, 3.5vw, 1.2rem); font-weight: 900; text-align: left; margin-top: 2px; }
 
             /* 모바일용 모듈 뷰 버튼 스타일 */
-            .back-btn-wrapper { position: absolute; top: 10px; right: 10px; z-index: 1000; pointer-events: none; }
-            #back-btn { pointer-events: auto; background-color: #f97316; color: #ffffff; border: 2px solid #ea580c; border-radius: 6px; padding: 8px 14px; font-size: 14px; font-weight: 900; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: background-color 0.2s, transform 0.1s; display: flex; align-items: center; gap: 6px; }
+            .back-btn-wrapper { position: absolute; top: auto; bottom: 25px; right: 20px; z-index: 1000; pointer-events: none; }
+            #back-btn { pointer-events: auto; background-color: #f97316; color: #ffffff; border: 2px solid #ea580c; border-radius: 12px; padding: 14px 24px; font-size: 24px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); transition: background-color 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: -1px; }
 
             .animate-attention { animation: attentionPulse 1.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards, continuousPulse 1s ease-in-out 1.5s infinite; }
             @keyframes attentionPulse {
-                0% { transform: scale(0.9) translateY(-5px); opacity: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-                10% { transform: scale(1.02) translateY(0); opacity: 1; box-shadow: 0 4px 8px rgba(249, 115, 22, 0.4); }
-                25% { transform: scale(1) translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-                40% { transform: scale(1.05) translateY(-1px); box-shadow: 0 6px 12px rgba(249, 115, 22, 0.7); }
-                55% { transform: scale(1) translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-                70% { transform: scale(1.05) translateY(-1px); box-shadow: 0 6px 12px rgba(249, 115, 22, 0.7); }
-                85% { transform: scale(1) translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-                100% { transform: scale(1) translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+                0% { transform: scale(0.9) translateY(5px); opacity: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+                10% { transform: scale(1.02) translateY(0); opacity: 1; box-shadow: 0 6px 12px rgba(249, 115, 22, 0.4); }
+                25% { transform: scale(1) translateY(0); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+                40% { transform: scale(1.05) translateY(-2px); box-shadow: 0 8px 16px rgba(249, 115, 22, 0.7); }
+                55% { transform: scale(1) translateY(0); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+                70% { transform: scale(1.05) translateY(-2px); box-shadow: 0 8px 16px rgba(249, 115, 22, 0.7); }
+                85% { transform: scale(1) translateY(0); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+                100% { transform: scale(1) translateY(0); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
             }
             @keyframes continuousPulse {
-                0% { transform: scale(1) translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-                50% { transform: scale(1.05) translateY(-1px); box-shadow: 0 5px 10px rgba(249, 115, 22, 0.5); }
-                100% { transform: scale(1) translateY(0); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+                0% { transform: scale(1) translateY(0); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+                50% { transform: scale(1.05) translateY(-2px); box-shadow: 0 8px 16px rgba(249, 115, 22, 0.5); }
+                100% { transform: scale(1) translateY(0); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
             }
         }
 
@@ -284,11 +293,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
          ========================================================= -->
     <div id="module-view">
         <div class="back-btn-wrapper">
-            <button id="back-btn" onclick="closeModule()">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <!-- onClick 함수 변경 및 텍스트/디자인 적용 -->
+            <button id="back-btn" onclick="handleBackAction()">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path>
                 </svg>
-                메인화면 복귀
+                <span style="display:inline-block; line-height:1;">뒤로가기</span>
             </button>
         </div>
         <iframe id="calculator-frame"></iframe>
@@ -12543,6 +12553,14 @@ function openPrintWindow() {
         let currentOpenModuleId = null; 
         let fallbackRecent = [];
         
+        // [추가] 모듈의 초기(새로고침) 상태를 판별하는 전역 변수
+        let isModulePristine = true;
+
+        // [추가] 계산기 프레임 내부에서 사용자 상호작용이 일어나면 부모(이 파일)로 신호를 보내 상태를 변경하는 함수
+        window.markModuleDirty = function() {
+            isModulePristine = false;
+        };
+
         function getRecentList() {
             try { 
                 const list = JSON.parse(localStorage.getItem('recentCalculators')) || []; 
@@ -12605,6 +12623,17 @@ function openPrintWindow() {
             }
         }
 
+        // [추가] '뒤로가기' 버튼 클릭 시 상태에 따라 로직을 분기하는 함수
+        function handleBackAction() {
+            if (isModulePristine) {
+                // 한 번도 터치/입력하지 않은 '초기 오픈' 혹은 '방금 새로고침된' 상태라면 메인으로 복귀
+                closeModule();
+            } else {
+                // 사용자가 무언가를 입력하거나 조작한 상태라면 새로고침을 실행
+                reloadCurrentModule();
+            }
+        }
+
         function openModule(sourceId) {
             const sourceElement = document.getElementById(sourceId);
             if (!sourceElement) {
@@ -12618,7 +12647,29 @@ function openPrintWindow() {
             const safeReloadCode = "if(window.parent && typeof window.parent.reloadCurrentModule === 'function') { window.parent.reloadCurrentModule(); } else { location.reload(); }";
             sourceCode = sourceCode.replace(/(window\.)?location\.reload\([^)]*\)/g, safeReloadCode);
 
+            // [추가] 계산기 화면 내의 클릭, 터치, 키보드 입력 등을 감지하기 위한 스크립트 코드 주입
+            const interactionScript = `<script>
+                ['click', 'input', 'change', 'touchstart', 'keydown'].forEach(function(evt) {
+                    document.addEventListener(evt, function() {
+                        if(window.parent && typeof window.parent.markModuleDirty === 'function') {
+                            window.parent.markModuleDirty();
+                        }
+                    });
+                });
+            <\/script>`;
+
+            // [오류 수정] </body> 태그 삽입 시, JS 문자열 내부의 </body>가 아닌 '문서의 가장 마지막 </body>'를 찾아 안전하게 병합
+            const lastBodyIdx = sourceCode.lastIndexOf('</body>');
+            if (lastBodyIdx !== -1) {
+                sourceCode = sourceCode.substring(0, lastBodyIdx) + '\n' + interactionScript + '\n' + sourceCode.substring(lastBodyIdx);
+            } else {
+                sourceCode += '\n' + interactionScript;
+            }
+
             currentOpenModuleId = sourceId; 
+            
+            // 모듈이 새로 열렸으므로 상태를 다시 '초기(순백)' 상태로 리셋
+            isModulePristine = true;
 
             // 화면 전환: 기기에 상관없이 PC/모바일 메인 뷰를 모두 숨기고 모듈 뷰를 띄움
             document.getElementById('main-view-pc').classList.add('hidden-view');
@@ -12664,6 +12715,7 @@ function openPrintWindow() {
             if (event.key === 'Escape' || event.keyCode === 27) {
                 const moduleView = document.getElementById('module-view');
                 if (moduleView && moduleView.style.display === 'block') {
+                    // 키보드 ESC는 무조건 메인 화면 복귀로 처리
                     closeModule();
                 }
             }
