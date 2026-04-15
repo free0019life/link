@@ -47,7 +47,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 padding: 20px 80px 50px 80px; width: 100%; max-width: 1600px; min-width: 1200px; 
                 margin: 0 auto; min-height: 100vh; box-sizing: border-box; 
             }
-            /* 수정됨: 헤더 하단 여백을 24px -> 12px, 12px -> 6px로 50% 축소 */
             #main-view-pc .header-container {
                 display: flex; justify-content: space-between; align-items: flex-end;
                 width: 100%; max-width: 100%; margin-bottom: 12px; border-bottom: 2px solid #1e293b; padding-bottom: 6px;
@@ -58,15 +57,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             #main-view-pc .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; width: 100%; max-width: 100%; align-items: stretch; }
             #main-view-pc .laws-frame { grid-column: span 4; background-color: #eff6ff; border: 2px solid #3b82f6; border-radius: 16px; padding: 16px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15); display: flex; flex-direction: column; }
             #main-view-pc .laws-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; flex-grow: 1; }
-            /* 수정됨: 박스 패딩을 16px에서 8px 16px(상하 50% 축소)로 변경 */
             #main-view-pc .category-section { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
             #main-view-pc .laws-grid .category-section { background-color: #ffffff; border: 1px solid #cbd5e1; }
             #main-view-pc .recent-section { background-color: #f8fafc; border: 1px solid #cbd5e1; box-shadow: 0 0 5px #cbd5e1, 0 0 10px rgba(148, 163, 184, 0.4), inset 0 0 5px rgba(148, 163, 184, 0.2); }
             #main-view-pc .recent-section .category-title { color: #334155; border-bottom: 2px solid #cbd5e1; }
             #main-view-pc .empty-recent { text-align: center; color: #475569; font-size: 14px; font-weight: bold; padding: 40px 0; line-height: 1.6; }
-            /* 수정됨: 제목 하단 여백을 16px -> 8px, 8px -> 4px로 50% 축소 */
             #main-view-pc .category-title { font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 8px; color: #334155; border-bottom: 2px solid #cbd5e1; padding-bottom: 4px; }
-            /* 수정됨: 제목 하단 마진 16px -> 8px */
             #main-view-pc .laws-grid .category-title { border: 1.5px dashed #94a3b8; border-radius: 50px; width: 110%; margin-left: -5%; padding-top: 2px; padding-bottom: 2px; font-size: 18px; background-color: #ffffff; transition: all 0.3s ease; box-sizing: border-box; margin-bottom: 8px; }
             #main-view-pc .laws-grid .category-section:has(.calc-btn:hover) .category-title,
             #main-view-pc .laws-grid .category-section.btn-hovered .category-title { border-color: #3b82f6; color: #1d4ed8; background-color: #eff6ff; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.1); }
@@ -94,9 +90,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             #main-view-pc .footer-warning { color: #ea580c; text-align: left; font-size: 14px; font-weight: 900; margin-bottom: 6px; }
             #main-view-pc .footer-notice { color: #64748b; text-align: left; font-size: 14px; font-weight: bold; margin-bottom: 12px; }
 
-            /* PC용 모듈 뷰 버튼 스타일 */
+            /* PC용 모듈 뷰 버튼 스타일 (SVG 제거 대응 등 정렬 보정) */
             .back-btn-wrapper { position: absolute; top: 4px; left: 20mm; z-index: 1000; pointer-events: none; }
-            #back-btn { pointer-events: auto; background-color: #f97316; color: #ffffff; border: 2px solid #ea580c; border-radius: 6px; padding: 6px 14px; font-size: 13px; font-weight: 900; cursor: pointer; box-shadow: 0 3px 0 #c2410c, 0 4px 6px rgba(0,0,0,0.2); transition: background-color 0.2s ease; display: flex; align-items: center; gap: 4px; animation: pcBackPulse 1s infinite ease-in-out; }
+            #back-btn { pointer-events: auto; background-color: #f97316; color: #ffffff; border: 2px solid #ea580c; border-radius: 6px; padding: 6px 14px; font-size: 13px; font-weight: 900; cursor: pointer; box-shadow: 0 3px 0 #c2410c, 0 4px 6px rgba(0,0,0,0.2); transition: background-color 0.2s ease; display: flex; align-items: center; justify-content: center; animation: pcBackPulse 1s infinite ease-in-out; }
             #back-btn:hover { background-color: #ea580c; animation-play-state: paused; transform: translateY(-2px) scale(1.02); box-shadow: 0 5px 0 #c2410c, 0 6px 12px rgba(0,0,0,0.25); }
             #back-btn:active { animation-play-state: paused; transform: translateY(0) scale(1); box-shadow: 0 0 0 #c2410c, 0 1px 2px rgba(0,0,0,0.2); }
             @keyframes pcBackPulse {
@@ -118,17 +114,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 display: flex; flex-direction: column; align-items: center; 
                 padding: 8px 10px 10px 10px; width: 100%; margin: 0 auto; min-height: 100vh; background-color: #ffffff; 
             }
-            /* 수정됨: 헤더 마진 8px->4px, 패딩 6px->3px로 50% 축소 */
             #main-view-mobile .header-container { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; margin-bottom: 4px; border-bottom: 2px solid #1e293b; padding-bottom: 3px; }
             #main-view-mobile .header-title { font-size: clamp(1.6rem, 6.5vw, 2.2rem); font-weight: 900; margin: 0; color: #0f172a; letter-spacing: -1px; text-align: center; }
-            /* 수정됨: 날짜 위 마진 2px -> 0 으로 축소 */
             #main-view-mobile .title-date { font-size: clamp(0.85rem, 3.5vw, 1rem); color: #475569; font-weight: 700; text-align: center; margin-top: 0; }
             
-            /* 수정됨: 각 범주 박스 간의 gap을 10px에서 8px로 축소 */
             #main-view-mobile .laws-frame { width: 100%; background-color: #ffffff; border: none; padding: 2px; display: flex; flex-direction: column; gap: 8px; }
-            /* 수정됨: 박스 내부 패딩을 기존 8px에서 4px 8px 8px 8px로 변경하여 상단 제목과의 여백을 50% 줄임 */
             #main-view-mobile .category-section { background-color: #e2e8f0; border-radius: 8px; padding: 4px 8px 8px 8px; border: 0.5px solid #86efac; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); }
-            /* 수정됨: 제목 하단 여백을 4px -> 2px, 4px -> 2px로 50% 축소 */
             #main-view-mobile .category-title { font-size: clamp(1.2rem, 5.5vw, 1.6rem); font-weight: 900; text-align: center; margin-bottom: 2px; color: #1e3a8a; text-shadow: 2px 3px 6px rgba(0, 0, 0, 0.3); border-bottom: 1px solid #86efac; padding-bottom: 2px; }
             
             #main-view-mobile .button-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; }
@@ -144,9 +135,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             #main-view-mobile .footer-notice-item.warning-text { color: #dc2626; }
             #main-view-mobile .footer-copyright { color: #64748b; font-size: clamp(0.9rem, 3.5vw, 1.2rem); font-weight: 900; text-align: left; margin-top: 2px; }
 
-            /* 모바일용 모듈 뷰 버튼 스타일 */
-            .back-btn-wrapper { position: absolute; top: auto; bottom: 25px; right: 20px; z-index: 1000; pointer-events: none; }
-            #back-btn { pointer-events: auto; background-color: #f97316; color: #ffffff; border: 2px solid #ea580c; border-radius: 12px; padding: 14px 24px; font-size: 24px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); transition: background-color 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: -1px; }
+            /* [수정] 모바일용 모듈 뷰 버튼 스타일: 위치 80% 상향 (bottom:58px), 모서리 완전 반원형(border-radius:50px), 크기/패딩 최적화 */
+            .back-btn-wrapper { position: absolute; top: auto; bottom: 58px; right: 20px; z-index: 1000; pointer-events: none; }
+            #back-btn { pointer-events: auto; background-color: #f97316; color: #ffffff; border: 2px solid #ea580c; border-radius: 50px; padding: 10px 20px; font-size: 16px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); transition: background-color 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; letter-spacing: -1px; }
 
             .animate-attention { animation: attentionPulse 1.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards, continuousPulse 1s ease-in-out 1.5s infinite; }
             @keyframes attentionPulse {
@@ -293,11 +284,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
          ========================================================= -->
     <div id="module-view">
         <div class="back-btn-wrapper">
-            <!-- onClick 함수 변경 및 텍스트/디자인 적용 -->
+            <!-- [수정] SVG 태그(특수문자 화살표 아이콘) 제거 및 문자열만 유지 -->
             <button id="back-btn" onclick="handleBackAction()">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path>
-                </svg>
                 <span style="display:inline-block; line-height:1;">뒤로가기</span>
             </button>
         </div>
@@ -12647,14 +12635,25 @@ function openPrintWindow() {
             const safeReloadCode = "if(window.parent && typeof window.parent.reloadCurrentModule === 'function') { window.parent.reloadCurrentModule(); } else { location.reload(); }";
             sourceCode = sourceCode.replace(/(window\.)?location\.reload\([^)]*\)/g, safeReloadCode);
 
-            // [추가] 계산기 화면 내의 클릭, 터치, 키보드 입력 등을 감지하기 위한 스크립트 코드 주입
+            // [수정] 스크롤 등 단순 화면 터치(touchstart)로는 새로고침 모드로 전환되지 않도록 방어 로직 설계
+            // 오직 값을 입력하거나, 계산기 조작용 버튼을 누를 때에만 상호작용(오염)으로 판정합니다.
             const interactionScript = `<script>
-                ['click', 'input', 'change', 'touchstart', 'keydown'].forEach(function(evt) {
+                ['input', 'change'].forEach(function(evt) {
                     document.addEventListener(evt, function() {
                         if(window.parent && typeof window.parent.markModuleDirty === 'function') {
                             window.parent.markModuleDirty();
                         }
                     });
+                });
+                document.addEventListener('click', function(e) {
+                    var targetTag = e.target.tagName.toLowerCase();
+                    var isButton = targetTag === 'button' || e.target.closest('button') !== null;
+                    var isInput = targetTag === 'input' || targetTag === 'select' || targetTag === 'textarea';
+                    if (isButton || isInput) {
+                        if(window.parent && typeof window.parent.markModuleDirty === 'function') {
+                            window.parent.markModuleDirty();
+                        }
+                    }
                 });
             <\/script>`;
 
