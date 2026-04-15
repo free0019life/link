@@ -90,7 +90,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             #main-view-pc .footer-warning { color: #ea580c; text-align: left; font-size: 14px; font-weight: 900; margin-bottom: 6px; }
             #main-view-pc .footer-notice { color: #64748b; text-align: left; font-size: 14px; font-weight: bold; margin-bottom: 12px; }
 
-            /* PC용 모듈 뷰 버튼 스타일 (SVG 제거 대응 등 정렬 보정) */
+            /* PC용 모듈 뷰 버튼 스타일 */
             .back-btn-wrapper { position: absolute; top: 4px; left: 20mm; z-index: 1000; pointer-events: none; }
             #back-btn { pointer-events: auto; background-color: #f97316; color: #ffffff; border: 2px solid #ea580c; border-radius: 6px; padding: 6px 14px; font-size: 13px; font-weight: 900; cursor: pointer; box-shadow: 0 3px 0 #c2410c, 0 4px 6px rgba(0,0,0,0.2); transition: background-color 0.2s ease; display: flex; align-items: center; justify-content: center; animation: pcBackPulse 1s infinite ease-in-out; }
             #back-btn:hover { background-color: #ea580c; animation-play-state: paused; transform: translateY(-2px) scale(1.02); box-shadow: 0 5px 0 #c2410c, 0 6px 12px rgba(0,0,0,0.25); }
@@ -100,6 +100,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 50%  { transform: translateY(-3px) scale(1.02); box-shadow: 0 6px 0 #c2410c, 0 8px 12px rgba(249, 115, 22, 0.5); }
                 100% { transform: translateY(0) scale(1); box-shadow: 0 3px 0 #c2410c, 0 4px 6px rgba(0,0,0,0.2); }
             }
+            
+            /* [수정] PC 해상도에서는 모바일용 텍스트를 숨기고 PC용 텍스트만 표시 */
+            #back-btn .btn-text-mobile { display: none; }
+            #back-btn .btn-text-pc { display: inline-block; line-height: 1; }
         }
 
         /* =========================================================
@@ -135,7 +139,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             #main-view-mobile .footer-notice-item.warning-text { color: #dc2626; }
             #main-view-mobile .footer-copyright { color: #64748b; font-size: clamp(0.9rem, 3.5vw, 1.2rem); font-weight: 900; text-align: left; margin-top: 2px; }
 
-            /* [수정] 모바일용 모듈 뷰 버튼 스타일: 위치 80% 상향 (bottom:58px), 모서리 완전 반원형(border-radius:50px), 크기/패딩 최적화 */
+            /* 모바일용 모듈 뷰 버튼 스타일 */
             .back-btn-wrapper { position: absolute; top: auto; bottom: 58px; right: 20px; z-index: 1000; pointer-events: none; }
             #back-btn { pointer-events: auto; background-color: #f97316; color: #ffffff; border: 2px solid #ea580c; border-radius: 50px; padding: 10px 20px; font-size: 16px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); transition: background-color 0.2s, transform 0.1s; display: flex; align-items: center; justify-content: center; letter-spacing: -1px; }
 
@@ -155,6 +159,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 50% { transform: scale(1.05) translateY(-2px); box-shadow: 0 8px 16px rgba(249, 115, 22, 0.5); }
                 100% { transform: scale(1) translateY(0); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
             }
+            
+            /* [수정] 모바일 해상도에서는 PC용 텍스트를 숨기고 모바일용 텍스트만 표시 */
+            #back-btn .btn-text-pc { display: none; }
+            #back-btn .btn-text-mobile { display: inline-block; line-height: 1; }
         }
 
         /* 공통 모듈 뷰 프레임 (PC/모바일 공통 적용) */
@@ -284,9 +292,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
          ========================================================= -->
     <div id="module-view">
         <div class="back-btn-wrapper">
-            <!-- [수정] SVG 태그(특수문자 화살표 아이콘) 제거 및 문자열만 유지 -->
+            <!-- [수정] 기기별 맞춤 텍스트 표시를 위해 두 개의 span 태그로 이원화 구성 -->
             <button id="back-btn" onclick="handleBackAction()">
-                <span style="display:inline-block; line-height:1;">뒤로가기</span>
+                <span class="btn-text-pc">홈화면 이동</span>
+                <span class="btn-text-mobile">뒤로가기</span>
             </button>
         </div>
         <iframe id="calculator-frame"></iframe>
@@ -12611,14 +12620,18 @@ function openPrintWindow() {
             }
         }
 
-        // [추가] '뒤로가기' 버튼 클릭 시 상태에 따라 로직을 분기하는 함수
+        // [수정] 해상도 감지를 통해 데스크톱과 모바일의 버튼 기능을 이원화하여 작동
         function handleBackAction() {
-            if (isModulePristine) {
-                // 한 번도 터치/입력하지 않은 '초기 오픈' 혹은 '방금 새로고침된' 상태라면 메인으로 복귀
+            if (window.innerWidth >= 1200) {
+                // 데스크톱(PC) 화면: 입력/조작 상태와 무관하게 무조건 즉시 홈화면(메인화면)으로 복귀
                 closeModule();
             } else {
-                // 사용자가 무언가를 입력하거나 조작한 상태라면 새로고침을 실행
-                reloadCurrentModule();
+                // 모바일 화면: 기존 최적화 로직 100% 유지 (미조작 시 홈화면 복귀, 조작 시 새로고침)
+                if (isModulePristine) {
+                    closeModule();
+                } else {
+                    reloadCurrentModule();
+                }
             }
         }
 
