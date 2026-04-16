@@ -8833,179 +8833,279 @@ function openPrintWindow() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>기술검토 수수료 자동 계산기</title>
+    <title>도시가스 시설검사 및 시공감리 산출 시스템</title>
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --border: #e2e8f0; --text: #1e293b; --dark: #1e293b; --secondary-text: #64748b; }
+        body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; background-color: var(--bg); margin: 0; padding: 25px 0; color: var(--text); }
         
-        /* body 여백 초기화 및 상하 여백 부여 */
-        body { 
-            font-family: 'Pretendard', 'Malgun Gothic', sans-serif; 
-            background-color: var(--bg); 
-            margin: 0; 
-            padding: 25px 0; 
-            color: var(--text); 
-        }
-        
-        /* PC 환경: wrapper 좌우 90% 여백 (고정 최소너비 제거) */
+        /* --- 공통 및 PC 기본 레이아웃 --- */
         .wrapper { 
             width: 90%; 
             max-width: 1700px; 
             margin: 0 auto; 
             box-sizing: border-box; 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; /* 정확히 1:1 패널 유지 */
+            display: flex; 
             gap: 25px; 
-            align-items: start; 
+            align-items: flex-start; 
+        }
+
+        .main-panel, .side-wrapper {
+            width: 50%; 
+            box-sizing: border-box;
+        }
+
+        /* 왼쪽 입력 패널 (Sticky 적용) */
+        .main-panel { 
+            background: #fff; 
+            padding: 25px; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            position: sticky; 
+            top: 20px; 
+            max-height: 95vh; 
+            overflow-y: auto; 
         }
         
-        /* 왼쪽 입력 패널 */
-        .main-panel { background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .main-panel::-webkit-scrollbar { width: 6px; }
+        .main-panel::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
         
+        /* 시스템 에러 알림 배너 */
+        #errorBanner {
+            display: none;
+            background-color: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #f87171;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            align-items: center;
+            gap: 10px;
+            word-break: keep-all;
+        }
+
         /* 제목 영역 */
         .title-area { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         h1 { font-size: 1.3rem; margin: 0; border-left: 5px solid var(--primary); padding-left: 15px; word-break: keep-all; }
-        .copyright-tag { font-size: 0.75rem; color: var(--secondary-text); font-weight: 500; word-break: keep-all; }
+        .copyright-tag { font-size: 0.75rem; color: var(--secondary-text); font-weight: 500; white-space: nowrap; }
 
-        /* 터치 반응성 확보를 위한 공통 속성 부여 */
-        button, .law-btn, .btn-reset, .sub-btn, .cat-btn, .group-btn {
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-            word-break: keep-all; /* 버튼 텍스트 줄바꿈 방지 */
+        /* 탑 바 */
+        .top-bar { 
+            display: flex; justify-content: flex-start; margin-bottom: 20px; 
+            background: transparent; align-items: center; flex-wrap: wrap; gap: 10px; 
         }
-
-        /* 상단 법률 선택 바 */
-        .top-bar { display: flex; justify-content: space-between; margin-bottom: 20px; background: #f1f5f9; padding: 10px; border-radius: 10px; align-items: center; flex-wrap: wrap; gap: 15px; }
-        .law-toggle { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
+        .type-toggle { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; align-items: center; }
         
-        /* 메인 버튼 */
-        .law-btn { 
-            flex: 1; min-width: 60px; text-align: center; border: 2px solid #06b6d4; padding: 4px 10px; border-radius: 8px; cursor: pointer; 
-            font-weight: 800; font-size: 1.4rem; background: #fff; color: #475569; box-shadow: 0 4px 6px rgba(6, 182, 212, 0.3); transition: all 0.2s ease; 
+        /* 메인 선택 버튼 (.type-btn) */
+        .type-btn { 
+            border: 2px solid #06b6d4; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            background: #fff; 
+            color: #64748b; 
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(6, 182, 212, 0.2);
+            user-select: none; -webkit-user-select: none; touch-action: manipulation;
+            
+            font-weight: 800 !important; 
+            font-size: 1.35rem !important; 
+            word-break: keep-all !important; 
+            white-space: nowrap !important; 
+            padding-top: 8px !important; 
+            padding-bottom: 8px !important; 
+            padding-left: 18px; 
+            padding-right: 18px; 
+            box-sizing: border-box !important; 
+            text-align: center !important;
+            flex: 1 1 auto !important; 
         }
-        .law-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 2px 4px rgba(37, 99, 235, 0.4); transform: translateY(0); }
+        .type-btn.active { 
+            background: #2563eb; 
+            color: #fff; 
+            border-color: #2563eb; 
+            box-shadow: 0 3px 6px rgba(37, 99, 235, 0.4);
+        }
         
         /* 초기화 버튼 */
         .btn-reset { 
-            display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border: 2px solid #94a3b8; background: #fff; cursor: pointer; border-radius: 8px; 
-            color: #ef4444; font-weight: bold; font-size: 0.85rem; white-space: nowrap; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; 
+            display: inline-flex; align-items: center; gap: 6px; 
+            padding: 6px 12px; 
+            border: 2px solid #94a3b8; 
+            background: #fff; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            color: #ef4444; 
+            font-weight: bold; 
+            font-size: 1.0rem; 
+            white-space: nowrap !important;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            user-select: none; -webkit-user-select: none; touch-action: manipulation;
         }
 
-        /* 서브 탭 */
-        .sub-tab-area { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px; overflow-x: auto; flex-wrap: wrap; }
-        .sub-btn { 
-            border: 2px solid #39ff14; /* 밝은 초록색(형광색) 테두리 */
-            padding: 2px 10px; border-radius: 20px; cursor: pointer; font-weight: 700; background: transparent; /* 색 없음 */ color: #9ca3af; /* 연한 회색 */ font-size: 1.2rem; 
-            white-space: nowrap; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; 
+        /* 하위 그룹(그리드) */
+        #grid1:not(.hidden), #grid2:not(.hidden), #grid3:not(.hidden) {
+            border: 1px solid #cbd5e1;
+            padding: 15px;
+            border-radius: 12px;
+            background: #fff;
+            box-sizing: border-box;
+            margin-bottom: 15px;
         }
-        .sub-btn.active { background: #006400; /* 진한 초록색 */ border-color: #006400; color: #fff; box-shadow: 0 2px 4px rgba(0, 100, 0, 0.4); transform: translateY(0); }
 
-        /* 카테고리 버튼 - 기본 3열 */
-        .category-grid { display: grid; grid-template-columns: 1.2fr 0.9fr 0.9fr; gap: 10px; margin-bottom: 20px; }
-        .category-grid.city-grid { grid-template-columns: 1fr 1fr; }
+        /* 하위 카테고 버튼 */
+        .sub-type-toggle { margin-bottom: 15px; display: flex; gap: 8px; flex-wrap: wrap; }
         
-        .cat-btn { 
-            padding: 4px 8px; border: 2px solid #94a3b8; border-radius: 10px; background: #fff; cursor: pointer; font-size: 1.35rem; font-weight: 500; min-height: 45px; 
-            display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.3; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s ease; 
+        .cat-btn, .sub-type-btn, .green-pill-btn, .slim-green-btn, .pipe-type-btn, .cat-btn.terminal-btn {
+            min-height: 40px !important;
+            font-size: 1.1rem !important;
+            padding: 6px 16px !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            cursor: pointer;
+            white-space: nowrap;
+            word-break: keep-all;
+            user-select: none; -webkit-user-select: none; touch-action: manipulation;
         }
-        .cat-btn.active { background: #eff6ff; border-color: var(--primary); color: var(--primary); font-weight: bold; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.4); transform: translateY(0); }
-
-        /* 하위 그룹(계층형 탭) 버튼 */
-        .group-btn {
-            padding: 2px 10px; border-radius: 20px; border: 2px solid #39ff14; /* 밝은 초록색(형광색) 테두리 */ background: transparent; /* 색 없음 */ color: #9ca3af; /* 연한 회색 */ cursor: pointer; font-weight: 700; font-size: 1.15rem; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.2s ease;
-        }
-        .group-btn.active { background: #006400; /* 진한 초록색 */ color: #fff; border-color: #006400; box-shadow: 0 2px 4px rgba(0, 100, 0, 0.4); transform: translateY(0); }
-
-        .input-box { background: #f8fafc; border: 1px solid var(--border); padding: 20px; border-radius: 12px; min-height: 180px; }
-        .section-label { font-size: 0.85rem; font-weight: bold; color: #475569; margin: 15px 0 8px 0; padding-bottom: 5px; border-bottom: 1px dashed #cbd5e1; word-break: keep-all; }
-        .section-label:first-child { margin-top: 0; }
         
-        /* 입력창 좌측 정렬 (iOS 최적화) */
-        .input-row { 
-            display: flex; align-items: center; justify-content: flex-start; gap: 15px; padding: 10px 0; border-bottom: 1px solid #eef2f6;
-            min-height: 40px; box-sizing: border-box; flex-wrap: nowrap;
+        /* 반원 형태의 버튼 */
+        .sub-type-btn, .green-pill-btn, .slim-green-btn, .pipe-type-btn, .cat-btn.terminal-btn {
+            border-radius: 50px !important;       
+            border: 2px solid #22c55e !important; 
+            background-color: #fff !important; 
+            color: #1e293b !important;               
+            font-weight: 600 !important;          
         }
-        .input-label { flex: 0 0 260px; font-size: 0.9rem; font-weight: 500; color: #334155; line-height: 1.3; word-break: keep-all; }
-        .unit-label { font-size: 0.85rem; color: var(--secondary-text); flex: 0 0 auto; text-align: left; word-break: keep-all; }
         
-        /* 숫자 입력 필드 */
-        input[type="number"] { width: 110px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: right; font-size: 0.95rem; font-family: inherit; transition: border-color 0.2s; box-sizing: border-box; }
-        input[type="number"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
-        input[type="number"]::placeholder { color: #cbd5e1; font-weight: normal; }
-        input[type="number"]:focus::placeholder { color: transparent; }
+        .sub-type-btn.active, .green-pill-btn.active, .slim-green-btn.active, .pipe-type-btn.active, .cat-btn.terminal-btn.active {
+            background-color: #166534 !important; 
+            border-color: #166534 !important;     
+            color: #ffffff !important;               
+            box-shadow: 0 2px 4px rgba(22, 101, 52, 0.3) !important;
+        }
 
-        /* 특수 입력 필드 */
-        .value-input-row { background: #fff; padding: 15px; border: 1px solid #93c5fd; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(59,130,246,0.05); }
-        .value-input-row .input-label { color: var(--primary); font-weight: bold; }
-        .value-input-row input { border-color: #93c5fd; background: #eff6ff; font-weight: bold; color: #1e3a8a; }
+        /* 사각형 버튼 */
+        .cat-btn:not(.green-pill-btn):not(.terminal-btn) { 
+            border: 2px solid #94a3b8 !important; 
+            border-radius: 8px !important; 
+            background: #fff !important; 
+            color: #334155 !important;
+        }
+        .cat-btn.active:not(.green-pill-btn):not(.terminal-btn) { 
+            background: #eff6ff !important; 
+            border-color: var(--primary) !important; 
+            color: var(--primary) !important; 
+            font-weight: bold !important; 
+        }
 
-        /* 좌측 하단 부가세 안내 문구 */
-        .notice-text { margin-top: 30px; font-size: 0.9rem; color: #64748b; line-height: 1.6; word-break: keep-all; }
+        .wide-pill { min-width: 0 !important; width: fit-content !important; }
+
+        .category-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; }
+        
+        /* 가스공급시설 2열 그리드 */
+        .grid-2col-layout {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 10px !important;
+            width: 100%;
+        }
+        .grid-2col-layout .cat-btn { width: 100% !important; flex: none !important; margin: 0 !important; height: 100%; }
+        .black-border-box { border: 2px dashed #cbd5e1 !important; padding: 15px; border-radius: 12px; background-color: transparent !important; margin-bottom: 15px; box-sizing: border-box; }
+
+        /* 입력 폼 영역 */
+        .input-box { background: #f8fafc; border: none; padding: 20px; border-radius: 12px; min-height: 120px; margin-bottom: 15px; }
+        .input-row { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #eef2f6; gap: 10px; flex-wrap: wrap; min-height: 40px; box-sizing: border-box; width: 100%; }
+        .input-row:last-child { border-bottom: none; }
+        .input-label { flex: 0 0 130px; font-size: 0.9rem; font-weight: 600; color: #334155; word-break: keep-all; }
+        .unit-label { font-size: 0.85rem; color: var(--secondary-text); word-break: keep-all; }
+        
+        input[type="number"], select { 
+            padding: 8px 12px; 
+            border: 1px solid var(--border);
+            border-radius: 6px; 
+            text-align: right; 
+            outline: none; 
+            font-family: inherit; 
+            font-size: 1rem; 
+            flex: 0 0 auto; 
+            box-sizing: border-box; 
+            background-color: #fff;
+            -webkit-appearance: none;
+            appearance: none; 
+        }
+        input[type="number"]:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37,99,235,0.1); }
+        input::placeholder { color: #cbd5e1; }
+        
+        /* 다중 산출 컨트롤 버튼 */
+        .btn-ctrl {
+            width: 28px; height: 28px; border-radius: 6px; border: none; cursor: pointer;
+            font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+            color: #fff; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex-shrink: 0;
+            user-select: none; -webkit-user-select: none; touch-action: manipulation;
+        }
+        .btn-ctrl.add { background: #3b82f6; }
+        .btn-ctrl.del { background: #ef4444; }
+
+        .checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; color: #ef4444; font-weight: 600; background: #fee2e2; padding: 8px 12px; border-radius: 6px; border: 1px solid #fca5a5; word-break: keep-all; }
+        .checkbox-label input { width: 16px; height: 16px; accent-color: #ef4444; cursor: pointer; flex-shrink: 0; }
+
+        .info-text { margin-top: 20px; font-size: 0.85rem; color: var(--secondary-text); line-height: 1.6; word-break: keep-all; }
 
         /* 오른쪽 결과 패널 */
-        .side-wrapper { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 20px; max-height: 95vh; overflow-y: auto; padding-right: 5px; }
-        .side-panel { background: var(--dark); color: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
-        .res-title { font-size: 1.05rem; font-weight: bold; color: #e2e8f0; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 15px; word-break: keep-all;}
+        .side-wrapper { display: flex; flex-direction: column; gap: 20px; padding-right: 5px; }
+        .side-panel { background: var(--dark); color: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); flex-shrink: 0; }
         
-        .detail-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.8rem; background: rgba(255,255,255,0.05); border-radius: 8px; overflow: hidden; word-break: keep-all;}
-        .detail-table th, .detail-table td { padding: 10px; border-bottom: 1px solid #334155; text-align: left; }
-        .detail-table th { background: rgba(0,0,0,0.2); color: #94a3b8; font-weight: 500; }
-        .detail-table .tr-sum { background: rgba(255,255,255,0.1); font-weight: bold; color: #fbbf24; }
-        .detail-table .tr-sum td { border-bottom: none; border-top: 2px solid #fbbf24; }
+        .detail-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 0.8rem; background: rgba(255,255,255,0.05); }
+        .detail-table th, .detail-table td { padding: 10px; border-bottom: 1px solid #334155; text-align: left; word-break: keep-all; }
+        .detail-table th { color: #cbd5e1; font-weight: 600; }
+        .detail-table .tr-sum { background: rgba(255,255,255,0.08); font-weight: bold; color: #fbbf24; border-bottom: 2px solid #ea580c; }
+        .detail-table .txt-r { text-align: right; }
 
-        .summary-box { border-top: 1px solid #475569; padding-top: 15px; margin-top: 10px; }
-        .sum-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; color: #cbd5e1; word-break: keep-all;}
-        .sum-row.highlight { color: #fff; font-weight: bold; }
+        .summary-box { border-top: 1px solid #475569; padding-top: 15px; }
+        .sum-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; word-break: keep-all; }
         
-        /* 최종합계금액 디자인 수정 */
-        .total-row { display: flex; flex-direction: column; gap: 0px; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #475569; color: #fbbf24; }
-        .total-row-title { font-size: 1.15rem; color: #cbd5e1; font-weight: bold; letter-spacing: -0.5px; text-align: left; margin-bottom: -5px; word-break: keep-all;}
-        .total-val { font-size: 2.7rem; font-weight: 800; text-align: right; line-height: 1.2; }
+        .total-row { display: flex; flex-direction: column; align-items: flex-end; margin-top: 15px; color: #f97316; border-top: 1px dashed #475569; padding-top: 15px; gap: 5px; }
+        .total-label { font-size: 1.15rem; color: #cbd5e1; font-weight: bold; align-self: flex-start; }
+        .total-val { font-size: 2.7rem; font-weight: 800; line-height: 1; text-align: right; word-break: break-all; }
 
-        /* 고시 페이지 영역 (레이아웃 찌그러짐 방지 & 가로 스크롤 적용) */
-        .official-notice-box { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); color: #000; }
-        .gosi-page-content { 
-            font-size: 0.7rem; line-height: 1.3; border: 1px solid #000; padding: 15px; margin-bottom: 20px; 
-            font-family: 'Malgun Gothic', serif; background: #fff; overflow-x: auto; -webkit-overflow-scrolling: touch; 
-        }
-        .gosi-table { 
-            width: 100%; min-width: 600px; /* 표 내부 글자 넘침을 방지하기 위한 최소 너비 강제 */
-            border-collapse: collapse; border: 2px solid #000; table-layout: fixed; margin-top: 5px; 
-        }
-        .gosi-table th, .gosi-table td { border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 0.68rem; word-break: keep-all; transition: all 0.2s; }
+        .gosi-placeholder { background: #fff; border: 2px dashed #cbd5e1; border-radius: 16px; padding: 40px 20px; text-align: center; color: #94a3b8; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; min-height: 250px; line-height: 1.6; word-break: keep-all; }
+
+        /* 고시 페이지 복원 공통 */
+        .official-notice-box { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); color: #000; overflow-x: auto; }
+        .gosi-page-content { font-size: 0.65rem; line-height: 1.2; border: 1px solid #000; padding: 10px; font-family: 'Malgun Gothic', serif; margin-bottom: 15px; min-width: 500px; }
+        .gosi-page-content:last-child { margin-bottom: 0; }
+        .gosi-table { width: 100%; border-collapse: collapse; border: 1px solid #000; table-layout: fixed; }
+        .gosi-table th, .gosi-table td { border: 1px solid #000; padding: 6px 4px; text-align: center; font-size: 0.7rem; word-break: keep-all; line-height: 1.3; }
         .gosi-table th { background: #f2f2f2; font-weight: bold; }
-        .gosi-category { background: #f9f9f9; font-weight: bold; }
-        .txt-l { text-align: left !important; padding-left: 8px !important; }
-        .txt-r { text-align: right !important; padding-right: 8px !important; }
-        .page-num { text-align: center; font-weight: bold; margin-top: 10px; font-size: 0.8rem; }
-        .formula-cell { font-size: 0.65rem !important; line-height: 1.4 !important; text-align: left !important; }
-
-        .gosi-placeholder { background: #fff; border: 2px dashed #cbd5e1; border-radius: 16px; padding: 80px 20px; text-align: center; color: #94a3b8; font-size: 1.1rem; line-height: 1.6; box-shadow: 0 4px 15px rgba(0,0,0,0.02); display: flex; align-items: center; justify-content: center; min-height: 150px; word-break: keep-all; }
+        .gosi-category { background: #f9f9f9; font-weight: bold; width: 60px; }
+        .txt-l { text-align: left !important; padding-left: 5px !important; }
         
-        /* 3단계 정밀 보완 사항: 붉은 테두리 내부 음영 완벽 차단 강제 속성 반영 (box-shadow, outline, webkit 특성 보강) */
-        .gosi-table tr.active-row td { 
-            border: 2px solid #ef4444 !important; 
-            color: #000 !important; 
-            font-weight: bold; 
-            background-color: #ffffff !important; 
-            box-shadow: none !important;
-            -webkit-box-shadow: none !important;
-            outline: none !important;
-        }
+        .formula-cell { font-size: 0.65rem !important; line-height: 1.3 !important; text-align: left !important; word-break: keep-all; padding: 6px !important; }
+        .page-num { text-align: center; font-weight: bold; margin-top: 10px; font-size: 0.75rem; }
+        .gosi-title { font-weight: bold; margin-bottom: 8px; font-size: 0.8rem; border-bottom: 1px solid #000; padding-bottom: 4px; }
         
+        /* [3단계 UI 무결성 보완] 하이라이트 행 및 내부 td의 배경색/그림자 상속 완벽 차단 */
+        .gosi-table tr.hl, .gosi-table td.hl { background-color: transparent !important; outline: 3px solid #ef4444; outline-offset: -3px; position: relative; z-index: 10; box-shadow: none !important; }
+        .gosi-table tr.hl td, .gosi-table td.hl { background-color: transparent !important; box-shadow: none !important; }
+        .highlight-cell { outline: 3px solid #ef4444 !important; outline-offset: -3px; color: #000 !important; background-color: transparent !important; position: relative; z-index: 10; box-shadow: none !important; }
+        .highlight-cell td { box-shadow: none !important; }
         .hidden { display: none !important; }
 
-        /* ========================================================================= */
-        /* PC 환경 전용: Hover 애니메이션 (터치 기기 충돌 원천 차단)                   */
-        /* ========================================================================= */
         @media (hover: hover) and (pointer: fine) {
-            .law-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(6, 182, 212, 0.4); }
-            .btn-reset:hover { background: #fef2f2; border-color: #f87171; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(239, 68, 68, 0.15); }
-            .sub-btn:hover { border-color: #006400; color: #006400; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
-            .cat-btn:hover { border-color: #64748b; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
-            .group-btn:hover { border-color: #006400; color: #006400; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+            .type-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(6, 182, 212, 0.4); }
+            .btn-reset:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); background: #fef2f2; }
+            .sub-type-btn:hover, .green-pill-btn:hover, .slim-green-btn:hover, .pipe-type-btn:hover, .cat-btn.terminal-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+            .cat-btn:hover:not(.green-pill-btn):not(.terminal-btn) { background: #f1f5f9 !important; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+            .btn-ctrl.add:hover { background: #2563eb; transform: translateY(-1px); }
+            .btn-ctrl.del:hover { background: #dc2828; transform: translateY(-1px); }
+        }
+
+        .type-btn:active, .btn-reset:active, .sub-type-btn:active, .green-pill-btn:active, .slim-green-btn:active, .pipe-type-btn:active, .cat-btn:active, .btn-ctrl:active {
+            transform: translateY(1px) !important; box-shadow: 0 2px 3px rgba(0,0,0,0.1) !important;
         }
 
         /* 인쇄 버튼 레이아웃 */
@@ -9051,147 +9151,101 @@ function openPrintWindow() {
             box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
         }
 
-        /* ========================================================================= */
-        /* 모바일 및 태블릿 환경 최적화 (1024px 이하)                                */
-        /* ========================================================================= */
+        /* --- 반응형 레이아웃 --- */
         @media (max-width: 1024px) {
-            body { padding: 10px 0; }
-            .wrapper {
-                grid-template-columns: 1fr; /* 상하 배치로 전환 */
-                width: 100%;
-                padding: 0 10px;
-                gap: 15px;
-            }
-
-            .main-panel, .side-panel, .official-notice-box {
-                padding: 15px;
-            }
-
-            /* 법률 버튼 & 초기화 버튼 3열 2행 구조로 강제 배열 */
-            .top-bar { 
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
-                padding: 10px;
-                background: #f1f5f9;
-                border-radius: 10px;
-                margin-bottom: 20px;
-            }
-            .law-toggle { 
-                display: contents; /* grid 자식들을 상위 grid에 직접 편입 */
-            }
-            .law-btn {
-                margin: 0;
-                width: 100%;
-                max-width: none;
-                font-size: 1.15rem;
-                padding: 8px 4px;
-                height: 100%;
-                box-sizing: border-box;
-            }
-            .btn-reset { 
-                margin: 0;
-                width: 100%;
-                max-width: none;
-                font-size: 1.05rem;
-                padding: 8px 4px;
-                height: 100%;
-                box-sizing: border-box;
-                align-self: stretch;
-            }
-
-            /* 카테고리 2열 강제 */
-            .category-grid, .category-grid.city-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
-            .cat-btn { font-size: 1.1rem; min-height: 55px; padding: 8px 4px; }
-            
-            /* 입력 행 극한의 한 줄 압축 (가로 스크롤 완전 차단) */
-            .input-box { padding: 12px 10px; }
-            .input-row {
-                flex-wrap: nowrap;
-                gap: 4px;
-                padding: 6px 2px;
-            }
-            .value-input-row { padding: 10px 4px; }
-            
-            .input-label {
-                flex: 1 1 auto; /* 남는 공간 자동 조절 */
-                font-size: 0.8rem;
-                letter-spacing: -0.5px;
-            }
-            
-            input[type="number"] {
-                width: 60px; /* 입력창 최소화 */
-                padding: 8px 4px;
-                font-size: 0.9rem;
-            }
-            
-            .unit-label {
-                flex: 0 0 auto;
-                font-size: 0.75rem;
-                letter-spacing: -0.5px;
-            }
-
-            /* 스티키 속성 해제 (모바일 레이아웃 깨짐 방지) */
-            .side-wrapper { position: static; max-height: none; padding-right: 0; }
-            
-            /* 합계 폰트 크기 조정 */
-            .total-val { font-size: 2.2rem; }
-            .total-val small { font-size: 1.4rem !important; }
-            
+            body { padding: 15px 0; }
+            .wrapper { flex-direction: column; width: 95%; gap: 15px; }
+            .main-panel, .side-wrapper { width: 100%; position: static; max-height: none; }
+            .category-grid, #grid1, #grid2, #grid3 { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; justify-content: flex-start !important; }
+            .cat-btn { width: auto !important; flex: 0 0 auto !important; }
+            div#grid2.grid-2col-layout { display: grid !important; grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; width: 100% !important; }
+            div#grid2.grid-2col-layout .cat-btn { width: 100% !important; flex: none !important; }
+            .total-val { font-size: 2.8rem; }
             .print-btn { display: none !important; }
+
+            .type-btn {
+                font-size: 1.15rem !important; 
+                font-weight: 800 !important;
+                flex: 0 0 calc((100% - 16px) / 3) !important; 
+                padding-top: 10px !important; 
+                padding-bottom: 10px !important; 
+            }
         }
-        
-        /* 초소형 스마트폰 화면 추가 압축 */
+
+        @media (max-width: 480px) {
+            .type-toggle { display: flex !important; flex-wrap: wrap !important; gap: 6px !important; width: 100% !important; justify-content: flex-start !important; }
+            .type-btn { flex: 0 0 calc((100% - 12px) / 3) !important; }
+            .btn-reset { 
+                font-size: 0.95rem !important; 
+                width: auto !important; 
+                flex: 0 0 calc((100% - 12px) / 3) !important; 
+                justify-content: center !important; 
+                margin: 0 !important; 
+                white-space: nowrap !important; 
+                box-sizing: border-box !important;
+                padding-top: 10px !important; 
+                padding-bottom: 10px !important; 
+                padding-left: 2px !important; 
+                padding-right: 2px !important;
+            }
+            div#grid2.grid-2col-layout .cat-btn { font-size: 0.95rem !important; padding: 6px 4px !important; }
+            #grid3:not(.hidden) { flex-wrap: nowrap !important; gap: 4px !important; padding: 10px 5px !important; }
+            .cat-btn.terminal-btn { font-size: 0.85rem !important; padding: 6px 2px !important; flex: 1 1 50% !important; white-space: nowrap !important; }
+            .input-row, .dyn-row { flex-wrap: nowrap !important; gap: 4px !important; padding: 8px 2px !important; }
+            .input-label { flex: 1 1 auto !important; width: auto !important; font-size: 0.75rem !important; letter-spacing: -0.5px; word-break: keep-all; }
+            input[type="number"], select, .dyn-inp, #inp-v, #inp-v-sisul, #inp-v-sys { width: 50px !important; flex: 0 0 auto !important; font-size: 0.8rem !important; padding: 4px 2px !important; }
+            .unit-label { flex: 0 0 auto !important; font-size: 0.75rem !important; letter-spacing: -0.5px; }
+            .btn-ctrl { font-size: 0.9rem !important; width: 26px !important; height: 26px !important; padding: 0 !important; flex-shrink: 0 !important; }
+            .checkbox-label { font-size: 0.8rem; padding: 6px 8px; }
+        }
+
         @media (max-width: 380px) {
-            .cat-btn { font-size: 1rem; }
-            input[type="number"] { width: 50px; }
-            .input-label { font-size: 0.75rem; }
-            .law-btn { font-size: 1rem; }
-            .btn-reset { font-size: 0.95rem; }
+            .type-btn { font-size: 1.05rem !important; }
         }
     </style>
 </head>
 <body>
 
 <div class="wrapper">
+    <!-- 왼쪽 패널 -->
     <div class="main-panel">
         <div class="title-area">
-            <h1>기술검토 수수료 자동 계산기</h1>
+            <h1>도법 시설검사(시공감리) 수수료 산출</h1>
             <div class="copyright-tag">
-                <span>© 2026 한국가스안전공사 경기중부지사</span>
+                <span>© 2026 가스안전공사 경기중부지사</span>
             </div>
         </div>
         
+        <div id="errorBanner">
+            <span>⚠️</span>
+            <span id="errorMsgText">수수료 산출 중 시스템 오류가 발생했습니다. 입력값을 다시 확인해주세요.</span>
+        </div>
+
         <div class="top-bar">
-            <div class="law-toggle">
-                <button class="law-btn" onclick="selectLaw('GO', this)">고법</button>
-                <button class="law-btn" onclick="selectLaw('LIQ', this)">액법</button>
-                <button class="law-btn" onclick="selectLaw('CITY', this)">도법</button>
-                <button class="law-btn" onclick="selectLaw('HYD', this)">수소법</button>
-            </div>
-            <button class="btn-reset" onclick="resetAll()">🔄 초기화</button>
-        </div>
-
-        <div id="catGrid" class="category-grid">
-            <!-- Categories rendered here -->
-        </div>
-
-        <div id="subTabArea" class="sub-tab-area hidden">
-            <!-- Sub tabs rendered here -->
-        </div>
-
-        <div id="inputArea" class="input-box hidden">
-            <div id="fields">
-                <!-- Input rows rendered here -->
+            <div class="type-toggle">
+                <button class="type-btn" id="btn_mode_wan" onclick="setMode('wan')">완성검사</button>
+                <button class="type-btn" id="btn_mode_jung" onclick="setMode('jung')">정기검사</button>
+                <button class="type-btn" id="btn_mode_mid" onclick="setMode('mid')">중간검사</button>
+                <button class="type-btn" id="btn_mode_gamri" onclick="setMode('gamri')">시공감리</button>
+                <button class="btn-reset" onclick="location.reload()">🔄 초기화</button>
             </div>
         </div>
+
+        <div id="midNotice" class="hidden" style="font-size: 1.05rem; font-weight: bold; margin-bottom: 12px; color: #15803d; border-left: 4px solid #15803d; padding-left: 8px;">[도시가스 충전시설]</div>
+
+        <div id="grid1" class="category-grid hidden"></div>
+        <div id="grid2" class="category-grid hidden"></div>
+        <div id="grid3" class="category-grid hidden"></div>
         
-        <div class="notice-text">
+        <div id="inputArea" class="input-box hidden"></div>
+
+        <div class="info-text">
             ※ 위 수수료는 부가가치세(10%)가 제외된 금액입니다.<br>
-            ※ 최종 합계에는 부가가치세가 포함됩니다.
+            ※ 최종 합계에는 부가가치세가 포함됩니다. (단위 미만 절사 기준 적용)
         </div>
     </div>
 
+    <!-- 오른쪽 패널 -->
     <div class="side-wrapper">
         <div class="side-panel">
             <div class="result-header">
@@ -9200,34 +9254,26 @@ function openPrintWindow() {
             </div>
             <div id="detailSection" class="hidden">
                 <table class="detail-table">
-                    <thead><tr><th>구분 / 내용</th><th>수량</th><th>수수료(원)</th></tr></thead>
+                    <thead><tr><th>구분</th><th class="txt-r">수량/규모</th><th class="txt-r">금액(원)</th></tr></thead>
                     <tbody id="detailBody"></tbody>
                 </table>
             </div>
             <div class="summary-box">
-                <div class="sum-row"><span>적용 법령:</span><span id="outLaw">-</span></div>
-                <div class="sum-row"><span>검사 대상:</span><span id="outCat">-</span></div>
-                
-                <div class="sum-row" style="margin-top:15px; padding-top:15px; border-top:1px dashed #475569;">
-                    <span style="color:#94a3b8;">수수료 원금 합계:</span>
-                    <span><span id="outFee">0</span>원</span>
-                </div>
-                <div class="sum-row">
-                    <span style="color:#94a3b8;">부가가치세 (10%):</span>
-                    <span><span id="outVat">0</span>원</span>
-                </div>
-                
+                <div class="sum-row"><span>검사 종류:</span><span id="outMode" style="color:#fbbf24; font-weight:bold;">-</span></div>
+                <div class="sum-row"><span>대상 시설:</span><span id="outName" style="font-weight:bold;">-</span></div>
+                <div class="sum-row" style="margin-top: 10px;"><span>수수료 원금 합계:</span><span><span id="outFee">0</span> 원</span></div>
+                <div class="sum-row"><span>부가세 (10%):</span><span><span id="outVat">0</span> 원</span></div>
                 <div class="total-row">
-                    <div class="total-row-title">최종합계금액(VAT포함)</div>
-                    <div class="total-val"><span id="outTotal">0</span><small style="font-size:1.65rem; margin-left:5px; font-weight:normal;">원</small></div>
+                    <span class="total-label">최종합계금액(VAT포함)</span>
+                    <div class="total-val"><span id="outTotal">0</span><small style="font-size:1.5rem; margin-left:5px;">원</small></div>
                 </div>
             </div>
         </div>
-        
+
         <div id="gosiPlaceholder" class="gosi-placeholder">
-            좌측 상단의 검사종류를 선택하시면<br>관련된 수수료 책자 페이지가 이곳에 나타납니다.
+            좌측 상단의 검사/감리 종류를 선택하시면<br>관련된 수수료 책자 페이지가 나타납니다.
         </div>
-        
+
         <div id="gosiWrapper" class="official-notice-box hidden">
             <div id="gosiContent"></div>
         </div>
@@ -9235,990 +9281,982 @@ function openPrintWindow() {
 </div>
 
 <script>
-    // 전역 에러 핸들러 (시스템 안정성 보강)
-    window.onerror = function(message, source, lineno, colno, error) {
-        console.error("시스템 오류 발생:", message, "at line", lineno);
-        alert("[시스템 오류] 일시적인 시스템 오류가 발생했습니다. 값을 다시 입력해주시거나 화면을 새로고침해주세요.");
-        return true; 
+    /** * [데이터 구조 정의 및 무결성 관리] 
+     */
+    const UI_DATA = {
+        wan: [
+            { id: 'wan_spec', label: '특정가스사용시설' },
+            { id: 'wan_charge', label: '도시가스충전' },
+            { id: 'wan_cng', label: 'CNG완속충전설비' }
+        ],
+        jung: [
+            { id: 'jung_sup', label: '가스공급시설' },
+            { id: 'jung_spec', label: '특정가스사용시설' },
+            { id: 'jung_charge', label: '도시가스충전' },
+            { id: 'jung_cng', label: 'CNG완속충전설비' } 
+        ],
+        mid: [
+            { id: 'mid_comp', label: '압축' }, 
+            { id: 'mid_liq', label: '액화' }   
+        ],
+        gamri: [
+            { id: 'g_gov_station', label: '정압(밸브)기지' },
+            { id: 'g_gov', label: '정압기' },
+            { id: 'g_manu', label: '제조소·공급소' },
+            { id: 'g_pipe', label: '배관' }
+        ]
     };
 
-    /**
-     * @description [법령 기반 데이터베이스] 
-     * 고압가스, 액화석유가스, 도시가스, 수소법 등 4대 법령의 수수료 고시 체계를 구조화한 객체.
-     * [변수 명명 규칙 해설]
-     * - id: 고유 식별자
-     * - name: 시설 또는 분류의 이름
-     * - subs / subGroups: 하위 계층 메뉴 배열
-     * - fields: 입력받을 항목 배열
-     * - n: (name) 개별 입력 필드 또는 산출 내용의 이름
-     * - p: (price) 단일 건당 수수료 단가
-     * - rowId: 고시문 HTML 내에 하이라이트할 <tr> 태그의 ID
-     */
-    const DB = {
-        "GO": {
-            name: "고압가스안전관리법",
-            cats: [
-                {
-                    id: "g1", name: "제조, 저장, 충전",
-                    subs: [
-                        {
-                            id: "g1_1", name: "액화가스", gosi: [4],
-                            fields: [
-                                {
-                                    n: "제조·저장·충전 능력 (톤)", type: "value", unit: "톤",
-                                    calc: (v) => {
-                                        if (v <= 5) return { fee: 51500, rows: ['row-g1_1-1'] };
-                                        if (v <= 10) return { fee: 75200, rows: ['row-g1_1-2'] };
-                                        if (v <= 20) return { fee: 97900, rows: ['row-g1_1-3'] };
-                                        if (v <= 50) return { fee: 138000, rows: ['row-g1_1-4'] };
-                                        if (v <= 100) return { fee: 207000, rows: ['row-g1_1-5'] };
-                                        if (v <= 500) return { fee: 335000, rows: ['row-g1_1-6'] };
-                                        if (v <= 1000) return { fee: 491000, rows: ['row-g1_1-7'] };
-                                        return { fee: Math.min(2561000, 491000 + Math.ceil((v - 1000) / 500) * 153000), rows: ['row-g1_1-8', 'row-g1_1-9'] };
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            id: "g1_2", name: "압축가스", gosi: [5],
-                            fields: [
-                                {
-                                    n: "제조·저장·충전 능력 (㎡)", type: "value", unit: "㎡",
-                                    calc: (v) => {
-                                        if (v <= 1000) return { fee: 63900, rows: ['row-g1_2-1'] };
-                                        if (v <= 2000) return { fee: 114300, rows: ['row-g1_2-2'] };
-                                        if (v <= 3000) return { fee: 145200, rows: ['row-g1_2-3'] };
-                                        if (v <= 5000) return { fee: 179200, rows: ['row-g1_2-4'] };
-                                        if (v <= 10000) return { fee: 338000, rows: ['row-g1_2-5'] };
-                                        if (v <= 100000) return { fee: 543000, rows: ['row-g1_2-6'] };
-                                        if (v <= 200000) return { fee: 770000, rows: ['row-g1_2-7'] };
-                                        if (v <= 500000) return { fee: 971000, rows: ['row-g1_2-8'] };
-                                        if (v <= 1000000) return { fee: 1201000, rows: ['row-g1_2-9'] };
-                                        return { fee: Math.min(2561000, 1201000 + Math.ceil((v - 1000000) / 100000) * 141000), rows: ['row-g1_2-10', 'row-g1_2-11'] };
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    id: "g2", name: "냉동제조",
-                    gosi: [6],
-                    fields: [
-                        {
-                            n: "냉동 능력 입력 (톤)", type: "value", unit: "톤",
-                            calc: (v) => {
-                                if (v <= 5) return { fee: 13400, rows: ['row-g2-1'] };
-                                if (v <= 10) return { fee: 24700, rows: ['row-g2-2'] };
-                                if (v <= 30) return { fee: 58700, rows: ['row-g2-3'] };
-                                if (v <= 50) return { fee: 90600, rows: ['row-g2-4'] };
-                                if (v <= 100) return { fee: 148300, rows: ['row-g2-5'] };
-                                if (v <= 200) return { fee: 231800, rows: ['row-g2-6'] };
-                                if (v <= 300) return { fee: 296000, rows: ['row-g2-7'] };
-                                if (v <= 500) return { fee: 372000, rows: ['row-g2-8'] };
-                                return { fee: Math.min(1066000, 372000 + Math.ceil((v - 500) / 100) * 138000), rows: ['row-g2-9', 'row-g2-10'] };
-                            }
-                        }
-                    ]
-                },
-                {
-                    id: "g3", name: "배관", gosi: [7],
-                    fields: [
-                        {
-                            n: "배관 연장 길이 (km)", type: "value", unit: "km",
-                            calc: (v) => {
-                                if (v <= 1) return { fee: 82400, rows: ['row-g3-1'] };
-                                if (v <= 2) return { fee: 164000, rows: ['row-g3-2'] };
-                                if (v <= 3) return { fee: 234000, rows: ['row-g3-3'] };
-                                if (v <= 4) return { fee: 305000, rows: ['row-g3-4'] };
-                                if (v <= 5) return { fee: 365000, rows: ['row-g3-5'] };
-                                return { fee: 365000 + Math.ceil(v - 5) * 61000, rows: ['row-g3-6'] };
-                            }
-                        }
-                    ]
-                },
-                {
-                    id: "g4", name: "용기, 냉동기,\n특정설비제조", gosi: [7],
-                    subs: [
-                        { id: "g4_1", name: "용기 제조", fields: [{n: "용기 제조", p: 196700, rowId: "row-g4-1", def: 0}] },
-                        { id: "g4_2", name: "냉동기 제조", fields: [{n: "냉동기 제조", p: 196700, rowId: "row-g4-2", def: 0}] },
-                        { id: "g4_3", name: "특정설비 제조", fields: [{n: "액화천연가스 저장탱크", p: 911600, rowId: "row-g4-3", def: 0}, {n: "타 기기 제조", p: 196700, rowId: "row-g4-4", def: 0}] }
-                    ]
-                },
-                {
-                    id: "g5", name: "검사기관, 판매,\n수입업", gosi: [7],
-                    subs: [
-                        { id: "g5_1", name: "고압가스 수입업", fields: [{n: "고압가스 수입업", p: 47400, rowId: "row-g5-3", def: 0}] },
-                        { id: "g5_2", name: "판매시설", fields: [{n: "판매시설", p: 47400, rowId: "row-g5-2", def: 0}] },
-                        { id: "g5_3", name: "검사기관", fields: [{n: "검사기관 지정시설", p: 128800, rowId: "row-g5-1", def: 0}] }
-                    ]
-                },
-                {
-                    id: "g6", name: "고압가스\n운반차량", gosi: [7],
-                    fields: [
-                        {n: "고압가스운반자의 등록대상 차량", p: 45300, rowId: "row-g6-1", def: 0}, 
-                        {n: "용기운반자의 등록대상 차량", p: 13400, rowId: "row-g6-2", def: 0}
-                    ]
-                },
-                {
-                    id: "g7", name: "공장심사\n기술검토", gosi: [7],
-                    fields: [
-                        {n: "등록대상 종류 4종류 이상", p: 5366000, rowId: "row-g7-1", def: 0}, 
-                        {n: "기타 (1~3종류 등)", p: 3834000, rowId: "row-g7-2", def: 0}
-                    ]
-                }
-            ]
-        },
-        "LIQ": {
-            name: "액화석유가스법",
-            cats: [
-                {
-                    id: "l1", name: "충전, 일반집단공급\n저장소 및 사용", gosi: [8],
-                    fields: [
-                        {
-                            n: "저장 능력 입력 (톤)", type: "value", unit: "톤",
-                            calc: (v) => {
-                                if (v <= 5) return { fee: 51500, rows: ['row-l1-1'] };
-                                if (v <= 10) return { fee: 75200, rows: ['row-l1-2'] };
-                                if (v <= 20) return { fee: 95000, rows: ['row-l1-3'] };
-                                if (v <= 50) return { fee: 134000, rows: ['row-l1-4'] };
-                                if (v <= 100) return { fee: 201000, rows: ['row-l1-5'] };
-                                if (v <= 500) return { fee: 335000, rows: ['row-l1-6'] };
-                                if (v <= 1000) return { fee: 491000, rows: ['row-l1-7'] };
-                                return { fee: Math.min(1384000, 491000 + Math.ceil((v - 1000) / 500) * 153000), rows: ['row-l1-8', 'row-l1-9'] };
-                            }
-                        }
-                    ]
-                },
-                { id: "l2", name: "가스용품제조", gosi: [8], fields: [{n: "가스용품제조시설", p: 196700, rowId: "row-l2-1", def: 0}] },
-                { id: "l3", name: "LPG판매", gosi: [8], fields: [{n: "판매시설", p: 47400, rowId: "row-l3-1", def: 0}] },
-                { id: "l4", name: "공장심사대상\n기술검토", gosi: [8], fields: [{n: "등록대상 가스용품 4종류 이상", p: 5366000, rowId: "row-l4-1", def: 0}, {n: "기타", p: 3834000, rowId: "row-l4-2", def: 0}] },
-                {
-                    id: "l5", name: "배관망공급사업",
-                    subs: [
-                        {
-                            id: "l5_1", name: "제조소", gosi: [9],
-                            fields: [
-                                {
-                                    n: "제조소 능력 입력 (톤)", type: "value", unit: "톤",
-                                    calc: (v) => {
-                                        if (v <= 5) return { fee: 51500, rows: ['row-l5_1-1'] };
-                                        if (v <= 10) return { fee: 75200, rows: ['row-l5_1-2'] };
-                                        if (v <= 20) return { fee: 97900, rows: ['row-l5_1-3'] };
-                                        if (v <= 50) return { fee: 134000, rows: ['row-l5_1-4'] };
-                                        if (v <= 100) return { fee: 207000, rows: ['row-l5_1-5'] };
-                                        if (v <= 500) return { fee: 335000, rows: ['row-l5_1-6'] };
-                                        if (v <= 1000) return { fee: 491000, rows: ['row-l5_1-7'] };
-                                        return { fee: Math.min(1384000, 491000 + Math.ceil((v - 1000) / 500) * 153000), rows: ['row-l5_1-8', 'row-l5_1-9'] };
-                                    }
-                                }
-                            ]
-                        },
-                        { id: "l5_2", name: "정압기", gosi: [10], fields: [{n: "정압기의 설치/변경 공사", p: 94800, rowId: "row-l5_2-1", def: 0}] },
-                        {
-                            id: "l5_3", name: "배관", gosi: [10],
-                            fields: [
-                                {
-                                    n: "최고사용압력 0.2MPa 미만 배관 (km)", type: "value", unit: "km",
-                                    calc: (v) => {
-                                        if (v < 2) return { fee: 42200, rows: ['row-l5_3-2'] };
-                                        if (v < 10) return { fee: 111000, rows: ['row-l5_3-3'] };
-                                        return { fee: 111000 + Math.ceil(v - 10) * 38000, rows: ['row-l5_3-4'] };
-                                    }
-                                },
-                                {
-                                    n: "최고사용압력 0.2MPa 이상 배관 (km)", type: "value", unit: "km",
-                                    calc: (v) => {
-                                        if (v < 5) return { fee: 438000, rows: ['row-l5_3-5'] };
-                                        return { fee: 438000 + Math.ceil(v - 5) * 81000, rows: ['row-l5_3-5'] };
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        "CITY": {
-            name: "도시가스사업법",
-            cats: [
-                {
-                    id: "c1", name: "충전시설",
-                    subs: [
-                        {
-                            id: "c1_1", name: "압축가스", gosi: [12],
-                            fields: [
-                                {
-                                    n: "제조·저장 능력 입력 (㎡)", type: "value", unit: "㎡",
-                                    calc: (v) => {
-                                        if (v <= 1000) return { fee: 63900, rows: ['row-c1_1-1'] };
-                                        if (v <= 2000) return { fee: 114300, rows: ['row-c1_1-2'] };
-                                        if (v <= 3000) return { fee: 145200, rows: ['row-c1_1-3'] };
-                                        if (v <= 5000) return { fee: 179200, rows: ['row-c1_1-4'] };
-                                        if (v <= 10000) return { fee: 338000, rows: ['row-c1_1-5'] };
-                                        if (v <= 100000) return { fee: 543000, rows: ['row-c1_1-6'] };
-                                        if (v <= 200000) return { fee: 770000, rows: ['row-c1_1-7'] };
-                                        if (v <= 1000000) return { fee: v <= 500000 ? 971000 : 1201000, rows: ['row-c1_1-8'] };
-                                        return { fee: Math.min(2561000, 1201000 + Math.ceil((v - 1000000) / 100000) * 141000), rows: ['row-c1_1-9', 'row-c1_1-10'] };
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            id: "c1_2", name: "액화가스", gosi: [11],
-                            fields: [
-                                {
-                                    n: "제조·저장 능력 입력 (톤)", type: "value", unit: "톤",
-                                    calc: (v) => {
-                                        if (v <= 10) return { fee: v <= 5 ? 51500 : 75200, rows: ['row-c1_2-1'] };
-                                        if (v <= 20) return { fee: 95000, rows: ['row-c1_2-2'] };
-                                        if (v <= 50) return { fee: 134000, rows: ['row-c1_2-3'] };
-                                        if (v <= 100) return { fee: 201000, rows: ['row-c1_2-4'] };
-                                        if (v <= 500) return { fee: 335000, rows: ['row-c1_2-5'] };
-                                        if (v <= 1000) return { fee: 491000, rows: ['row-c1_2-6'] };
-                                        return { fee: Math.min(2561000, 491000 + Math.ceil((v - 1000) / 500) * 153000), rows: ['row-c1_2-7', 'row-c1_2-8'] };
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    id: "c2", name: "도매사업(도외자)\n제조소",
-                    subs: [
-                        {
-                            id: "c2_1", name: "설치공사",
-                            fields: [
-                                {n: "제조소 신규설치", p: 2190000, rowId: "row-c2_1-1", def: 0, page: 13}
-                            ]
-                        },
-                        { 
-                            id: "c2_2", name: "변경공사",
-                            fields: [
-                                {n: "저장탱크 및 부속설비", p: 1094000, rowId: "row-c2_2-1", def: 0, page: 13},
-                                {n: "가스발생설비 및 부속설비", p: 1094000, rowId: "row-c2_2-2", def: 0, page: 13}, 
-                                {n: "기타 부대설비", p: 1094000, rowId: "row-c2_2-3", def: 0, page: 13}
-                            ] 
-                        }
-                    ]
-                },
-                {
-                    id: "c3", name: "일반사업\n제조소",
-                    subs: [
-                        {
-                            id: "c3_1", name: "설치공사",
-                            desc: "가스발생설비에 속하는 제조소의 설치공사",
-                            subGroups: [
-                                {
-                                    name: "최고사용압력 중압이하",
-                                    fields: [
-                                        {n: "가스제조능력이 5만㎡ 미만인 것", p: 292500, rowId: "row-c3_1-1", def: 0, page: 13}, 
-                                        {n: "가스제조능력이 5만㎡ 이상인 것", p: 355400, rowId: "row-c3_1-2", def: 0, page: 13}
-                                    ]
-                                },
-                                {
-                                    name: "최고사용압력 고압",
-                                    fields: [
-                                        {n: "가스제조능력이 40만㎡ 미만인 것", p: 639000, rowId: "row-c3_1-3", def: 0, page: 13}, 
-                                        {n: "가스제조능력이 40만㎡ 이상인 것", p: 805000, rowId: "row-c3_1-4", def: 0, page: 13}
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            id: "c3_2", name: "변경공사",
-                            subGroups: [
-                                {
-                                    name: "제조설비 설치공사",
-                                    desc: "제조설비 : 가스발생설비와 그 가스발생설비와 일체가 되어 가스의 제조용에 사용되는 가스정제설비,가스홀더,배송기,압송기 및 그 부대설비",
-                                    fields: [
-                                        {n: "가. 가스홀더의 설치공사를 수반하는 것", p: 253400, rowId: "row-c3_2-1", def: 0, page: 14}, 
-                                        {n: "나. 가스홀더의 설치공사를 수반하지 아니하는 것", p: 206000, rowId: "row-c3_2-2", def: 0, page: 14}
-                                    ]
-                                },
-                                {
-                                    name: "제조설비 외 변경공사",
-                                    fields: [
-                                        {n: "가. 가스발생설비에 속하는 공사", p: 295000, rowId: "row-c3_2-3", def: 0, page: 14}, 
-                                        {n: "나. 가스정제설비에 속하는 공사", p: 295000, rowId: "row-c3_2-4", def: 0, page: 14},
-                                        {n: "다. 가스홀더에 속하는 공사", p: 200000, rowId: "row-c3_2-5", def: 0, page: 14}, 
-                                        {n: "라. 배송기 및 압송기에 속하는 공사", p: 148000, rowId: "row-c3_2-6", def: 0, page: 14}, 
-                                        {n: "마. 부대설비에 속하는 공사", p: 148000, rowId: "row-c3_2-7", def: 0, page: 14}
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    id: "c4", name: "공급소, 정압기,\n정압기지",
-                    subs: [
-                        { id: "c4_1", name: "공급소", fields: [{n: "공급소에 속하는 설치공사", p: 246000, rowId: "row-c4_1-1", def: 0, page: 14}, {n: "공급소에 속하는 변경공사", p: 200000, rowId: "row-c4_1-2", def: 0, page: 14}] },
-                        { id: "c4_2", name: "정압기", fields: [{n: "정압기의 설치공사 또는 정압기의 변경공사", p: 92000, rowId: "row-c4_2-1", def: 0, page: 14}] },
-                        { id: "c4_3", name: "정압기지", fields: [{n: "정압기지의 설치공사", p: 228700, rowId: "row-c4_3-1", def: 0, page: 14}, {n: "정압기지의 변경공사", p: 188500, rowId: "row-c4_3-2", def: 0, page: 14}] }
-                    ]
-                },
-                {
-                    id: "c5", name: "배관",
-                    subs: [
-                        {
-                            id: "c5_1", name: "저압/중압 배관", gosi: [15],
-                            fields: [
-                                {
-                                    n: "저압/중압 배관 길이 (km)", type: "value", unit: "km",
-                                    calc: (v) => {
-                                        if (v < 2) return { fee: 42200, rows: ['row-c5_1-1'] };
-                                        if (v < 10) return { fee: 111000, rows: ['row-c5_1-2'] };
-                                        return { fee: 111000 + Math.ceil(v - 10) * 38000, rows: ['row-c5_1-3'] };
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            id: "c5_2", name: "고압 배관", gosi: [15],
-                            fields: [
-                                {
-                                    n: "고압 배관 길이 (km)", type: "value", unit: "km",
-                                    calc: (v) => {
-                                        if (v < 5) return { fee: 438000, rows: ['row-c5_2-1'] };
-                                        return { fee: 438000 + Math.ceil(v - 5) * 81000, rows: ['row-c5_2-1'] };
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    id: "c6", name: "특정사용시설",
-                    subs: [
-                        {
-                            id: "c6_1", name: "특정사용시설", gosi: [15],
-                            fields: [
-                                {
-                                    n: "월사용예정량 입력 (㎥)", type: "value", unit: "㎥",
-                                    calc: (v) => {
-                                        if (v <= 4000) return { fee: 24700, rows: ['row-c6_1-1'] };
-                                        return { fee: Math.min(519000, 24700 + Math.ceil((v - 4000) / 500) * 3600), rows: ['row-c6_1-2'] };
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            id: "c6_2", name: "매립 배관시설", gosi: [15],
-                            fields: [{n: "단독주택", p: 24700, rowId: "row-c6_2-1", def: 0, unitOverride: "세대"}, {n: "공동주택 (세대형별)", p: 24700, rowId: "row-c6_2-2", def: 0, unitOverride: "세대"}]
-                        }
-                    ]
-                }
-            ]
-        },
-        "HYD": {
-            name: "수소법",
-            cats: [
-                {
-                    id: "h1", name: "압축수소\n제조, 저장시설", gosi: [16],
-                    fields: [
-                        {
-                            n: "압축수소 제조·저장 (㎡)", type: "value", unit: "㎡",
-                            calc: (v) => {
-                                if (v <= 200) return { fee: 62000, rows: ['row-h1-1'] };
-                                if (v <= 400) return { fee: 111000, rows: ['row-h1-2'] };
-                                if (v <= 600) return { fee: 141000, rows: ['row-h1-3'] };
-                                if (v <= 1000) return { fee: 174000, rows: ['row-h1-4'] };
-                                if (v <= 2000) return { fee: 338000, rows: ['row-h1-5'] };
-                                if (v <= 20000) return { fee: 543000, rows: ['row-h1-6'] };
-                                if (v <= 40000) return { fee: 770000, rows: ['row-h1-7'] };
-                                if (v <= 200000) return { fee: v <= 100000 ? 971000 : 1201000, rows: ['row-h1-8'] };
-                                return { fee: Math.min(2561000, 1201000 + Math.ceil((v - 200000) / 20000) * 141000), rows: ['row-h1-9', 'row-h1-10'] };
-                            }
-                        }
-                    ]
-                },
-                {
-                    id: "h2", name: "배관", gosi: [17],
-                    fields: [
-                        {
-                            n: "배관 연장 길이 (km)", type: "value", unit: "km",
-                            calc: (v) => {
-                                if (v <= 1) return { fee: 80000, rows: ['row-h2-1'] };
-                                if (v <= 2) return { fee: 164000, rows: ['row-h2-2'] };
-                                if (v <= 3) return { fee: 234000, rows: ['row-h2-3'] };
-                                if (v <= 4) return { fee: 305000, rows: ['row-h2-4'] };
-                                if (v <= 5) return { fee: 365000, rows: ['row-h2-5'] };
-                                return { fee: 365000 + Math.ceil(v - 5) * 61000, rows: ['row-h2-6'] };
-                            }
-                        }
-                    ]
-                },
-                { id: "h3", name: "수소용품제조시설", gosi: [17], fields: [{n: "제조시설", p: 196700, rowId: "row-h3-1", def: 0}] },
-                { id: "h4", name: "공장심사\n기술검토", gosi: [17], fields: [{n: "용기 4종류 이상", p: 5366000, rowId: "row-h4-1", def: 0}, {n: "기타", p: 3834000, rowId: "row-h4-2", def: 0}] },
-                {
-                    id: "h5", name: "연료전지사용시설", gosi: [17],
-                    fields: [
-                        {
-                            n: "월사용예정량 입력 (㎥)", type: "value", unit: "㎥",
-                            calc: (v) => {
-                                if (v <= 4000) return { fee: 24700, rows: ['row-h5-1'] };
-                                return { fee: Math.min(519000, 24700 + Math.ceil((v - 4000) / 500) * 3600), rows: ['row-h5-2'] };
-                            }
-                        }
-                    ]
-                }
-            ]
-        }
+    const SUB_DATA = {
+        wan_spec: [
+            { id: 'w_s_spec', label: '특정사용시설' },
+            { id: 'w_s_pipe', label: '배관매립시설' }
+        ],
+        wan_charge: [
+            { id: 'w_c_comp', label: '압축' },
+            { id: 'w_c_liq', label: '액화' }
+        ],
+        jung_sup: [
+            { id: 'j_s_jejo', label: '제조소' },
+            { id: 'j_s_gong', label: '공급소' },
+            { id: 'j_s_v', label: '정압(밸브)기지' },
+            { id: 'j_s_p', label: '정압기' },
+            { id: 'j_s_pipe', label: '배관' },
+            { id: 'j_s_safe', label: '안전관리수준평가' } 
+        ],
+        j_s_jejo: [
+            { id: 'j_s_j_ilban', label: '일반도시가스사업' },
+            { id: 'j_s_j_dome', label: '가스도매사업' }     
+        ],
+        jung_charge: [
+            { id: 'j_c_comp', label: '압축' },
+            { id: 'j_c_liq', label: '액화' }
+        ]
     };
 
-    // --- State Variables ---
-    let currentLawId = '';
-    let currentCatObj = null;
-    let currentSubObj = null;
-    let currentGroupIdx = 0; // 하위 그룹(계층형 탭) 인덱스
+    let currentMode = '';
+    let currentMain = '';
+    let currentSub = '';
+    let currentSubSub = '';
+    let isInstantCalc = false;
+    let gamriLabelName = '';
+    let currentPipeType = '단독주택';
+    let dynInputCount = 1;
 
-    /**
-     * @description 안전한 전체 데이터 초기화 함수 (모든 선택 해제 및 하위 메뉴 숨김)
-     */
-    function resetAll() {
-        currentLawId = '';
-        currentGroupIdx = 0;
-        
-        document.querySelectorAll('.law-btn').forEach(btn => btn.classList.remove('active'));
-        
-        const catGrid = document.getElementById('catGrid');
-        catGrid.innerHTML = '';
-        catGrid.className = 'category-grid'; // 도법 등에서 추가된 클래스 초기화
-        
-        resetUI();
+    /* [방어로직 보강] 통일된 시스템 알림창(Warning/Error) 관리 */
+    function showWarning(msg) {
+        const banner = document.getElementById('errorBanner');
+        document.getElementById('errorMsgText').innerText = msg;
+        banner.style.backgroundColor = '#fff7ed';
+        banner.style.color = '#c2410c';
+        banner.style.borderColor = '#fdba74';
+        banner.style.display = 'flex';
     }
 
-    // --- UI Logic ---
-    function selectLaw(lawId, btnElement) {
-        currentLawId = lawId;
-        currentGroupIdx = 0;
+    function showError() {
+        const banner = document.getElementById('errorBanner');
+        document.getElementById('errorMsgText').innerText = "수수료 산출 중 시스템 오류가 발생했습니다. 입력값을 다시 확인해주세요.";
+        banner.style.backgroundColor = '#fef2f2';
+        banner.style.color = '#b91c1c';
+        banner.style.borderColor = '#f87171';
+        banner.style.display = 'flex';
+    }
+
+    function hideBanner() { 
+        document.getElementById('errorBanner').style.display = 'none'; 
+    }
+
+    function setMode(mode) {
+        currentMode = mode; currentMain = ''; currentSub = ''; currentSubSub = ''; gamriLabelName = '';
+        currentPipeType = '단독주택'; dynInputCount = 1; isInstantCalc = false;
         
-        document.querySelectorAll('.law-btn').forEach(btn => btn.classList.remove('active'));
-        if (btnElement) {
-            btnElement.classList.add('active');
-        } else {
-            const defaultBtn = document.querySelector(`button[onclick*="'${lawId}'"]`);
-            if (defaultBtn) defaultBtn.classList.add('active');
+        hideBanner(); // [방어로직] 탭 전환 시 오류 메시지 초기화 무결성 확보
+
+        document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`btn_mode_${mode}`).classList.add('active');
+        
+        const modeNames = { wan: '완성검사', jung: '정기검사', mid: '중간검사', gamri: '시공감리' };
+        document.getElementById('outMode').innerText = modeNames[mode];
+        
+        const midNotice = document.getElementById('midNotice');
+        if (mode === 'mid') midNotice.classList.remove('hidden');
+        else midNotice.classList.add('hidden');
+
+        const g2 = document.getElementById('grid2');
+        g2.innerHTML = ''; g2.className = 'category-grid hidden';
+        
+        const g3 = document.getElementById('grid3');
+        g3.innerHTML = ''; g3.className = 'category-grid hidden';
+        
+        const inp = document.getElementById('inputArea');
+        inp.innerHTML = ''; inp.className = 'input-box hidden';
+        
+        renderGrid('grid1', UI_DATA[mode], handleMainClick);
+        resetResult();
+    }
+
+    function renderGrid(containerId, data, callback) {
+        const cont = document.getElementById(containerId);
+        cont.innerHTML = '';
+        cont.className = 'category-grid flex-start'; 
+        
+        if (currentMode === 'jung' && currentMain === 'jung_sup' && containerId === 'grid2') {
+            cont.classList.add('black-border-box'); 
+            cont.classList.add('grid-2col-layout');
         }
-        
-        const catGrid = document.getElementById('catGrid');
-        catGrid.innerHTML = '';
-        
-        // 도법(CITY)일 경우에만 전용 클래스를 추가하여 2열 배치 적용
-        if (lawId === 'CITY') {
-            catGrid.classList.add('city-grid');
-        } else {
-            catGrid.classList.remove('city-grid');
+
+        let useGreenPill = false;
+        if (data.length > 0) {
+            const firstId = data[0].id;
+            if (['w_s_spec', 'w_c_comp', 'j_c_comp', 'mid_comp'].includes(firstId)) {
+                useGreenPill = true;
+            }
         }
-        
-        DB[lawId].cats.forEach(cat => {
+
+        data.forEach((item) => {
             const btn = document.createElement('button');
-            btn.className = 'cat-btn';
-            btn.innerHTML = cat.name.replace(/\n/g, '<br>');
-            btn.onclick = () => selectCat(cat, btn);
-            catGrid.appendChild(btn);
-        });
-
-        resetUI();
-    }
-
-    function selectCat(catObj, btnElement) {
-        currentCatObj = catObj;
-        currentSubObj = null;
-        currentGroupIdx = 0;
-        
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btnElement.classList.add('active');
-        
-        const subArea = document.getElementById('subTabArea');
-        if(catObj.subs) {
-            subArea.classList.remove('hidden');
-            subArea.innerHTML = '';
-            catObj.subs.forEach((sub, idx) => {
-                const btn = document.createElement('button');
-                btn.className = 'sub-btn';
-                btn.innerText = sub.name;
-                btn.onclick = () => selectSub(sub, btn);
-                subArea.appendChild(btn);
-                if(idx === 0) selectSub(sub, btn); // Default select first
-            });
-        } else {
-            subArea.classList.add('hidden');
-            renderFields(catObj);
-        }
-    }
-
-    function selectSub(subObj, btnElement) {
-        currentSubObj = subObj;
-        currentGroupIdx = 0;
-        document.querySelectorAll('.sub-btn').forEach(b => b.classList.remove('active'));
-        btnElement.classList.add('active');
-        renderFields(subObj);
-    }
-
-    /**
-     * @description 입력 필드를 동적으로 생성 및 관련 법령페이지 선제적 렌더링
-     */
-    function renderFields(targetObj, groupIdx = 0) {
-        // [무결성 보완] 탭/메뉴 전환 시 이전 입력 화면 및 계산 결과 잔재를 완벽히 초기화
-        document.getElementById('detailSection').classList.add('hidden');
-        document.getElementById('detailBody').innerHTML = '';
-        document.getElementById('outFee').innerText = "0";
-        document.getElementById('outVat').innerText = "0";
-        document.getElementById('outTotal').innerText = "0";
-
-        currentGroupIdx = groupIdx;
-        const wrap = document.getElementById('fields');
-        wrap.innerHTML = '';
-        document.getElementById('inputArea').classList.remove('hidden');
-
-        // 안내문구 렌더링 
-        if (targetObj.desc) {
-            wrap.innerHTML += `<div style="font-weight:bold; margin-bottom:15px; padding-bottom:10px; border-bottom:2px solid #e2e8f0; font-size:1rem; color:#0f172a;">${targetObj.desc}</div>`;
-        }
-
-        let fieldsToRender = targetObj.fields || [];
-
-        // 다중 계층 그룹 탭 렌더링
-        if (targetObj.subGroups) {
-            let groupBtns = `<div style="display:flex; gap:8px; margin-bottom:15px; flex-wrap:wrap;">`;
-            targetObj.subGroups.forEach((sg, idx) => {
-                let activeCls = idx === groupIdx ? 'active' : '';
-                groupBtns += `<button type="button" class="group-btn ${activeCls}" onclick="renderFields(currentSubObj || currentCatObj, ${idx})">${sg.name}</button>`;
-            });
-            groupBtns += `</div>`;
             
-            let activeGroup = targetObj.subGroups[groupIdx];
-            if (activeGroup.desc) {
-                groupBtns += `<div style="margin-bottom:15px; padding:12px; background:#eff6ff; border-radius:8px; font-size:0.85rem; color:#1e3a8a; line-height:1.4;">${activeGroup.desc}</div>`;
-            }
-            
-            wrap.innerHTML += groupBtns;
-            fieldsToRender = activeGroup.fields;
-        }
-
-        // 입력 필드 렌더링 (value 대신 placeholder="0" 속성 사용)
-        fieldsToRender.forEach((f, i) => {
-            if(f.section) {
-                wrap.innerHTML += `<div class="section-label">${f.section}</div>`;
-                return;
-            }
-
-            if(f.type === 'value') {
-                // 용량/규모 등을 입력받는 필드 (소수점 입력 가능)
-                wrap.innerHTML += `
-                    <div class="input-row value-input-row">
-                        <div class="input-label">${f.n}</div>
-                        <input type="number" class="val-input" data-idx="${i}" oninput="calc()" placeholder="0" min="0" step="any">
-                        <span class="unit-label">${f.unit || ''}</span>
-                    </div>`;
+            if (useGreenPill) {
+                btn.className = 'cat-btn green-pill-btn';
             } else {
-                const unitText = f.unitOverride || "건";
-                // [무결성 보완] 건수/수량 필드는 oninput 정규식을 통해 소수점(.), 음수(-) 입력 원천 차단
-                wrap.innerHTML += `
-                    <div class="input-row">
-                        <div class="input-label">${f.n}</div>
-                        <input type="number" class="count-input" data-idx="${i}" oninput="this.value = this.value.replace(/[^0-9]/g, ''); calc();" placeholder="0" min="0" step="1" pattern="\\d*">
-                        <span class="unit-label">${unitText}</span>
-                    </div>`;
+                btn.className = 'cat-btn';
+                const terminalIds = ['j_s_j_dome', 'j_s_j_ilban'];
+                if (terminalIds.includes(item.id)) {
+                    btn.classList.add('terminal-btn');
+                    btn.style.flex = '0 0 auto';
+                }
             }
-        });
 
-        // 사용자가 값을 입력하기 전이라도, 선택된 항목의 고시(법령) 화면을 즉시 렌더링하도록 개선
-        calc(); 
+            if (item.label === '압축' || item.label === '액화') {
+                btn.classList.add('wide-pill');
+            }
+            
+            btn.innerHTML = item.label;
+            btn.onclick = () => {
+                hideBanner(); 
+                Array.from(cont.children).forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                callback(item.id, item.label);
+            };
+            cont.appendChild(btn);
+        });
     }
 
-    /**
-     * @description [핵심 연산부] 수수료 산출 및 고시문/상세결과 렌더링 로직 통합 관리
-     */
+    function handleMainClick(id, label) {
+        currentMain = id; currentSub = ''; currentSubSub = ''; gamriLabelName = '';
+        
+        const g3 = document.getElementById('grid3');
+        g3.innerHTML = ''; g3.className = 'category-grid hidden';
+        
+        const inp = document.getElementById('inputArea');
+        inp.innerHTML = ''; inp.className = 'input-box hidden';
+        
+        const g2 = document.getElementById('grid2');
+        if (currentMode === 'gamri') {
+            if (id === 'g_gov_station' || id === 'g_gov') currentSub = 'new';
+            else if (id === 'g_manu') currentSub = 'none';
+            else if (id === 'g_pipe') currentSub = 'general';
+            
+            g2.innerHTML = ''; g2.className = 'category-grid hidden';
+            showInput();
+        } else if (SUB_DATA[id]) {
+            g2.classList.remove('hidden');
+            renderGrid('grid2', SUB_DATA[id], handleSubClick);
+            const firstBtn = g2.querySelector('button');
+            if (firstBtn) firstBtn.click();
+        } else {
+            g2.innerHTML = ''; g2.className = 'category-grid hidden';
+            showInput();
+        }
+    }
+
+    function handleSubClick(id, label) {
+        currentSub = id; currentSubSub = '';
+        
+        const inp = document.getElementById('inputArea');
+        inp.innerHTML = ''; inp.className = 'input-box hidden';
+        
+        const g3 = document.getElementById('grid3');
+        if (SUB_DATA[id]) {
+            g3.classList.remove('hidden');
+            renderGrid('grid3', SUB_DATA[id], handleSubSubClick);
+            const firstBtn = g3.querySelector('button');
+            if (firstBtn) firstBtn.click();
+        } else {
+            g3.innerHTML = ''; g3.className = 'category-grid hidden';
+            showInput();
+        }
+    }
+
+    function handleSubSubClick(id, label) {
+        currentSubSub = id;
+        showInput();
+    }
+
+    window.changeSub = function(sub) {
+        currentSub = sub;
+        showInput();
+    };
+
+    window.changePipeType = function(type) {
+        currentPipeType = type;
+        const el = document.getElementById('inp-v');
+        if(el) { el.value = ''; limitHouse(el); }
+        document.querySelectorAll('.pipe-type-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('btn-pipe-' + (type === '단독주택' ? 'single' : 'multi')).classList.add('active');
+        calc();
+    };
+
+    /* [방어로직 보강] 정수형/실수형 키보드 입력 원천 통제 로직 */
+    function attachNumberIntegrityGuard() {
+        const inputs = document.querySelectorAll('input[type="number"]');
+        inputs.forEach(input => {
+            input.removeEventListener('keydown', preventInvalidChars); 
+            input.addEventListener('keydown', preventInvalidChars);
+        });
+    }
+
+    function preventInvalidChars(e) {
+        let invalidChars = ['e', 'E', '+', '-'];
+        // int-only 클래스가 부여된 정수형 필드에서는 소수점(.) 입력도 완벽히 차단
+        if (e.target.classList.contains('int-only')) {
+            invalidChars.push('.');
+        }
+        if (invalidChars.includes(e.key)) {
+            e.preventDefault();
+        }
+    }
+
+    /* [방어로직 보강] 붙여넣기 등 우회 입력 시 정수 정규식 필터링 */
+    window.validateInt = function(el) {
+        if (el.classList.contains('int-only')) {
+            el.value = el.value.replace(/[^0-9]/g, '');
+        }
+    };
+
+    function reindexDynInputs(labelPrefix) {
+        const dynRows = document.querySelectorAll('.dyn-row');
+        dynRows.forEach((row, index) => {
+            const labelEl = row.querySelector('.input-label');
+            if (labelEl) {
+                labelEl.innerText = `${labelPrefix} ${index + 1}`;
+            }
+        });
+        dynInputCount = dynRows.length;
+        calc();
+    }
+
+    window.addDynInput = function(labelPrefix, unit) {
+        dynInputCount++;
+        let label = `${labelPrefix} ${dynInputCount}`;
+        
+        // [방어로직 보강] 동적 추가 시에도 단위에 따른 정수 속성 강제 부여
+        const isInt = ['건', '일', '세대', '개소'].includes(unit);
+        const intClass = isInt ? 'int-only' : '';
+        const stepAttr = isInt ? 'step="1" pattern="\\d*"' : 'step="any"';
+        
+        let rowHtml = `
+            <div class="input-row dyn-row">
+                <div class="input-label">${label}</div>
+                <input type="number" class="dyn-inp ${intClass}" ${stepAttr} placeholder="0" min="0" oninput="validateInt(this); calc()">
+                <div class="unit-label">${unit}</div>
+                <button type="button" class="btn-ctrl del" onclick="this.parentElement.remove(); reindexDynInputs('${labelPrefix}');">-</button>
+            </div>
+        `;
+        document.getElementById('dyn-container').insertAdjacentHTML('beforeend', rowHtml);
+        attachNumberIntegrityGuard(); 
+        calc();
+    };
+
+    const makeDynInitRow = (labelPrefix, unit) => {
+        dynInputCount = 1;
+        let label = `${labelPrefix} 1`; 
+        
+        // [방어로직 보강] 동적 추가 시 단위에 따른 정수 속성 강제 부여
+        const isInt = ['건', '일', '세대', '개소'].includes(unit);
+        const intClass = isInt ? 'int-only' : '';
+        const stepAttr = isInt ? 'step="1" pattern="\\d*"' : 'step="any"';
+
+        return `
+        <div id="dyn-container" style="width:100%;">
+            <div class="input-row dyn-row">
+                <div class="input-label">${label}</div>
+                <input type="number" class="dyn-inp ${intClass}" ${stepAttr} placeholder="0" min="0" oninput="validateInt(this); calc()">
+                <div class="unit-label">${unit}</div>
+                <button type="button" class="btn-ctrl add" onclick="addDynInput('${labelPrefix}', '${unit}')">+</button>
+            </div>
+        </div>`;
+    };
+
+    function showInput() {
+        const area = document.getElementById('inputArea');
+        area.innerHTML = '';
+        area.classList.remove('hidden');
+        isInstantCalc = false;
+        let html = '';
+
+        const makeRow = (label, inputHtml, unit) => `
+            <div class="input-row">
+                <div class="input-label">${label}</div>
+                ${inputHtml}
+                ${unit ? `<div class="unit-label">${unit}</div>` : ''}
+            </div>
+        `;
+
+        const makeCheck = (id, label) => `
+            <div class="input-row" style="border-bottom:none; padding-top:5px;">
+                <label class="checkbox-label"><input type="checkbox" id="${id}" onchange="calc()">${label}</label>
+            </div>
+        `;
+
+        if (currentMode === 'gamri') {
+            if (currentMain === 'g_gov_station' || currentMain === 'g_gov') {
+                html += `
+                <div class="sub-type-toggle flex-start">
+                    <button class="sub-type-btn slim-green-btn wide-pill ${currentSub==='new'?'active':''}" onclick="changeSub('new')">신규</button>
+                    <button class="sub-type-btn slim-green-btn wide-pill ${currentSub==='mod'?'active':''}" onclick="changeSub('mod')">변경</button>
+                </div>`;
+                html += makeRow('설치/변경 건수', '<input type="number" id="inp-v" min="0" placeholder="0" class="int-only" step="1" pattern="\\d*" oninput="validateInt(this); calc()">', '건');
+            } else if (currentMain === 'g_manu') {
+                html += makeRow('감리소요일수', '<input type="number" id="inp-v" min="0" placeholder="0" class="int-only" step="1" pattern="\\d*" oninput="validateInt(this); calc()">', '일');
+            } else if (currentMain === 'g_pipe') {
+                html += `
+                <div class="sub-type-toggle flex-start">
+                    <button class="sub-type-btn slim-green-btn ${currentSub==='general'?'active':''}" onclick="changeSub('general')">일반사업자배관</button>
+                    <button class="sub-type-btn slim-green-btn ${currentSub==='user'?'active':''}" onclick="changeSub('user')">사용자공급관</button>
+                    <button class="sub-type-btn slim-green-btn ${currentSub==='wholesale'?'active':''}" onclick="changeSub('wholesale')">가스도매사업자</button>
+                </div>`;
+                html += makeDynInitRow('배관 총 길이', 'm'); 
+            }
+        }
+        else if (currentMode === 'wan') {
+            if (currentSub === 'w_s_spec') {
+                html += makeDynInitRow('월사용예정량', '㎥'); 
+                html += makeCheck('chk-add', '복합공동배기구시설 적용 (+104,000원)');
+            } else if (currentSub === 'w_s_pipe') {
+                currentPipeType = '단독주택'; 
+                let typeToggleHtml = `
+                    <div class="sub-type-toggle flex-start" style="margin-bottom:0;">
+                        <button id="btn-pipe-single" class="pipe-type-btn active" onclick="changePipeType('단독주택')">단독주택</button>
+                        <button id="btn-pipe-multi" class="pipe-type-btn" onclick="changePipeType('공동주택')">공동주택</button>
+                    </div>
+                `;
+                html += makeRow('주택 유형', typeToggleHtml, '');
+                html += makeRow('세대수', '<input type="number" id="inp-v" placeholder="0" min="0" class="int-only" step="1" pattern="\\d*" oninput="limitHouse(this); calc();" style="width:120px;">', '세대 <span id="warn-msg" style="color:#ef4444; font-size:0.8rem; margin-left:10px; display:none; font-weight:bold;">단독주택은 20세대 미만만 가능</span>');
+                html += makeCheck('chk-add', '복합공동배기구시설 적용 (+104,000원)');
+            } else if (currentSub === 'w_c_comp' || currentSub === 'w_c_liq') {
+                html += makeDynInitRow('처리 능력', currentSub === 'w_c_comp' ? '㎥' : '톤'); 
+            } else if (currentMain === 'wan_cng') {
+                html += makeRow('설치 개소', '<input type="number" id="inp-v" placeholder="0" min="0" class="int-only" step="1" pattern="\\d*" oninput="validateInt(this); calc()">', '개소');
+            }
+        } 
+        else if (currentMode === 'jung') {
+            const instantGrp = ['j_s_j_dome','j_s_j_ilban','j_s_gong','j_s_v','j_s_p'];
+            if (instantGrp.includes(currentSub) || instantGrp.includes(currentSubSub)) {
+                let msg = '';
+                if (currentSubSub === 'j_s_j_dome') msg = '가스도매사업 시설 : 103만원'; 
+                else if (currentSubSub === 'j_s_j_ilban') msg = '일반도시가스사업 시설 : 54만5천원'; 
+                else if (currentSub === 'j_s_gong') msg = '공급소 : 24만5천원';
+                else if (currentSub === 'j_s_v') msg = '정압(밸브)기지 : 19만7천원';
+                else if (currentSub === 'j_s_p') msg = '정압기 : 8만8천원';
+                html += `<div style="text-align:center; padding: 25px 0; color:#ea580c; font-weight:bold; font-size:1.15rem; background:#fff7ed; border:2px solid #fdba74; border-radius:10px;">${msg}</div>`;
+                isInstantCalc = true;
+            } else if (currentSub === 'j_s_pipe') {
+                html += makeDynInitRow('섹터', 'km'); 
+            } else if (currentSub === 'j_s_safe') {
+                html += makeRow('시설분야(배관길이)', '<input type="number" id="inp-v-sisul" placeholder="0" min="0" step="any" oninput="calc()">', 'km');
+                html += makeRow('시스템 분야(배관길이)', '<input type="number" id="inp-v-sys" placeholder="0" min="0" step="any" oninput="calc()">', 'km');
+            } else if (currentMain === 'jung_spec') {
+                html += makeDynInitRow('월사용예정량', '㎥'); 
+                html += makeCheck('chk-dc', '실 2개소 이하 할인 (최고금액 194,000원 제한)');
+            } else if (currentSub === 'j_c_comp' || currentSub === 'j_c_liq') {
+                html += makeDynInitRow('처리 능력', currentSub === 'j_c_comp' ? '㎥' : '톤'); 
+            } else if (currentMain === 'jung_cng') {
+                html += makeRow('설치 개소', '<input type="number" id="inp-v" placeholder="0" min="0" class="int-only" step="1" pattern="\\d*" oninput="validateInt(this); calc()">', '개소');
+            }
+        }
+        else if (currentMode === 'mid') {
+            html += makeDynInitRow('처리 능력', currentMain === 'mid_comp' ? '㎥' : '톤'); 
+        }
+
+        area.innerHTML = html;
+        attachNumberIntegrityGuard(); 
+        
+        if (isInstantCalc || ((currentMode === 'wan' || currentMode === 'jung') && (currentMain === 'wan_cng' || currentMain === 'jung_cng')) || (currentMode === 'gamri' && currentMain !== 'g_pipe')) {
+            calc(); 
+        } else {
+            resetResult();
+        }
+    }
+
+    /* [방어로직 보강] 단독주택 세대 제한 알림 문구 규격화 */
+    window.limitHouse = function(el) {
+        validateInt(el);
+        const type = currentPipeType;
+        const warn = document.getElementById('warn-msg');
+        if (type === '단독주택' && parseInt(el.value || 0, 10) >= 20) {
+            el.value = 19;
+            showWarning("[입력값 오류] 단독주택은 20세대 미만(최대 19세대)만 입력 가능합니다.");
+            if(warn) warn.style.display = 'inline';
+        } else {
+            hideBanner();
+            if(warn) warn.style.display = 'none';
+        }
+    }
+
+    function resetResult() {
+        document.getElementById('detailSection').classList.add('hidden');
+        document.getElementById('gosiPlaceholder').classList.remove('hidden');
+        document.getElementById('gosiWrapper').classList.add('hidden');
+        document.getElementById('outFee').innerText = '0';
+        document.getElementById('outVat').innerText = '0';
+        document.getElementById('outTotal').innerText = '0';
+        document.getElementById('outName').innerText = '-';
+        document.getElementById('gosiContent').innerHTML = '';
+        gamriLabelName = '';
+        hideBanner(); 
+    }
+
     function calc() {
         try {
-            const target = currentSubObj || currentCatObj;
-            if(!target) return;
-
-            let totalFee = 0;
-            let totalCnt = 0;
-            let rowsHtml = '';
-            let hasValue = false;
-            let activeRowsToHighlight = [];
-            let activePages = new Set(); // 활성화된(입력값이 있는) 필드의 고시 페이지 번호 수집
-
-            let activeFieldsList = target.subGroups ? target.subGroups[currentGroupIdx].fields : target.fields;
-
-            // 기존 하이라이트 클래스 초기화
-            document.querySelectorAll('.active-row').forEach(el => el.classList.remove('active-row'));
-
-            // [안정성 강화 1단계] 예외 처리 최적화 (공백일 경우 즉시 리턴)
-            document.querySelectorAll('.count-input, .val-input').forEach(input => {
-                let valStr = input.value.trim();
-                if (valStr === '') return; // 빈 값 조기 차단으로 불필요한 에러 방지
-                
-                let isValueType = input.classList.contains('val-input');
-                let v = isValueType ? parseFloat(valStr) : parseInt(valStr, 10);
-                
-                // [무결성 보완] 음수 예외 처리 및 유효성 검증 강화 (알림창 통일)
-                if(isNaN(v)) return;
-                if(v < 0) {
-                    alert("[입력값 오류] 계산을 위해 0 이상의 정상적인 값을 입력해주십시오.");
-                    input.value = '';
-                    return;
-                }
-                if(v === 0) return; // 0일때는 로직 태우지 않고 다음 필드로
-                
-                hasValue = true;
-
-                let f = activeFieldsList[input.dataset.idx];
-                
-                if(f.page) {
-                    activePages.add(f.page);
-                }
-
-                // [전문가 수정사항] 항목 칸에 시설의 풀네임(버튼 텍스트 전체) 조합
-                let itemName = currentCatObj.name.replace(/\n/g, '');
-                if (currentSubObj) {
-                    itemName += ' - ' + currentSubObj.name.replace(/\n/g, '');
-                }
-
-                if(f.type === 'value') {
-                    let res = f.calc(v);
-                    let fee = res.fee;
-                    // res.rows 배열이 존재하는 경우에만 전개 구문 확산(Spread) 처리 (방어적 코딩)
-                    if(res.rows) {
-                        activeRowsToHighlight.push(...res.rows);
-                    }
-                    
-                    // [전문가 수정사항] 항목명과 설비능력(수량+단위) 칸 완벽 분리 적용
-                    rowsHtml += `<tr><td>${itemName}</td><td>${v.toLocaleString()}${f.unit}</td><td>${fee.toLocaleString()}</td></tr>`;
-                    totalFee += fee;
-                    totalCnt += 1;
-                } else {
-                    let fee = v * f.p;
-                    if(f.rowId) activeRowsToHighlight.push(f.rowId);
-                    
-                    // [전문가 수정사항] 카운트(건수)형 항목의 경우 세부 명칭 유지 및 카테고리명 조합, 단위(건, 세대 등) 추가
-                    let unitText = f.unitOverride || "건";
-                    let displayItemName = `${itemName} (${f.n})`;
-                    rowsHtml += `<tr><td>${displayItemName}</td><td>${v.toLocaleString()}${unitText}</td><td>${fee.toLocaleString()}</td></tr>`;
-                    totalFee += fee;
-                    totalCnt += v;
-                }
-            });
-
-            // 화면 제어용 DOM 엘리먼트
-            const detailSec = document.getElementById('detailSection');
-            const gosiSec = document.getElementById('gosiWrapper');
-            const gosiPlaceholder = document.getElementById('gosiPlaceholder');
+            hideBanner(); 
             
-            // [UX 개선] 입력값 유무와 상관없이 해당 메뉴의 기본 법령 고시 페이지를 추출하여 선제적 표시
-            let defaultPages = new Set();
-            if (target.gosi) {
-                target.gosi.forEach(p => defaultPages.add(p));
-            } else if (currentCatObj && currentCatObj.gosi) {
-                currentCatObj.gosi.forEach(p => defaultPages.add(p));
+            let totalBaseFee = 0;
+            let addFee = 0;
+            let rowsData = [];
+            let hlIds = [];
+
+            let vArr = [];
+            let dynRows = document.querySelectorAll('.dyn-row');
+            
+            if (dynRows.length > 0) {
+                dynRows.forEach(row => {
+                    let inp = row.querySelector('.dyn-inp');
+                    let lblNode = row.querySelector('.input-label');
+                    let lblStr = lblNode ? lblNode.innerText : '';
+                    vArr.push({ 
+                        val: Math.max(0, parseFloat(inp?.value) || 0), 
+                        label: lblStr 
+                    });
+                });
             } else {
-                // target.gosi가 없더라도(예: 도매사업 제조소) 하위 fields를 순회하여 관련 page를 모조리 긁어옴
-                activeFieldsList.forEach(f => {
-                    if (f.page) defaultPages.add(f.page);
+                let singleInp = document.getElementById('inp-v');
+                vArr.push({ 
+                    val: Math.max(0, parseFloat(singleInp?.value) || 0), 
+                    label: '' 
                 });
             }
 
-            // 입력값이 있으면 해당 필드의 페이지만, 없으면 카테고리 전체 기본 페이지 표시
-            let pagesToRender = activePages.size > 0 ? Array.from(activePages) : Array.from(defaultPages);
-
-            if (pagesToRender.length > 0) {
-                renderGosi(pagesToRender);
-                gosiSec.classList.remove('hidden');
-                gosiPlaceholder.classList.add('hidden');
-            } else {
-                gosiSec.classList.add('hidden');
-                gosiPlaceholder.classList.remove('hidden');
+            let vSisul = 0, vSys = 0;
+            if (currentMode === 'jung' && currentSub === 'j_s_safe') {
+                vSisul = Math.max(0, parseFloat(document.getElementById('inp-v-sisul')?.value) || 0);
+                vSys = Math.max(0, parseFloat(document.getElementById('inp-v-sys')?.value) || 0);
             }
 
-            // 입력값이 없을 때 결과창 초기화 및 중단
-            if(!hasValue) {
-                detailSec.classList.add('hidden');
-                document.getElementById('outFee').innerText = "0";
-                document.getElementById('outVat').innerText = "0";
-                document.getElementById('outTotal').innerText = "0";
-                return;
+            let hasValue = isInstantCalc || vArr.some(item => item.val > 0) || vSisul > 0 || vSys > 0;
+            if (!hasValue) { resetResult(); return; }
+
+            const rowMaker = (name, qty, amt) => { rowsData.push({name, qty, amt}); };
+
+            vArr.forEach((item, index) => {
+                let v = item.val;
+                let inputLabel = item.label;
+
+                if (v === 0 && !isInstantCalc && !(vSisul > 0 || vSys > 0)) return; 
+                
+                let fee = 0;
+                let targetId = '';
+                
+                let idxSuffix = vArr.length > 1 ? ` #${index + 1}` : '';
+
+                // --- 시공감리 ---
+                if (currentMode === 'gamri') {
+                    let limitMsg = '';
+                    if (currentMain === 'g_gov_station') {
+                        gamriLabelName = "정압(밸브)기지 - " + (currentSub === 'new' ? '신규' : '변경');
+                        fee = v * (currentSub === 'new' ? 5232000 : 3488000);
+                        targetId = currentSub === 'new' ? 'cell-gov-st-new' : 'cell-gov-st-mod';
+                        if(fee > 0) { hlIds.push(targetId); rowMaker(gamriLabelName + idxSuffix, v.toLocaleString() + ' 건', fee); totalBaseFee += fee; }
+                    } else if (currentMain === 'g_gov') {
+                        gamriLabelName = "정압기 - " + (currentSub === 'new' ? '신규' : '변경');
+                        fee = v * (currentSub === 'new' ? 1308000 : 872000);
+                        targetId = currentSub === 'new' ? 'cell-gov-new' : 'cell-gov-mod';
+                        if(fee > 0) { hlIds.push(targetId); rowMaker(gamriLabelName + idxSuffix, v.toLocaleString() + ' 건', fee); totalBaseFee += fee; }
+                    } else if (currentMain === 'g_manu') {
+                        gamriLabelName = "제조소·공급소";
+                        fee = v * 872000; targetId = 'cell-manu';
+                        if(fee > 0) { hlIds.push(targetId); rowMaker(gamriLabelName + idxSuffix, v.toLocaleString() + ' 일', fee); totalBaseFee += fee; }
+                    } else if (currentMain === 'g_pipe') { 
+                        if (currentSub === 'general') {
+                            gamriLabelName = "일반사업자배관";
+                            if (v > 0 && v <= 20) { fee = 145000; targetId = 'cell-pipe-gen-1'; }
+                            else if (v > 20) { fee = 145000 + Math.ceil((v - 20) / 10) * 73000; targetId = 'cell-pipe-gen-2'; }
+                        } else if (currentSub === 'user') {
+                            gamriLabelName = "사용자공급관";
+                            if (v > 0 && v <= 500) { fee = 291000; targetId = 'cell-pipe-user-1'; }
+                            else if (v > 500) {
+                                fee = 291000 + Math.ceil((v - 500) / 500) * 291000;
+                                if (fee > 2910000) { fee = 2910000; limitMsg = ' (최대 한도 적용)'; }
+                                targetId = 'cell-pipe-user-2';
+                            }
+                        } else if (currentSub === 'wholesale') {
+                            gamriLabelName = "가스도매사업자 배관";
+                            if (v > 0 && v <= 100) { fee = 2616000; targetId = 'cell-pipe-whole-1'; }
+                            else if (v > 100) { fee = 2616000 + Math.ceil((v - 100) / 100) * 581000; targetId = 'cell-pipe-whole-2'; }
+                        }
+                        if (fee > 0) { hlIds.push(targetId); rowMaker(gamriLabelName + idxSuffix + (limitMsg ? `<span style="color:#ef4444;font-size:0.7rem;">${limitMsg}</span>` : ''), v.toLocaleString() + ' m', fee); totalBaseFee += fee; }
+                    }
+                }
+                // --- 시설검사 ---
+                else if (currentMode === 'wan') {
+                    if (currentMain === 'wan_spec' && currentSub === 'w_s_spec') { 
+                        if(v <= 1000) { fee = 66700; hlIds.push('c-sp-w-1'); }
+                        else if(v <= 4000) { fee = 66700; hlIds.push('c-sp-w-2'); }
+                        else { fee = Math.min(1047000, 66700 + Math.ceil((v-4000)/500)*9300); hlIds.push('c-sp-w-3'); }
+                        rowMaker('특정사용시설' + idxSuffix, v.toLocaleString() + ' ㎥', fee); totalBaseFee += fee;
+                    } else if (currentMain === 'wan_spec' && currentSub === 'w_s_pipe') {
+                        if (currentPipeType === '단독주택') {
+                            fee = v * 20000; hlIds.push('c-sp-p-1'); rowMaker('배관매립(단독주택)', v.toLocaleString() + ' 세대', fee);
+                        } else {
+                            if(v <= 150) { fee = v * 13000; hlIds.push('c-sp-p-2'); }
+                            else if(v <= 300) { fee = (150 + (v-150)*0.75) * 13000; hlIds.push('c-sp-p-3'); }
+                            else if(v <= 500) { fee = (262.5 + (v-300)*0.5) * 13000; hlIds.push('c-sp-p-4'); }
+                            else { fee = (362.5 + (v-500)*0.25) * 13000; hlIds.push('c-sp-p-5'); }
+                            rowMaker('배관매립(공동주택)', v.toLocaleString() + ' 세대', fee);
+                        }
+                        totalBaseFee += fee;
+                    } else if (currentMain === 'wan_charge') {
+                        let res = calcCharge(currentSub==='w_c_comp'?'c':'l', 'w', v); hlIds.push(res.id);
+                        rowMaker((currentSub==='w_c_comp'?'압축충전설비':'액화충전설비') + idxSuffix, v.toLocaleString() + (currentSub==='w_c_comp'?' ㎥':' 톤'), res.fee); 
+                        totalBaseFee += res.fee;
+                    } else if (currentMain === 'wan_cng') {
+                        fee = v * 32000; hlIds.push('c-cng-w'); rowMaker('CNG완속충전설비', v.toLocaleString() + ' 개소', fee); totalBaseFee += fee;
+                    }
+                } 
+                // --- 정기검사 ---
+                else if (currentMode === 'jung') {
+                    if (currentMain === 'jung_sup') {
+                        if (currentSub === 'j_s_jejo') {
+                            if (currentSubSub === 'j_s_j_dome') { fee = 1030000; hlIds.push('c-su-m-1'); rowMaker('제조소(가스도매)', '-', fee); }
+                            else if (currentSubSub === 'j_s_j_ilban') { fee = 545000; hlIds.push('c-su-m-2'); rowMaker('제조소(일반도시)', '-', fee); }
+                            totalBaseFee += fee;
+                        } else if (currentSub === 'j_s_gong') { fee = 245000; hlIds.push('c-su-s'); rowMaker('공급소', '-', fee); totalBaseFee += fee; }
+                        else if (currentSub === 'j_s_v') { fee = 197000; hlIds.push('c-su-v'); rowMaker('정압(밸브)기지', '-', fee); totalBaseFee += fee; }
+                        else if (currentSub === 'j_s_p') { fee = 88000; hlIds.push('c-su-p'); rowMaker('정압기', '-', fee); totalBaseFee += fee; }
+                        else if (currentSub === 'j_s_pipe' && v > 0) { 
+                            if(v < 2) { fee = 56000; hlIds.push('c-su-pp-1'); }
+                            else if(v < 5) { fee = 115000; hlIds.push('c-su-pp-2'); }
+                            else if(v < 10) { fee = 203000; hlIds.push('c-su-pp-3'); }
+                            else { fee = 203000 + Math.ceil(v-10) * 19000; hlIds.push('c-su-pp-4'); }
+                            
+                            let labelName = inputLabel ? inputLabel : '배관';
+                            rowMaker(labelName, v.toLocaleString() + ' km', fee); totalBaseFee += fee;
+                        }
+                    } else if (currentMain === 'jung_spec') {
+                        let tempFee = 0;
+                        if(v <= 1000) { tempFee = 32000; hlIds.push('c-sp-j-1'); }
+                        else if(v <= 4000) { tempFee = 48500; hlIds.push('c-sp-j-2'); }
+                        else { tempFee = Math.min(388000, 48500 + Math.ceil((v-4000)/500)*9000); hlIds.push('c-sp-j-3'); }
+                        
+                        if (document.getElementById('chk-dc')?.checked && tempFee > 194000) {
+                            rowMaker('특정가스사용시설' + idxSuffix, v.toLocaleString() + ' ㎥', tempFee);
+                            rowMaker('<span style="color:#10b981;">할인(실 2개소 이하)</span>', '-', -(tempFee - 194000));
+                            totalBaseFee += 194000;
+                        } else {
+                            rowMaker('특정가스사용시설' + idxSuffix, v.toLocaleString() + ' ㎥', tempFee); totalBaseFee += tempFee;
+                        }
+                    } else if (currentMain === 'jung_charge') { 
+                        let res = calcCharge(currentSub==='j_c_comp'?'c':'l', 'j', v); hlIds.push(res.id);
+                        rowMaker((currentSub==='j_c_comp'?'압축충전설비':'액화충전설비') + idxSuffix, v.toLocaleString() + (currentSub==='j_c_comp'?' ㎥':' 톤'), res.fee);
+                        totalBaseFee += res.fee;
+                    } else if (currentMain === 'jung_cng') {
+                        fee = v * 28000; hlIds.push('c-cng-w'); 
+                        rowMaker('CNG완속충전설비', v.toLocaleString() + ' 개소', fee); totalBaseFee += fee;
+                    }
+                }
+                // --- 중간검사 ---
+                else if (currentMode === 'mid') {
+                    let res = calcCharge(currentMain==='mid_comp'?'c':'l', 'm', v); hlIds.push(res.id);
+                    rowMaker((currentMain==='mid_comp'?'압축충전설비':'액화충전설비') + idxSuffix, v.toLocaleString() + (currentMain==='mid_comp'?' ㎥':' 톤'), res.fee); 
+                    totalBaseFee += res.fee;
+                }
+            });
+
+            if (currentMode === 'wan' && currentMain === 'wan_spec' && document.getElementById('chk-add')?.checked) {
+                addFee = 104000; hlIds.push('c-sp-add'); rowMaker('<span style="color:#ef4444;">가산금(복합공동배기구)</span>', '-', addFee);
+            }
+            if (currentMode === 'jung' && currentSub === 'j_s_safe') {
+                if (vSisul > 0) {
+                    let f = Math.max(1, Math.ceil(vSisul)) * 40000; hlIds.push('c-su-sf-1'); rowMaker('안전관리수준(시설)', vSisul.toLocaleString() + ' km', f); totalBaseFee += f;
+                }
+                if (vSys > 0) {
+                    let f = 0;
+                    if(vSys < 300) { f = 4378000; hlIds.push('c-su-sf-2'); }
+                    else if(vSys < 500) { f = 6568000; hlIds.push('c-su-sf-3'); }
+                    else if(vSys < 1000) { f = 8747000; hlIds.push('c-su-sf-4'); }
+                    else if(vSys < 2000) { f = 10946000; hlIds.push('c-su-sf-5'); }
+                    else if(vSys < 3000) { f = 13135000; hlIds.push('c-su-sf-6'); }
+                    else { f = 15325000; hlIds.push('c-su-sf-7'); }
+                    rowMaker('안전관리수준(시스템)', vSys.toLocaleString() + ' km', f); totalBaseFee += f;
+                }
             }
 
-            // 부가세 및 합계 도출
-            let vat = Math.floor(totalFee * 0.1);
-            let finalTotal = totalFee + vat;
+            if (totalBaseFee === 0 && addFee === 0 && !isInstantCalc) { resetResult(); return; }
 
-            // 결과창 표시
-            detailSec.classList.remove('hidden');
+            document.getElementById('detailSection').classList.remove('hidden');
+            document.getElementById('gosiPlaceholder').classList.add('hidden');
+            document.getElementById('gosiWrapper').classList.remove('hidden');
             
-            let sumHtml = (totalCnt > 1) ? `<tr class="tr-sum"><td>합 계</td><td>${totalCnt.toLocaleString()}</td><td>${totalFee.toLocaleString()}</td></tr>` : '';
-            document.getElementById('detailBody').innerHTML = sumHtml + rowsHtml;
-            
-            document.getElementById('outFee').innerText = totalFee.toLocaleString();
-            document.getElementById('outVat').innerText = vat.toLocaleString();
-            document.getElementById('outTotal').innerText = finalTotal.toLocaleString();
-            
-            document.getElementById('outLaw').innerText = DB[currentLawId].name;
-            document.getElementById('outCat').innerText = target.name;
+            let totalFee = totalBaseFee + addFee;
 
-            // 해당 법령 줄 하이라이트 표시
-            activeRowsToHighlight.forEach(rowId => {
-                const el = document.getElementById(rowId);
-                if(el) el.classList.add('active-row');
+            let rawVat = Math.floor(totalFee / 10); 
+            let vat = Math.floor(rawVat / 10) * 10; 
+            
+            let rowsHtml = '';
+            if (rowsData.length >= 2) {
+                rowsHtml += `<tr class="tr-sum"><td>전체 합계</td><td class="txt-r">-</td><td class="txt-r">${totalFee.toLocaleString()}</td></tr>`;
+            }
+            rowsData.forEach(r => {
+                rowsHtml += `<tr><td>${r.name}</td><td class="txt-r">${r.qty}</td><td class="txt-r" style="font-weight:bold;">${r.amt.toLocaleString()}</td></tr>`;
             });
             
+            document.getElementById('detailBody').innerHTML = rowsHtml;
+            document.getElementById('outFee').innerText = totalFee.toLocaleString();
+            document.getElementById('outVat').innerText = vat.toLocaleString();
+            document.getElementById('outTotal').innerText = (totalFee + vat).toLocaleString();
+            
+            if (currentMode === 'gamri') {
+                document.getElementById('outName').innerHTML = gamriLabelName;
+            } else {
+                let tName = document.querySelector('#grid1 .active')?.innerText || '';
+                if(currentSub) tName += ' > ' + document.querySelector('#grid2 .active')?.innerText;
+                if(currentSubSub) tName += ' > ' + document.querySelector('#grid3 .active')?.innerText;
+                document.getElementById('outName').innerText = tName;
+            }
+
+            renderGosiPage(hlIds);
+            
         } catch (error) {
-            console.error("[시스템 오류] 수수료 산출 중 예외 발생:", error);
-            alert("[시스템 오류] 수수료 계산 중 예상치 못한 오류가 발생했습니다. 입력값을 확인하시거나 초기화 버튼을 눌러주세요.");
+            console.error("수수료 산출 중 시스템 오류가 발생했습니다:", error);
+            resetResult();
+            showError();
         }
     }
 
-    function resetUI() {
-        document.getElementById('subTabArea').classList.add('hidden');
-        document.getElementById('inputArea').classList.add('hidden');
-        document.getElementById('detailSection').classList.add('hidden');
-        document.getElementById('detailBody').innerHTML = ''; // 잔여 상세내역 완전 초기화
-        document.getElementById('gosiWrapper').classList.add('hidden');
-        document.getElementById('gosiPlaceholder').classList.remove('hidden'); 
-        document.getElementById('outFee').innerText = "0";
-        document.getElementById('outVat').innerText = "0";
-        document.getElementById('outTotal').innerText = "0";
-        document.getElementById('outLaw').innerText = "-";
-        document.getElementById('outCat').innerText = "-";
-        currentCatObj = null;
-        currentSubObj = null;
-        currentGroupIdx = 0;
+    function calcCharge(type, mode, v) {
+        let fee = 0; let id = '';
+        if (type === 'l') { 
+            if(v<=5) { fee = mode==='w'?174000:(mode==='j'?139000:106000); id='ch-l-1'; }
+            else if(v<=10) { fee = mode==='w'?235000:(mode==='j'?167000:142000); id='ch-l-2'; }
+            else if(v<=20) { fee = mode==='w'?295000:(mode==='j'?197000:164000); id='ch-l-3'; }
+            else if(v<=50) { fee = mode==='w'?435000:(mode==='j'?281000:230000); id='ch-l-4'; }
+            else if(v<=100) { fee = mode==='w'?599000:(mode==='j'?375000:320000); id='ch-l-5'; }
+            else if(v<=500) { fee = mode==='w'?1010000:(mode==='j'?676000:546000); id='ch-l-6'; }
+            else if(v<=1000) { fee = mode==='w'?1443000:(mode==='j'?913000:768000); id='ch-l-7'; }
+            else { 
+                fee = mode==='w'? Math.min(4133000, 1443000+Math.ceil((v-1000)/500)*167000) : 
+                     (mode==='j'? Math.min(2148000, 913000+Math.ceil((v-1000)/500)*145000) : 
+                                  Math.min(2435000, 768000+Math.ceil((v-1000)/500)*100000));
+                id='ch-l-8';
+            }
+            if(mode==='w') id+='-w'; else if(mode==='j') id+='-j'; else id+='-m';
+        } else { 
+            if(v<=1000) { fee = mode==='w'?204000:(mode==='j'?151000:123000); id='ch-c-1'; }
+            else if(v<=2000) { fee = mode==='w'?357000:(mode==='j'?229000:195000); id='ch-c-2'; }
+            else if(v<=3000) { fee = mode==='w'?448000:(mode==='j'?279000:223000); id='ch-c-3'; }
+            else if(v<=5000) { fee = mode==='w'?527000:(mode==='j'?339000:275000); id='ch-c-4'; }
+            else if(v<=10000) { fee = mode==='w'?892000:(mode==='j'?649000:455000); id='ch-c-5'; }
+            else if(v<=100000) { fee = mode==='w'?1461000:(mode==='j'?1007000:739000); id='ch-c-6'; }
+            else if(v<=200000) { fee = mode==='w'?1947000:(mode==='j'?1686000:1015000); id='ch-c-7'; }
+            else if(v<=500000) { fee = mode==='w'?2485000:(mode==='j'?2161000:1276000); id='ch-c-8'; }
+            else if(v<=1000000) { fee = mode==='w'?3074000:(mode==='j'?2613000:1723000); id='ch-c-9'; }
+            else {
+                fee = mode==='w'? Math.min(4133000, 3074000+Math.ceil((v-1000000)/100000)*155000) : 
+                     (mode==='j'? Math.min(2752000, 2613000+Math.ceil((v-1000000)/100000)*139000) : 
+                                  Math.min(2435000, 1723000+Math.ceil((v-1000000)/100000)*87000));
+                id='ch-c-10';
+            }
+            if(mode==='w') id+='-w'; else if(mode==='j') id+='-j'; else id+='-m';
+        }
+        return { fee, id };
     }
 
-    // --- GOSI (Notice Page) Rendering Logic ---
-    function renderGosi(pages) {
-        if(!pages || pages.length === 0) return;
+    function renderGosiPage(hlIds) {
         const wrap = document.getElementById('gosiContent');
         wrap.innerHTML = '';
-        pages.forEach(p => {
-            const div = document.createElement('div');
-            div.className = 'gosi-page-content';
-            div.innerHTML = getGosiPageHTML(p);
-            wrap.appendChild(div);
+        let pages = [];
+        if (currentMode === 'gamri') {
+            pages.push(getHtml_Gosi_Gamri());
+        } else {
+            if (currentMain.includes('sup')) pages.push(getHtml_Gosi1_Sup());
+            if (currentMain.includes('spec') || currentMain.includes('cng')) pages.push(getHtml_Gosi1_Spec());
+            let isLiq = (currentSub === 'w_c_liq' || currentSub === 'j_c_liq' || currentMain === 'mid_liq');
+            let isComp = (currentSub === 'w_c_comp' || currentSub === 'j_c_comp' || currentMain === 'mid_comp');
+            if (isLiq) pages.push(getHtml_Gosi2_Liq());
+            if (isComp) pages.push(getHtml_Gosi2_Comp());
+        }
+
+        wrap.innerHTML = pages.join('');
+
+        hlIds.forEach(id => {
+            let el = document.getElementById(id);
+            if (!el && currentMode !== 'gamri') {
+                const map = { 'c-sp-j-1':'c-sp-w-1', 'c-sp-j-2':'c-sp-w-2', 'c-sp-j-3':'c-sp-w-3' };
+                if (map[id]) el = document.getElementById(map[id]);
+            }
+            if (el) {
+                if (currentMode === 'gamri') el.classList.add('highlight-cell');
+                else el.classList.add('hl');
+            }
         });
     }
 
-    // 오타 수정됨 ("초 할 수 없다" -> "초과할 수 없다")
-    function getGosiPageHTML(p) {
-        const pages = {
-            4: `<div style="font-weight:bold; font-size:14px;">[별표 1] 기술검토비용<br><br>1. 신규기술검토<br>가. 고압가스안전관리법</div>
-                <table class="gosi-table"><colgroup><col width="30%"><col width="45%"><col width="25%"></colgroup>
-                <tr><th>시설별</th><th>제조능력·저장능력</th><th>비 용</th></tr>
-                <tr id="row-g1_1-1"><td rowspan="9" class="gosi-category">액화가스의<br>제조·저장·충전시설</td><td class="txt-l">5톤 이하</td><td>51,500원</td></tr>
-                <tr id="row-g1_1-2"><td class="txt-l">5톤 초과 10톤 이하</td><td>75,200원</td></tr>
-                <tr id="row-g1_1-3"><td class="txt-l">10톤 초과 20톤 이하</td><td>97,900원</td></tr>
-                <tr id="row-g1_1-4"><td class="txt-l">20톤 초과 50톤 이하</td><td>138,000원</td></tr>
-                <tr id="row-g1_1-5"><td class="txt-l">50톤 초과 100톤 이하</td><td>207,000원</td></tr>
-                <tr id="row-g1_1-6"><td class="txt-l">100톤 초과 500톤 이하</td><td>335,000원</td></tr>
-                <tr id="row-g1_1-7"><td class="txt-l">500톤 초과 1천톤 이하</td><td>491,000원</td></tr>
-                <tr id="row-g1_1-8"><td rowspan="2" class="txt-l">1천톤 초과</td><td class="formula-cell">491,000원에 1천톤을 초과한 500톤마다<br>153,000원을 가산한 금액.</td></tr>
-                <tr id="row-g1_1-9"><td class="formula-cell">다만, 2,561,000원을 초과할 수 없다.</td></tr></table><div class="page-num">- 92 -</div>`,
-            
-            5: `<table class="gosi-table"><colgroup><col width="30%"><col width="45%"><col width="25%"></colgroup>
-                <tr><th>시설별</th><th>제조능력·저장능력</th><th>비 용</th></tr>
-                <tr id="row-g1_2-1"><td rowspan="11" class="gosi-category">압축가스의<br>제조·저장·충전시설</td><td class="txt-l">1천㎡ 이하</td><td>63,900원</td></tr>
-                <tr id="row-g1_2-2"><td class="txt-l">1천㎡ 초과 2천㎡ 이하</td><td>114,300원</td></tr>
-                <tr id="row-g1_2-3"><td class="txt-l">2천㎡ 초과 3천㎡ 이하</td><td>145,200원</td></tr>
-                <tr id="row-g1_2-4"><td class="txt-l">3천㎡ 초과 5천㎡ 이하</td><td>179,200원</td></tr>
-                <tr id="row-g1_2-5"><td class="txt-l">5천㎡ 초과 1만㎡ 이하</td><td>338,000원</td></tr>
-                <tr id="row-g1_2-6"><td class="txt-l">1만㎡ 초과 10만㎡ 이하</td><td>543,000원</td></tr>
-                <tr id="row-g1_2-7"><td class="txt-l">10만㎡ 초과 20만㎡ 이하</td><td>770,000원</td></tr>
-                <tr id="row-g1_2-8"><td class="txt-l">20만㎡ 초과 50만㎡ 이하</td><td>971,000원</td></tr>
-                <tr id="row-g1_2-9"><td class="txt-l">50만㎡ 초과 100만㎡ 이하</td><td>1,201,000원</td></tr>
-                <tr id="row-g1_2-10"><td rowspan="2" class="txt-l">100만㎡ 초과</td><td class="formula-cell">1,201,000원에 100만㎡를 초과한 10만㎡마다 141,000원을 가산한 금액.</td></tr>
-                <tr id="row-g1_2-11"><td class="formula-cell">다만, 2,561,000원을 초과할 수 없다.</td></tr></table><div class="page-num">- 93 -</div>`,
-            
-            6: `<table class="gosi-table"><colgroup><col width="30%"><col width="45%"><col width="25%"></colgroup>
-                <tr><th>시설별</th><th>냉동능력</th><th>비 용</th></tr>
-                <tr id="row-g2-1"><td rowspan="10" class="gosi-category">냉동제조시설</td><td class="txt-l">5톤 이하</td><td>13,400원</td></tr>
-                <tr id="row-g2-2"><td class="txt-l">5톤 초과 10톤 이하</td><td>24,700원</td></tr>
-                <tr id="row-g2-3"><td class="txt-l">10톤 초과 30톤 이하</td><td>58,700원</td></tr>
-                <tr id="row-g2-4"><td class="txt-l">30톤 초과 50톤 이하</td><td>90,600원</td></tr>
-                <tr id="row-g2-5"><td class="txt-l">50톤 초과 100톤 이하</td><td>148,300원</td></tr>
-                <tr id="row-g2-6"><td class="txt-l">100톤 초과 200톤 이하</td><td>231,800원</td></tr>
-                <tr id="row-g2-7"><td class="txt-l">200톤 초과 300톤 이하</td><td>296,000원</td></tr>
-                <tr id="row-g2-8"><td class="txt-l">300톤 초과 500톤 이하</td><td>372,000원</td></tr>
-                <tr id="row-g2-9"><td rowspan="2" class="txt-l">500톤 초과</td><td class="formula-cell">372,000원에 500톤을 초과한 100톤마다 138,000원을 가산한 금액.</td></tr>
-                <tr id="row-g2-10"><td class="formula-cell">다만, 1,066,000원을 초과할 수 없다.</td></tr></table><div class="page-num">- 94 -</div>`,
-            
-            7: `<table class="gosi-table"><colgroup><col width="35%"><col width="40%"><col width="25%"></colgroup>
-                <tr><th>시설별</th><th>능력별</th><th>비 용</th></tr>
-                <tr id="row-g3-1"><td rowspan="6" class="gosi-category">배관</td><td class="txt-l">연장 1km이하</td><td>82,400원</td></tr>
-                <tr id="row-g3-2"><td class="txt-l">연장 1km초과 2km이하</td><td>164,000원</td></tr>
-                <tr id="row-g3-3"><td class="txt-l">연장 2km초과 3km이하</td><td>234,000원</td></tr>
-                <tr id="row-g3-4"><td class="txt-l">연장 3km초과 4km이하</td><td>305,000원</td></tr>
-                <tr id="row-g3-5"><td class="txt-l">연장 4km초과 5km이하</td><td>365,000원</td></tr>
-                <tr id="row-g3-6"><td class="txt-l">연장 5km초과</td><td class="formula-cell">365,000원에 5km를 초과한 매1km마다 61,000원을 가산한 금액.</td></tr>
-                <tr id="row-g4-1"><td colspan="2" class="gosi-category txt-l">용기제조시설</td><td>196,700원</td></tr>
-                <tr id="row-g4-2"><td colspan="2" class="gosi-category txt-l">냉동기제조시설</td><td>196,700원</td></tr>
-                <tr id="row-g4-3"><td rowspan="2" class="gosi-category">특정설비제조시설</td><td class="txt-l">액화천연가스 저장탱크</td><td>911,600원</td></tr>
-                <tr id="row-g4-4"><td class="txt-l">타 기기</td><td>196,700원</td></tr>
-                <tr id="row-g5-1"><td colspan="2" class="gosi-category txt-l">검사기관 지정시설</td><td>128,800원</td></tr>
-                <tr id="row-g5-2"><td colspan="2" class="gosi-category txt-l">판매시설</td><td>47,400원</td></tr>
-                <tr id="row-g5-3"><td colspan="2" class="gosi-category txt-l">고압가스 수입업</td><td>47,400원</td></tr>
-                <tr id="row-g6-1"><td class="gosi-category">고압가스운반자의<br>등록 대상차량</td><td class="formula-cell">고압가스안전관리법 시행령 제5조의4...<br>해당하는 차량 (1대 기준)</td><td>45,300원</td></tr>
-                <tr id="row-g6-2"><td class="gosi-category">용기운반자의<br>등록 대상차량</td><td class="formula-cell">제5호에 해당하는 차량 (1대 기준)</td><td>13,400원</td></tr>
-                <tr id="row-g7-1"><td rowspan="2" class="gosi-category">등록대상 용기 등의<br>종류구분 ([별표2]2.)</td><td class="txt-l">4종류 이상</td><td>5,366,000원</td></tr>
-                <tr id="row-g7-2"><td class="txt-l">기타</td><td>3,834,000원</td></tr></table><div class="page-num">- 95 -</div>`,
-            
-            8: `<div style="font-weight:bold; font-size:12px; margin-bottom:5px;">나. 액화석유가스의 안전관리 및 사업법</div>
-                <table class="gosi-table"><colgroup><col width="30%"><col width="45%"><col width="25%"></colgroup>
-                <tr><th>시설별</th><th>저장능력</th><th>비 용</th></tr>
-                <tr id="row-l1-1"><td rowspan="9" class="gosi-category">액화석유가스의 충전·<br>일반집단공급·저장소<br>시설 및 사용시설</td><td class="txt-l">5톤 이하</td><td>51,500원</td></tr>
-                <tr id="row-l1-2"><td class="txt-l">5톤 초과 10톤 이하</td><td>75,200원</td></tr>
-                <tr id="row-l1-3"><td class="txt-l">10톤 초과 20톤 이하</td><td>95,000원</td></tr>
-                <tr id="row-l1-4"><td class="txt-l">20톤 초과 50톤 이하</td><td>134,000원</td></tr>
-                <tr id="row-l1-5"><td class="txt-l">50톤 초과 100톤 이하</td><td>201,000원</td></tr>
-                <tr id="row-l1-6"><td class="txt-l">100톤 초과 500톤 이하</td><td>335,000원</td></tr>
-                <tr id="row-l1-7"><td class="txt-l">500톤 초과 1천톤 이하</td><td>491,000원</td></tr>
-                <tr id="row-l1-8"><td rowspan="2" class="txt-l">1천톤 초과</td><td class="formula-cell">491,000원에 1천톤을 초과한 500톤마다 153,000원을 가산한 금액.</td></tr>
-                <tr id="row-l1-9"><td class="formula-cell">다만, 1,384,000원을 초과할 수 없다.</td></tr>
-                <tr id="row-l2-1"><td colspan="2" class="gosi-category txt-l">가스용품제조시설</td><td>196,700원</td></tr>
-                <tr id="row-l3-1"><td colspan="2" class="gosi-category txt-l">판매시설</td><td>47,400원</td></tr>
-                <tr id="row-l4-1"><td rowspan="2" class="gosi-category">등록대상 가스용품 등의<br>종류구분 ([별표2]3.)</td><td class="txt-l">4종류 이상</td><td>5,366,000원</td></tr>
-                <tr id="row-l4-2"><td class="txt-l">기타</td><td>3,834,000원</td></tr></table><div class="page-num">- 96 -</div>`,
-            
-            9: `<table class="gosi-table"><colgroup><col width="30%"><col width="45%"><col width="25%"></colgroup>
-                <tr><th>시설별</th><th>저장능력</th><th>비 용</th></tr>
-                <tr id="row-l5_1-1"><td rowspan="9" class="gosi-category">액화석유가스<br>배관망공급사업의<br>제조소</td><td class="txt-l">5톤 이하</td><td>51,500원</td></tr>
-                <tr id="row-l5_1-2"><td class="txt-l">5톤 초과 10톤 이하</td><td>75,200원</td></tr>
-                <tr id="row-l5_1-3"><td class="txt-l">10톤 초과 20톤 이하</td><td>97,900원</td></tr>
-                <tr id="row-l5_1-4"><td class="txt-l">20톤 초과 50톤 이하</td><td>134,000원</td></tr>
-                <tr id="row-l5_1-5"><td class="txt-l">50톤 초과 100톤 이하</td><td>207,000원</td></tr>
-                <tr id="row-l5_1-6"><td class="txt-l">100톤 초과 500톤 이하</td><td>335,000원</td></tr>
-                <tr id="row-l5_1-7"><td class="txt-l">500톤 초과 1천톤 이하</td><td>491,000원</td></tr>
-                <tr id="row-l5_1-8"><td rowspan="2" class="txt-l">1천톤 초과</td><td class="formula-cell">491,000원에 1천톤을 초과한 500톤마다 153,000원을 가산한 금액.</td></tr>
-                <tr id="row-l5_1-9"><td class="formula-cell">다만, 1,384,000원을 초과할 수 없다.</td></tr></table><div class="page-num">- 97 -</div>`,
-
-            10: `<table class="gosi-table"><colgroup><col width="20%"><col width="20%"><col width="45%"><col width="15%"></colgroup>
-                 <tr><th colspan="2">대 상</th><th rowspan="2">공 사 내 용</th><th rowspan="2">비 용</th></tr>
-                 <tr><th>시설별</th><th>공사부분</th></tr>
-                 <tr id="row-l5_2-1"><td class="gosi-category">배관망사업<br>정압기</td><td>설치/변경공사</td><td class="txt-l">정압기의 설치/변경공사</td><td>94,800원</td></tr>
-                 <tr id="row-l5_3-1"><td rowspan="5" class="gosi-category">배관망사업<br>배관</td><td rowspan="5">설치/변경공사</td><td colspan="2" class="txt-l formula-cell">1. 최고사용압력이 0.2MPa 미만인 배관</td></tr>
-                 <tr id="row-l5_3-2"><td class="txt-l">가. 연장이 2km 미만인 것</td><td>42,200원</td></tr>
-                 <tr id="row-l5_3-3"><td class="txt-l">나. 연장이 2km 이상 10km 미만인 것</td><td>111,000원</td></tr>
-                 <tr id="row-l5_3-4"><td class="txt-l">다. 연장이 10km 이상인 것</td><td class="formula-cell">111,000원에 10km를 초과한 매 1km마다 38,000원을 가산한 금액</td></tr>
-                 <tr id="row-l5_3-5"><td colspan="2" class="txt-l formula-cell">2. 최고사용압력이 0.2MPa 이상인 배관<br>가. 연장 5km 미만: 438,000원<br>나. 연장 5km 이상: 438,000원에 매1km당 81,000원 가산</td></tr>
-                 </table><div class="page-num">- 98 -</div>`,
-
-            11: `<div style="font-weight:bold; font-size:12px; margin-bottom:5px;">다. 도시가스사업법</div>
-                 <table class="gosi-table"><colgroup><col width="30%"><col width="45%"><col width="25%"></colgroup>
-                 <tr><th>시설별</th><th>제조능력·저장능력</th><th>비 용</th></tr>
-                 <tr id="row-c1_2-1"><td rowspan="8" class="gosi-category">액화가스의<br>충전시설</td><td class="txt-l">5톤 이하 / 5톤 초과 10톤 이하</td><td>51,500원 / 75,200원</td></tr>
-                 <tr id="row-c1_2-2"><td class="txt-l">10톤 초과 20톤 이하</td><td>95,000원</td></tr>
-                 <tr id="row-c1_2-3"><td class="txt-l">20톤 초과 50톤 이하</td><td>134,000원</td></tr>
-                 <tr id="row-c1_2-4"><td class="txt-l">50톤 초과 100톤 이하</td><td>201,000원</td></tr>
-                 <tr id="row-c1_2-5"><td class="txt-l">100톤 초과 500톤 이하</td><td>335,000원</td></tr>
-                 <tr id="row-c1_2-6"><td class="txt-l">500톤 초과 1천톤 이하</td><td>491,000원</td></tr>
-                 <tr id="row-c1_2-7"><td rowspan="2" class="txt-l">1천톤 초과</td><td class="formula-cell">491,000원에 1천톤을 초과한 500톤마다 153,000원 가산.</td></tr>
-                 <tr id="row-c1_2-8"><td class="formula-cell">다만, 2,561,000원을 초과할 수 없다.</td></tr></table><div class="page-num">- 99 -</div>`,
-
-            12: `<table class="gosi-table"><colgroup><col width="30%"><col width="45%"><col width="25%"></colgroup>
-                 <tr><th>시설별</th><th>제조능력·저장능력</th><th>비 용</th></tr>
-                 <tr id="row-c1_1-1"><td rowspan="10" class="gosi-category">압축가스의<br>충전시설</td><td class="txt-l">1천㎡ 이하</td><td>63,900원</td></tr>
-                 <tr id="row-c1_1-2"><td class="txt-l">1천㎡ 초과 2천㎡ 이하</td><td>114,300원</td></tr>
-                 <tr id="row-c1_1-3"><td class="txt-l">2천㎡ 초과 3천㎡ 이하</td><td>145,200원</td></tr>
-                 <tr id="row-c1_1-4"><td class="txt-l">3천㎡ 초과 5천㎡ 이하</td><td>179,200원</td></tr>
-                 <tr id="row-c1_1-5"><td class="txt-l">5천㎡ 초과 1만㎡ 이하</td><td>338,000원</td></tr>
-                 <tr id="row-c1_1-6"><td class="txt-l">1만㎡ 초과 10만㎡ 이하</td><td>543,000원</td></tr>
-                 <tr id="row-c1_1-7"><td class="txt-l">10만㎡ 초과 20만㎡ 이하</td><td>770,000원</td></tr>
-                 <tr id="row-c1_1-8"><td class="txt-l">20만㎡ 초과 50만㎡ 이하 / 100만 이하</td><td>971,000원 / 1,201,000원</td></tr>
-                 <tr id="row-c1_1-9"><td rowspan="2" class="txt-l">100만㎡ 초과</td><td class="formula-cell">1,201,000원에 100만㎡를 초과한 10만㎡마다 141,000원 가산.</td></tr>
-                 <tr id="row-c1_1-10"><td class="formula-cell">다만, 2,561,000원을 초과할 수 없다.</td></tr></table><div class="page-num">- 100 -</div>`,
-
-            13: `<table class="gosi-table"><colgroup><col width="20%"><col width="16%"><col width="44%"><col width="20%"></colgroup>
-                 <tr><th colspan="2">대 상</th><th rowspan="2">공 사 내 용</th><th rowspan="2">비 용</th></tr>
-                 <tr><th>시설별</th><th>공사부분</th></tr>
-                 <tr id="row-c2_1-1"><td rowspan="4" class="gosi-category txt-l">가스도매사업<br>(도시가스<br>사업자외의<br>가스공급시설<br>설치자 포함)<br>제 조 소</td><td>설치공사</td><td class="txt-l">제조소 신규설치</td><td class="txt-r">2,190,000원</td></tr>
-                 <tr id="row-c2_2-1"><td rowspan="3">변경공사</td><td class="txt-l">저장탱크 및 부속설비</td><td class="txt-r">1,094,000원</td></tr>
-                 <tr id="row-c2_2-2"><td class="txt-l">가스발생설비 및 부속설비</td><td class="txt-r">1,094,000원</td></tr>
-                 <tr id="row-c2_2-3"><td class="txt-l">기타 부대설비</td><td class="txt-r">1,094,000원</td></tr>
-                 
-                 <tr><td rowspan="8" class="gosi-category txt-l">일반사업<br>제 조 소</td><td rowspan="7">설치공사</td><td colspan="2" class="txt-l">가스발생설비에 속하는<br>제조소의 설치공사</td></tr>
-                 <tr><td colspan="2" class="txt-l">1. 최고사용압력이 저압 또는<br>　중압인 것</td></tr>
-                 <tr id="row-c3_1-1"><td class="txt-l">　가. 가스제조능력이 5만㎥<br>　　미만인 것</td><td class="txt-r">292,500원</td></tr>
-                 <tr id="row-c3_1-2"><td class="txt-l">　나. 가스제조능력이 5만㎥<br>　　이상인 것</td><td class="txt-r">355,400원</td></tr>
-                 
-                 <tr><td colspan="2" class="txt-l">2. 최고사용압력이 고압인 것</td></tr>
-                 <tr id="row-c3_1-3"><td class="txt-l">　가. 가스제조능력이 40만㎥<br>　　미만인 것</td><td class="txt-r">639,000원</td></tr>
-                 <tr id="row-c3_1-4"><td class="txt-l">　나. 가스제조능력이 40만㎥<br>　　이상인 것</td><td class="txt-r">805,000원</td></tr>
-                 
-                 <tr><td>변경공사</td><td class="txt-l formula-cell">1. 제조설비(가스발생설비와<br>　그 가스발생설비와 일체가<br>　되어 가스의 제조용에<br>　사용되는 가스정제설비·<br>　가스홀더·배송기·압송기<br>　및 그 부대설비를 말한다.<br>　이하같다.)의 설치공사</td><td></td></tr>
-                 </table><div class="page-num">- 101 -</div>`,
-
-            14: `<table class="gosi-table"><colgroup><col width="20%"><col width="16%"><col width="44%"><col width="20%"></colgroup>
-                 <tr><th colspan="2">대 상</th><th rowspan="2">공 사 내 용</th><th rowspan="2">비 용</th></tr>
-                 <tr><th>시설별</th><th>공사부분</th></tr>
-                 <tr id="row-c3_2-1"><td rowspan="8" class="gosi-category txt-l">일반사업<br>제 조 소</td><td rowspan="8">변경공사</td><td class="txt-l">　가. 가스홀더의 설치공사를<br>　　수반하는 것</td><td class="txt-r">253,400원</td></tr>
-                 <tr id="row-c3_2-2"><td class="txt-l">　나. 가스홀더의 설치공사를<br>　　수반하지 아니하는 것</td><td class="txt-r">206,000원</td></tr>
-                 <tr><td colspan="2" class="txt-l">2. 제조설비 설치공사외의<br>　변경공사</td></tr>
-                 <tr id="row-c3_2-3"><td class="txt-l">　가. 가스발생설비에 속하는<br>　　공사</td><td class="txt-r">295,000원</td></tr>
-                 <tr id="row-c3_2-4"><td class="txt-l">　나. 가스정제설비에 속하는<br>　　공사</td><td class="txt-r">295,000원</td></tr>
-                 <tr id="row-c3_2-5"><td class="txt-l">　다. 가스홀더에 속하는 공사</td><td class="txt-r">200,000원</td></tr>
-                 <tr id="row-c3_2-6"><td class="txt-l">　라. 배송기 및 압송기에<br>　　속하는 공사</td><td class="txt-r">148,000원</td></tr>
-                 <tr id="row-c3_2-7"><td class="txt-l">　마. 부대설비에 속하는 공사</td><td class="txt-r">148,000원</td></tr>
-                 
-                 <tr id="row-c4_1-1"><td rowspan="2" class="gosi-category txt-l">공 급 소</td><td rowspan="2">설치공사<br>또는<br>변경공사</td><td class="txt-l">공급소에 속하는 설치공사</td><td class="txt-r">246,000원</td></tr>
-                 <tr id="row-c4_1-2"><td class="txt-l">공급소에 속하는 변경공사</td><td class="txt-r">200,000원</td></tr>
-                 
-                 <tr id="row-c4_2-1"><td class="gosi-category txt-l">정 압 기</td><td>설치공사<br>또는<br>변경공사</td><td class="txt-l">정압기의 설치공사 또는<br>정압기의 변경공사</td><td class="txt-r">92,000원</td></tr>
-                 
-                 <tr id="row-c4_3-1"><td rowspan="2" class="gosi-category txt-l">정압기지</td><td rowspan="2">설치공사<br>또는<br>변경공사</td><td class="txt-l">정압기지의 설치공사</td><td class="txt-r">228,700원</td></tr>
-                 <tr id="row-c4_3-2"><td class="txt-l">정압기지의 변경공사</td><td class="txt-r">188,500원</td></tr>
-                 </table><div class="page-num">- 102 -</div>`,
-
-            15: `<table class="gosi-table"><colgroup><col width="20%"><col width="20%"><col width="45%"><col width="15%"></colgroup>
-                 <tr><th colspan="2">대 상</th><th rowspan="2">공 사 내 용</th><th rowspan="2">비 용</th></tr>
-                 <tr><th>시설별</th><th>공사부분</th></tr>
-                 <tr id="row-c5_1-0"><td rowspan="5" class="gosi-category">배관</td><td rowspan="5">설치/변경</td><td colspan="2" class="txt-l formula-cell">1. 최고사용압력이 저/중압인 배관</td></tr>
-                 <tr id="row-c5_1-1"><td class="txt-l">가. 연장 2km 미만</td><td>42,200원</td></tr>
-                 <tr id="row-c5_1-2"><td class="txt-l">나. 연장 2~10km 미만</td><td>111,000원</td></tr>
-                 <tr id="row-c5_1-3"><td class="txt-l">다. 연장 10km 이상</td><td class="formula-cell">111,000원에 매1km당 38,000원 가산</td></tr>
-                 <tr id="row-c5_2-1"><td colspan="2" class="txt-l formula-cell">2. 고압 배관 (5km미만 438,000원 / 이상시 매1km당 81,000원 가산)</td></tr>
-                 <tr id="row-c6_1-1"><td rowspan="2" class="gosi-category">특정가스<br>사용시설</td><td colspan="2" class="txt-l">1. 월사용예정량이 4천 이하인 것</td><td>24,700원</td></tr>
-                 <tr id="row-c6_1-2"><td colspan="2" class="txt-l formula-cell">2. 4천㎡ 초과: 24,700원에 500m²마다 3,600원 가산 (최대 519,000원)</td></tr>
-                 <tr id="row-c6_2-1"><td rowspan="2" class="gosi-category">매립 배관시설</td><td colspan="2" class="txt-l">가. 단독주택</td><td>24,700원</td></tr>
-                 <tr id="row-c6_2-2"><td colspan="2" class="txt-l">나. 공동주택</td><td>24,700원</td></tr></table><div class="page-num">- 103 -</div>`,
-
-            16: `<div style="font-weight:bold; font-size:12px; margin-bottom:5px;">라. 수소경제 육성 및 수소 안전관리에 관한 법률</div>
-                 <table class="gosi-table"><colgroup><col width="30%"><col width="45%"><col width="25%"></colgroup>
-                 <tr><th>시설별</th><th>제조능력·저장능력</th><th>비 용</th></tr>
-                 <tr id="row-h1-1"><td rowspan="10" class="gosi-category">압축수소가스의<br>제조(저장) 시설</td><td class="txt-l">200㎡ 이하</td><td>62,000원</td></tr>
-                 <tr id="row-h1-2"><td class="txt-l">200㎡ 초과 400㎡ 이하</td><td>111,000원</td></tr>
-                 <tr id="row-h1-3"><td class="txt-l">400㎡ 초과 600㎡ 이하</td><td>141,000원</td></tr>
-                 <tr id="row-h1-4"><td class="txt-l">600㎡ 초과 1천㎡ 이하</td><td>174,000원</td></tr>
-                 <tr id="row-h1-5"><td class="txt-l">1천㎡ 초과 2천㎡ 이하</td><td>338,000원</td></tr>
-                 <tr id="row-h1-6"><td class="txt-l">2천㎡ 초과 2만㎡ 이하</td><td>543,000원</td></tr>
-                 <tr id="row-h1-7"><td class="txt-l">2만㎡ 초과 4만㎡ 이하</td><td>770,000원</td></tr>
-                 <tr id="row-h1-8"><td class="txt-l">4만㎡ 초과 10만㎡ 이하 / 20만 이하</td><td>971,000원 / 1,201,000원</td></tr>
-                 <tr id="row-h1-9"><td rowspan="2" class="txt-l">20만㎡ 초과</td><td class="formula-cell">1,201,000원에 20만㎡를 초과한 2만㎡마다 141,000원 가산.</td></tr>
-                 <tr id="row-h1-10"><td class="formula-cell">다만, 2,561,000원을 초과할 수 없다.</td></tr></table><div class="page-num">- 104 -</div>`,
-
-            17: `<table class="gosi-table"><colgroup><col width="35%"><col width="40%"><col width="25%"></colgroup>
-                 <tr><th>시설별</th><th>능력별</th><th>비 용</th></tr>
-                 <tr id="row-h2-1"><td rowspan="6" class="gosi-category">배관</td><td class="txt-l">연장 1km 이하</td><td>80,000원</td></tr>
-                 <tr id="row-h2-2"><td class="txt-l">연장 1km 초과 2km 이하</td><td>164,000원</td></tr>
-                 <tr id="row-h2-3"><td class="txt-l">연장 2km 초과 3km 이하</td><td>234,000원</td></tr>
-                 <tr id="row-h2-4"><td class="txt-l">연장 3km 초과 4km 이하</td><td>305,000원</td></tr>
-                 <tr id="row-h2-5"><td class="txt-l">연장 4km 초과 5km 이하</td><td>365,000원</td></tr>
-                 <tr id="row-h2-6"><td class="txt-l">연장 5km 초과</td><td class="formula-cell">365,000원에 5km를 초과한 매1km마다 61,000원을 가산한 금액.</td></tr>
-                 <tr id="row-h3-1"><td colspan="2" class="gosi-category txt-l">수소용품제조시설</td><td>196,700원</td></tr>
-                 <tr id="row-h4-1"><td rowspan="2" class="gosi-category">등록대상 수소용품<br>등의 종류구분</td><td class="txt-l">용기 4종류 이상</td><td>5,366,000원</td></tr>
-                 <tr id="row-h4-2"><td class="txt-l">기타 ([별표2).4.)</td><td>3,834,000원</td></tr>
-                 <tr id="row-h5-1"><td rowspan="2" class="gosi-category">연료전지사용시설</td><td colspan="2" class="txt-l">1. 월사용예정량이 4천㎡ 이하인 것: 24,700원</td></tr>
-                 <tr id="row-h5-2"><td colspan="2" class="formula-cell txt-l">2. 4천㎡ 초과인 것: 24,700원에 500m마다 3,600원을 가산한 금액. (최대 519,000원)</td></tr>
-                 </table><div class="page-num">- 105 -</div>`
-        };
-        return pages[p] || '';
+    function getHtml_Gosi1_Sup() {
+        return `
+        <div class="gosi-page-content">
+            <div class="gosi-title">1. 가스공급시설의 정기검사 수수료 및 안전관리수준평가 수수료</div>
+            <table class="gosi-table">
+                <colgroup><col width="22%"><col width="53%"><col width="25%"></colgroup>
+                <tr><th colspan="2">대 상</th><th>금 액</th></tr>
+                <tr id="c-su-m-1"><td rowspan="2" class="gosi-category">제조소</td><td class="txt-l">가스도매사업자 시설<br>(합성천연가스 제조시설)</td><td>103만원</td></tr>
+                <tr id="c-su-m-2"><td class="txt-l">일반도시가스사업자 시설<br>(나프타부생가스, 바이오가스 제조시설)</td><td>54만5천원</td></tr>
+                <tr id="c-su-s"><td colspan="2" class="gosi-category">공급소</td><td>24만5천원</td></tr>
+                <tr id="c-su-v"><td colspan="2" class="gosi-category">정압(밸브)기지</td><td>19만7천원</td></tr>
+                <tr id="c-su-p"><td colspan="2" class="gosi-category">정압기</td><td>8만8천원</td></tr>
+                <tr id="c-su-pp-1"><td rowspan="4" class="gosi-category">배관</td><td class="txt-l">연장이 2㎞ 미만</td><td>5만6천원</td></tr>
+                <tr id="c-su-pp-2"><td class="txt-l">연장이 2㎞ 이상 5㎞ 미만</td><td>11만5천원</td></tr>
+                <tr id="c-su-pp-3"><td class="txt-l">연장이 5㎞ 이상 10㎞ 미만</td><td>20만3천원</td></tr>
+                <tr id="c-su-pp-4"><td class="txt-l">연장이 10㎞ 이상</td><td class="formula-cell">20만3천원에 10km를 초과한 매<br>1km마다 1만9천원을 가산한 금액</td></tr>
+                <tr id="c-su-sf-1"><td rowspan="7" class="gosi-category" style="font-size:0.6rem;">안전관리<br>수준평가</td><td class="txt-l">시설</td><td class="formula-cell">배관길이 1km당 40,000원으로 하며, 1km미만인 경우는 1km로 계산한다.</td></tr>
+                <tr id="c-su-sf-2"><td rowspan="6" class="txt-l">시스템</td><td class="formula-cell">배관 총연장이 300km 미만 : 437만8천원</td></tr>
+                <tr id="c-su-sf-3"><td class="formula-cell">배관 총연장이 300km 이상 500km 미만 : 656만8천원</td></tr>
+                <tr id="c-su-sf-4"><td class="formula-cell">배관 총연장이 500km 이상 1,000km 미만 : 874만7천원</td></tr>
+                <tr id="c-su-sf-5"><td class="formula-cell">배관 총연장이 1,000km 이상 2,000km 미만 : 1,094만6천원</td></tr>
+                <tr id="c-su-sf-6"><td class="formula-cell">배관 총연장이 2,000km 이상 3,000km 미만 : 1,313만5천원</td></tr>
+                <tr id="c-su-sf-7"><td class="formula-cell">배관 총연장이 3,000km 이상 : 1,532만5천원</td></tr>
+            </table>
+            <div class="page-num">- 63 -</div>
+        </div>`;
     }
 
-    // Initialize with completely empty state
-    window.onload = () => resetAll();
+    function getHtml_Gosi1_Spec() {
+        return `
+        <div class="gosi-page-content">
+            <div class="gosi-title" style="font-size: 0.9rem; letter-spacing: 1px;">2. 특정가스사용시설의 완성검사 및 정기검사 수수료</div>
+            <table class="gosi-table" style="border-top: 2px solid #000; border-bottom: 2px solid #000;">
+                <colgroup>
+                    <col width="6%">
+                    <col width="14%">
+                    <col width="30%">
+                    <col width="25%">
+                    <col width="25%">
+                </colgroup>
+                <tr>
+                    <th colspan="3" rowspan="2" style="letter-spacing: 20px;">대 상</th>
+                    <th colspan="2" style="letter-spacing: 20px;">금 액</th>
+                </tr>
+                <tr>
+                    <th style="letter-spacing: 5px;">완 성 검 사</th>
+                    <th style="letter-spacing: 5px;">정 기 검 사</th>
+                </tr>
+                <tr id="c-cng-w">
+                    <td colspan="3" class="gosi-category" style="letter-spacing: 2px; text-align: left; padding-left: 10px;">자동차용압축천연가스<br>완 속 충 전 설 비</td>
+                    <td>3만2천원</td>
+                    <td>2만8천원</td>
+                </tr>
+                <tr id="c-sp-w-1">
+                    <td rowspan="3" class="gosi-category" style="line-height: 1.8;">그<br>밖<br>의<br>시<br>설</td>
+                    <td colspan="2" class="txt-l">월사용예정량이 1천㎥ 이하</td>
+                    <td>6만6천700원</td>
+                    <td>3만2천원</td>
+                </tr>
+                <tr id="c-sp-w-2">
+                    <td colspan="2" class="txt-l">월사용예정량이 1천㎥ 초과<br>월사용예정량이 4천㎥ 이하</td>
+                    <td>6만6천700원</td>
+                    <td>4만8천500원</td>
+                </tr>
+                <tr id="c-sp-w-3">
+                    <td colspan="2" class="txt-l">월사용예정량이 4천㎥ 초과</td>
+                    <td class="formula-cell">6만6천700원에 4천㎥를 초과한 500㎥마다 9천300원을 가산한 금액. 다만, 104만7천원을 초과할 수 없다.</td>
+                    <td class="formula-cell">4만8천500원에 4천㎥를 초과한 500㎥마다 9천원을 가산한 금액. 다만, 38만8천원을 초과할 수 없다.</td>
+                </tr>
+                <tr id="c-sp-p-1">
+                    <td rowspan="5" class="gosi-category" style="line-height: 1.8;">배<br>관<br>매<br>립<br>시<br>설</td>
+                    <td class="gosi-category" style="letter-spacing: 5px;">단독주택</td>
+                    <td class="txt-l">20세대 미만</td>
+                    <td>세대수×2만원</td>
+                    <td>-</td>
+                </tr>
+                <tr id="c-sp-p-2">
+                    <td rowspan="4" class="gosi-category" style="letter-spacing: 5px;">공동주택</td>
+                    <td class="txt-l">1세대<br>~150세대</td>
+                    <td>세대수×1만3천원</td>
+                    <td>-</td>
+                </tr>
+                <tr id="c-sp-p-3">
+                    <td class="txt-l">151세대<br>~300세대</td>
+                    <td class="formula-cell" style="text-align: center !important;">[150+(세대수-150)×<br>0.75]×1만3천원</td>
+                    <td>-</td>
+                </tr>
+                <tr id="c-sp-p-4">
+                    <td class="txt-l">301세대<br>~500세대</td>
+                    <td class="formula-cell" style="text-align: center !important;">[262.5+(세대수-300)×<br>0.5]×1만3천원</td>
+                    <td>-</td>
+                </tr>
+                <tr id="c-sp-p-5">
+                    <td class="txt-l">501세대<br>이상</td>
+                    <td class="formula-cell" style="text-align: center !important;">[362.5+(세대수-500)×<br>0.25]×1만3천원</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="txt-l" style="padding: 10px; font-size: 0.65rem; line-height: 1.6; vertical-align: top; border-bottom: 2px solid #000;">
+                        <div style="font-weight: bold; letter-spacing: 5px; margin-bottom: 5px;">비 고</div>
+                        <div style="display: flex;"><span style="width: 15px; flex-shrink: 0;">1.</span> <span>도시가스사업법 시행규칙 제20조의2 제1항 제2호에 따라 시·도지사가 지정하는 특정가스사용시설의 완성검사는 정기검사 수수료를 적용한다.</span></div>
+                        <div style="display: flex; margin-top: 3px;"><span style="width: 15px; flex-shrink: 0;">2.</span> <span>도시가스사업법 시행규칙 제21조 제4항의 변경공사에 따른 완성검사 후 같은 해에 정기검사를 받는 특정가스사용시설의 정기검사 수수료에는 변경부분에 대한 수수료를 제외한다.</span></div>
+                        <div style="display: flex; margin-top: 3px;" id="c-sp-add"><span style="width: 15px; flex-shrink: 0;">3.</span> <span><b>특정가스사용시설</b> 중 연소기가 설치된 실이 2개소이하인 경우의 정기검사수수료는 <b>최고금액 38만8천원의 1/2을 초과할 수 없다.</b> 다만, <b>특정가스사용시설에 복합공동배기구 시설이 있는 경우,</b> 그 시설에 대한 검사 수수료는 <b>완성검사 수수료 외에 104,000원을 가산</b>한다.</span></div>
+                    </td>
+                </tr>
+            </table>
+            <div class="page-num">- 64 -</div>
+        </div>`;
+    }
+
+    function getHtml_Gosi2_Liq() {
+        return `
+        <div class="gosi-page-content">
+            <div class="gosi-title">4. 도시가스충전시설 중간·완성·정기검사 수수료 (액화)</div>
+            <table class="gosi-table">
+                <colgroup><col width="15%"><col width="25%"><col width="20%"><col width="20%"><col width="20%"></colgroup>
+                <tr><th colspan="2">대 상</th><th rowspan="2">중간검사</th><th rowspan="2">완성검사</th><th rowspan="2">정기검사</th></tr>
+                <tr><th>구분</th><th>저장(처리)능력</th></tr>
+                
+                <tr id="ch-l-1"><td rowspan="8" class="gosi-category">액화가스의<br>충전시설</td><td class="txt-l">5톤 이하</td><td id="ch-l-1-m">10만6천원</td><td id="ch-l-1-w">17만4천원</td><td id="ch-l-1-j">13만9천원</td></tr>
+                <tr id="ch-l-2"><td class="txt-l">5톤 초과 10톤 이하</td><td id="ch-l-2-m">14만2천원</td><td id="ch-l-2-w">23만5천원</td><td id="ch-l-2-j">16만7천원</td></tr>
+                <tr id="ch-l-3"><td class="txt-l">10톤 초과 20톤 이하</td><td id="ch-l-3-m">16만4천원</td><td id="ch-l-3-w">29만5천원</td><td id="ch-l-3-j">19만7천원</td></tr>
+                <tr id="ch-l-4"><td class="txt-l">20톤 초과 50톤 이하</td><td id="ch-l-4-m">23만원</td><td id="ch-l-4-w">43만5천원</td><td id="ch-l-4-j">28만1천원</td></tr>
+                <tr id="ch-l-5"><td class="txt-l">50톤 초과 100톤 이하</td><td id="ch-l-5-m">32만원</td><td id="ch-l-5-w">59만9천원</td><td id="ch-l-5-j">37만5천원</td></tr>
+                <tr id="ch-l-6"><td class="txt-l">100톤 초과 500톤 이하</td><td id="ch-l-6-m">54만6천원</td><td id="ch-l-6-w">101만원</td><td id="ch-l-6-j">67만6천원</td></tr>
+                <tr id="ch-l-7"><td class="txt-l">500톤 초과 1천톤 이하</td><td id="ch-l-7-m">76만8천원</td><td id="ch-l-7-w">144만3천원</td><td id="ch-l-7-j">91만3천원</td></tr>
+                <tr id="ch-l-8"><td class="txt-l">1천톤 초과</td>
+                    <td id="ch-l-8-m" class="formula-cell">76만8천원에 1천톤을 초과한 500톤마다 10만원을 가산한 금액. 다만, 243만5천원을 초과할 수 없다.</td>
+                    <td id="ch-l-8-w" class="formula-cell">144만3천원에 1천톤을 초과한 500톤마다 16만7천원을 가산한 금액. 다만, 413만3천원을 초과할 수 없다.</td>
+                    <td id="ch-l-8-j" class="formula-cell">91만3천원에 1천톤을 초과한 500톤마다 14만5천원을 가산한 금액. 다만, 214만8천원을 초과할 수 없다.</td>
+                </tr>
+            </table>
+            <div class="page-num">- 65 -</div>
+        </div>`;
+    }
+
+    function getHtml_Gosi2_Comp() {
+        return `
+        <div class="gosi-page-content">
+            <div class="gosi-title">4. 도시가스충전시설 중간·완성·정기검사 수수료 (압축)</div>
+            <table class="gosi-table">
+                <colgroup><col width="15%"><col width="25%"><col width="20%"><col width="20%"><col width="20%"></colgroup>
+                <tr><th colspan="2">대 상</th><th rowspan="2">중간검사</th><th rowspan="2">완성검사</th><th rowspan="2">정기검사</th></tr>
+                <tr><th>구분</th><th>저장(처리)능력</th></tr>
+
+                <tr id="ch-c-1"><td rowspan="10" class="gosi-category">압축가스의<br>충전시설</td><td class="txt-l">1천㎥ 이하</td><td id="ch-c-1-m">12만3천원</td><td id="ch-c-1-w">20만4천원</td><td id="ch-c-1-j">15만1천원</td></tr>
+                <tr id="ch-c-2"><td class="txt-l">1천㎥ 초과 2천㎥ 이하</td><td id="ch-c-2-m">19만5천원</td><td id="ch-c-2-w">35만7천원</td><td id="ch-c-2-j">22만9천원</td></tr>
+                <tr id="ch-c-3"><td class="txt-l">2천㎥ 초과 3천㎥ 이하</td><td id="ch-c-3-m">22만3천원</td><td id="ch-c-3-w">44만8천원</td><td id="ch-c-3-j">27만9천원</td></tr>
+                <tr id="ch-c-4"><td class="txt-l">3천㎥ 초과 5천㎥ 이하</td><td id="ch-c-4-m">27만5천원</td><td id="ch-c-4-w">52만7천원</td><td id="ch-c-4-j">33만9천원</td></tr>
+                <tr id="ch-c-5"><td class="txt-l">5천㎥ 초과 1만㎥ 이하</td><td id="ch-c-5-m">45만5천원</td><td id="ch-c-5-w">89만2천원</td><td id="ch-c-5-j">64만9천원</td></tr>
+                <tr id="ch-c-6"><td class="txt-l">1만㎥ 초과 10만㎥ 이하</td><td id="ch-c-6-m">73만9천원</td><td id="ch-c-6-w">146만1천원</td><td id="ch-c-6-j">100만7천원</td></tr>
+                <tr id="ch-c-7"><td class="txt-l">10만㎥ 초과 20만㎥ 이하</td><td id="ch-c-7-m">101만5천원</td><td id="ch-c-7-w">194만7천원</td><td id="ch-c-7-j">168만6천원</td></tr>
+                <tr id="ch-c-8"><td class="txt-l">20만㎥ 초과 50만㎥ 이하</td><td id="ch-c-8-m">127만6천원</td><td id="ch-c-8-w">248만5천원</td><td id="ch-c-8-j">216만1천원</td></tr>
+                <tr id="ch-c-9"><td class="txt-l">50만㎥ 초과 100만㎥ 이하</td><td id="ch-c-9-m">172만3천원</td><td id="ch-c-9-w">307만4천원</td><td id="ch-c-9-j">261만3천원</td></tr>
+                <tr id="ch-c-10"><td class="txt-l">100만㎥ 초과</td>
+                    <td id="ch-c-10-m" class="formula-cell">172만3천원에 100만㎥를 초과한 10만㎥마다 8만7천원을 가산한 금액. 다만, 243만5천원을 초과할 수 없다.</td>
+                    <td id="ch-c-10-w" class="formula-cell">307만4천원에 100만㎥를 초과한 10만㎥마다 15만5천원을 가산한 금액. 다만, 413만3천원을 초과할 수 없다.</td>
+                    <td id="ch-c-10-j" class="formula-cell">261만3천원에 100만㎥를 초과한 10만㎥마다 13만9천원을 가산한 금액. 다만, 275만2천원을 초과할 수 없다.</td>
+                </tr>
+            </table>
+            <div class="page-num">- 66 -</div>
+        </div>`;
+    }
+
+    function getHtml_Gosi_Gamri() {
+        return `
+        <div class="gosi-page-content gamri-page">
+            <p class="gamri-text-p">가산금은 다음 각호와 같이 한다.</p>
+            <div class="indent-1">
+                <p class="gamri-text-p">1. 가산금은 건별 감리시간 1시간 단위로(1시간 미만인 경우에는 1시간으로 계산) 부과한다. 다만, 동일 현장에서 2건 이상(시공자가 동일한 경우에 한함)의 가스공급시설을 동시에 감리하는 경우 1건에 한하여 가산금을 부과한다.</p>
+                <p class="gamri-text-p">2. 휴일은 법정 공휴일로 하고, 연장·야간 근로 시간은 평일 18시부터 (토요일은 09시부터) 익일 09시까지로 일한다.</p>
+            </div>
+            <p class="gamri-text-p" style="margin-top:10px;">③ 액법 고시 별표7의 나목 및 도법 고시 별표5 나목에 의한 감리원의 1일 단가는 공사 기술인력(4급 이하)의 비율에 따른 산술평균치를 적용하여 87만2천원으로 한다.</p>
+            <p class="gamri-text-p" style="margin-top:15px;"><span class="article-title">제4조(시공감리수수료)</span> ① 제3조의 산출방법에 의하여 산출된 시공감리 수수료는 아래 표와 같다.</p>
+            <div style="text-align:right; font-size:0.7rem; margin-top:10px;">(단위 : 원)</div>
+            
+            <table class="gosi-table" style="margin-top: 5px;">
+                <colgroup>
+                    <col width="18%">
+                    <col width="22%">
+                    <col width="22%">
+                    <col width="38%">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th colspan="2">대 상</th>
+                        <th colspan="2">금 액</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td rowspan="2" class="text-center font-bold">정압(밸브)기지</td>
+                        <td class="text-center">신규</td>
+                        <td colspan="2" id="cell-gov-st-new" class="text-center">523만2천원</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">변경</td>
+                        <td colspan="2" id="cell-gov-st-mod" class="text-center">348만8천원</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2" class="text-center font-bold">정압기</td>
+                        <td class="text-center">신규</td>
+                        <td colspan="2" id="cell-gov-new" class="text-center">130만8천원</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">변경</td>
+                        <td colspan="2" id="cell-gov-mod" class="text-center">87만2천원</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="text-center font-bold">제조소·공급소</td>
+                        <td colspan="2" id="cell-manu" class="text-center">87만2천원에 감리소요일수를 곱한 금액</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="6" class="text-center font-bold">배 관</td>
+                        <td rowspan="2" class="text-center">액화석유가스<br>배관망공급사업자 및<br>일반도시가스<br>사업자배관</td>
+                        <td class="text-center">길이 20m<br>이하</td>
+                        <td id="cell-pipe-gen-1" class="text-center">14만5천원</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">길이 20m<br>초과</td>
+                        <td id="cell-pipe-gen-2" class="formula-cell">14만5천원에 20m를 초과한 매 10m마다<br>7만3천원을 가산한 금액</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2" class="text-center">사용자공급관</td>
+                        <td class="text-center">길이 500m<br>이하</td>
+                        <td id="cell-pipe-user-1" class="text-center">29만1천원</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">길이 500m<br>초과</td>
+                        <td id="cell-pipe-user-2" class="formula-cell">29만1천원에 500m를 초과한 매<br>500m마다 29만1천원을 가산한 금액. 단,<br>제3조 제2항의 가산금을 제외하고<br>291만원을 초과할 수 없다.</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2" class="text-center">가스도매<br>사업자</td>
+                        <td class="text-center">길이 100m<br>이하</td>
+                        <td id="cell-pipe-whole-1" class="text-center">261만6천원</td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">길이 100m<br>초과</td>
+                        <td id="cell-pipe-whole-2" class="formula-cell">261만6천원에 100m를 초과한 매<br>100m마다 58만1천원을 가산한 금액</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="gamri-text-p" style="margin-top:15px;">② 시공감리수수료는 엔지니어링사업대가의 기준에 따라 매년 1월을</p>
+            <div class="page-num" style="margin-top: 25px;">84</div>
+        </div>`;
+    }
 
     /* =====================================================================
      * 팝업 출력 기능 및 숫자의 한글 변환 로직
@@ -10259,34 +10297,41 @@ function openPrintWindow() {
 
     function openPrintWindow() {
         try {
-            const tbodyHtml = document.getElementById('detailBody').innerHTML; 
+            const tbodyHtml = document.getElementById('detailBody').innerHTML;
             
-            if (!tbodyHtml || tbodyHtml.trim() === '') {
-                alert("[입력값 오류] 출력할 내역이 없습니다. 좌측에서 검사 대상과 규모를 먼저 입력해주세요.");
+            if (tbodyHtml.trim() === '') {
+                alert("출력할 내역이 없습니다. 좌측에서 검사 대상과 규모를 먼저 입력해주세요.");
                 return;
             }
 
-            const totalText = document.getElementById('outTotal').innerText; 
+            const totalText = document.getElementById('outTotal').innerText;
             const totalNum = parseInt(totalText.replace(/[^0-9]/g, ''), 10) || 0;
             const koreanMoney = numberToKorean(totalNum);
 
-            const baseFeeText = document.getElementById('outFee').innerText; 
-            const taxText = document.getElementById('outVat').innerText; 
+            const baseFeeText = document.getElementById('outFee').innerText;
+            const taxText = document.getElementById('outVat').innerText;
 
-            // 지시사항 1: 검사의 종류를 "기술검토"로 고정
-            let inspName = '기술검토'; 
-
-            // 지시사항 2: "대상시설 :" 을 "법 구분 :" 으로 바꾸고, 선택한 법령의 버튼 명칭 표시
-            let lawName = '미지정';
-            const activeLawBtn = document.querySelector('.law-btn.active');
-            if (activeLawBtn) {
-                lawName = activeLawBtn.innerHTML.trim();
+            let inspName = '';
+            if (typeof currentMode !== 'undefined') {
+                if (currentMode === 'wan') inspName = '완성검사';
+                else if (currentMode === 'jung') inspName = '정기검사';
+                else if (currentMode === 'mid') inspName = '중간검사';
+                else if (currentMode === 'gamri') inspName = '시공감리';
             }
 
-            const rows = document.querySelectorAll('#detailBody tr'); 
+            let facilityName = document.getElementById('outName').innerText;
+            if (!facilityName || facilityName === '-') {
+                const activeCatBtn = document.querySelector('.cat-btn.active');
+                if (activeCatBtn) {
+                    facilityName = activeCatBtn.innerText.replace(/\n/g, '').trim();
+                } else {
+                    facilityName = '미지정';
+                }
+            }
+
+            const rows = document.querySelectorAll('#detailBody tr');
             let dataRowCount = 0;
             rows.forEach(tr => {
-                // 현재 코드의 합계 클래스인 tr-sum 으로 변경 (total-row, subtotal-row 대체)
                 if (!tr.classList.contains('tr-sum')) {
                     dataRowCount++;
                 }
@@ -10295,17 +10340,16 @@ function openPrintWindow() {
             let printTbodyHtml = '';
             rows.forEach(tr => {
                 const isTotal = tr.classList.contains('tr-sum');
-                const isSubTotal = false;
 
-                if (dataRowCount === 1 && (isTotal || isSubTotal)) return;
+                if (dataRowCount === 1 && isTotal) return;
 
                 const tds = tr.querySelectorAll('td');
                 if (tds.length === 3) {
-                    const col1 = tds[0].innerHTML; // 지시사항 3: 항목 칸에는 시설의 종류(구분/내용)가 나옴
-                    const col2 = tds[1].innerHTML; 
+                    const col1 = tds[0].innerHTML; 
+                    let col2 = tds[1].innerHTML; 
                     const col3 = tds[2].innerHTML; 
 
-                    if (isTotal || isSubTotal) {
+                    if (isTotal) {
                         printTbodyHtml += "<tr class='" + tr.className + "'>" +
                             "<td>" + col1 + "</td>" +
                             "<td>-</td>" + 
@@ -10313,6 +10357,9 @@ function openPrintWindow() {
                             "<td class='num'>" + col3 + "</td>" +
                             "</tr>";
                     } else {
+                        if (col2.trim() === '-') {
+                            col2 = '1건';
+                        }
                         printTbodyHtml += "<tr>" +
                             "<td>" + col1 + "</td>" +
                             "<td>" + inspName + "</td>" + 
@@ -10325,7 +10372,7 @@ function openPrintWindow() {
 
             const printWin = window.open('', '_blank', 'width=850,height=800');
             if (!printWin) {
-                alert("[시스템 오류] 인쇄 팝업 창이 브라우저에 의해 차단되었습니다. 팝업 차단을 해제해주세요.");
+                alert("인쇄 팝업 창이 브라우저에 의해 차단되었습니다. 팝업 차단을 해제해주세요.");
                 return;
             }
             
@@ -10336,7 +10383,7 @@ function openPrintWindow() {
                 "<html lang='ko'>" +
                 "<head>" +
                 "    <meta charset='UTF-8'>" +
-                "    <title>기술검토 수수료 계산결과</title>" +
+                "    <title>도시가스시설 검사수수료 계산결과</title>" +
                 "    <style>" +
                 "        body { font-family: 'Malgun Gothic', 'Dotum', sans-serif; color: #000; background: #fff; padding: 20px; line-height: 1.6; }" +
                 "        h1 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 30px; font-size: 24px; }" +
@@ -10345,11 +10392,12 @@ function openPrintWindow() {
                 "        .date-info { font-size: 14px; text-align: right; }" +
                 "        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed; }" +
                 "        tr { page-break-inside: avoid; }" +
-                "        th, td { border: 1px solid #000; padding: 10px; font-size: 14px; text-align: center; color: #000 !important; background: transparent !important; word-break: keep-all; }" +
+                "        th, td { border: 1px solid #000; padding: 10px; font-size: 14px; text-align: center; color: #000 !important; background: transparent !important; word-break: break-all; }" +
                 "        th { font-weight: bold; border-bottom: 2px solid #000; }" +
                 "        td:first-child { text-align: left; }" +
                 "        td.num, th.num { text-align: right; }" +
-                "        .tr-sum td { font-weight: bold; border-top: 2px solid #000; border-bottom: 2px solid #000; }" +
+                "        .tr-sum td, .total-row td { font-weight: bold; border-top: 2px solid #000; border-bottom: 2px solid #000; }" +
+                "        .subtotal-row td { font-weight: bold; border-top: 1px dashed #000; }" +
                 "        .total-section { margin-top: 30px; border: 2px solid #000; padding: 20px; text-align: center; page-break-inside: avoid; }" +
                 "        .fee-details { font-size: 15px; margin-bottom: 12px; color: #333; padding-bottom: 12px; border-bottom: 1px dashed #ccc; display: flex; justify-content: center; gap: 20px; }" +
                 "        .total-number { font-size: 20px; font-weight: bold; margin-bottom: 10px; }" +
@@ -10358,9 +10406,9 @@ function openPrintWindow() {
                 "    </style>" +
                 "</head>" +
                 "<body>" +
-                "    <h1>기술검토 수수료 계산결과</h1>" +
+                "    <h1>도시가스시설 검사수수료 계산결과</h1>" +
                 "    <div class='info-header'>" +
-                "        <div class='facility-name'>■ 법 구분 : " + lawName + "</div>" +
+                "        <div class='facility-name'>■ 대상 시설 : " + facilityName + "</div>" +
                 "        <div class='date-info'>출력일자: " + dateStr + "</div>" +
                 "    </div>" +
                 "    <table>" +
@@ -10396,7 +10444,7 @@ function openPrintWindow() {
             
         } catch (error) {
             console.error("인쇄 화면 생성 중 예외 발생:", error);
-            alert("[시스템 오류] 인쇄 화면을 생성하는 중 오류가 발생했습니다. 시스템 상태를 확인해주세요.");
+            showError();
         }
     }
 </script>
