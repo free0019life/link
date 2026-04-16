@@ -12161,8 +12161,7 @@ function openPrintWindow() {
 
         .gosi-placeholder { background: #fff; padding: 25px; border-radius: 16px; border: 2px dashed #cbd5e1; color: #94a3b8; display: flex; align-items: center; justify-content: center; min-height: 600px; text-align: center; font-size: 1.05rem; line-height: 1.6; box-sizing: border-box; }
         
-        /* [핵심 무결성 보완] 하이라이트 셀: 붉은 테두리, 검은 글자, '배경 투명도 완벽 보장' */
-        /* 브라우저 엔진에 따른 잔여 음영을 완벽히 차단하기 위해 background-color 및 box-shadow를 명시적으로 초기화 */
+        /* [핵심 무결성 보완] 하이라이트 셀: 붉은 테두리, 검은 글자, '배경 투명도 완벽 보장' 및 잔여 아웃라인 제거 */
         .highlight-cell { 
             border: 2px solid #dc2626 !important; 
             color: #000 !important; 
@@ -12170,6 +12169,7 @@ function openPrintWindow() {
             background: transparent !important; 
             background-color: transparent !important;
             box-shadow: none !important;
+            outline: none !important;
         }
         .hidden { display: none !important; }
 
@@ -12197,7 +12197,6 @@ function openPrintWindow() {
             .top-bar { flex-direction: row; flex-wrap: nowrap; padding: 10px; gap: 8px; align-items: stretch; }
             .type-toggle { flex: 1; display: flex; gap: 4px; flex-wrap: nowrap; }
             
-            /* 변경된 모바일 미디어 쿼리 */
             .type-btn {
                 font-size: 1.15rem !important; 
                 font-weight: 800 !important;
@@ -12397,15 +12396,22 @@ function openPrintWindow() {
         },
         city: {
             lawName: "도시가스사업법",
-            page: 65,
+            pageSubMap: { city_safe: 65, city_imp: 68 },
             level1: [
-                { id: "city_safe", name: "안전관리규정 심사 수수료", isTitleOnly: true, actions: [{id:"new", name:"신규"}, {id:"mod", name:"변경"}] }
+                { id: "city_safe", name: "안전관리규정 심사", actions: [{id:"new", name:"신규"}, {id:"mod", name:"변경"}] },
+                { id: "city_imp", name: "가스안전영향평가", actions: [] }
             ],
             cats: {
                 city_safe: [
                     { id: "c_s_1", name: "도매사업/<br>합성천연가스제조", prices: { new: 482000, mod: 371000 } },
                     { id: "c_s_2", name: "일반도시가스사업/<br>나프타·바이오", prices: { new: 346000, mod: 267000 } },
                     { id: "c_s_3", name: "도시가스충전", prices: { new: 291000, mod: 225000 } }
+                ],
+                city_imp: [
+                    { id: "c_i_1", name: "전기철도건설공사", prices: { base: 2302000 } },
+                    { id: "c_i_2", name: "지하보도건설공사", prices: { base: 953000 } },
+                    { id: "c_i_3", name: "지하차도건설공사", prices: { base: 1357000 } },
+                    { id: "c_i_4", name: "지하상가건설공사", prices: { base: 1651000 } }
                 ]
             }
         }
@@ -12443,7 +12449,7 @@ function openPrintWindow() {
                 }
             }
         } catch (error) {
-            console.error("[시스템 오류] 초기화 중 DB 구조 매핑 실패:", error);
+            console.error("[시스템 예외] 초기화 중 DB 구조 매핑 실패:", error);
         }
     }
 
@@ -12492,10 +12498,12 @@ function openPrintWindow() {
     }
 
     /**
-     * 법령 탭 선택 로직 (순차적 노출 규칙 엄격 적용 및 상태 완전 초기화)
+     * 법령 탭 선택 로직 (완전 초기화 적용 - 법령이 바뀌면 누적된 계산내역도 당연히 폐기되어야 함)
      */
     function setMode(mode) {
         try {
+            if (currentMode === mode) return; // 동일 법령 클릭 시 불필요한 초기화 방지
+            
             currentMode = mode;
             document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
             const activeBtn = document.getElementById(`btn-${mode}`);
@@ -12504,7 +12512,7 @@ function openPrintWindow() {
             const lawTitleEl = document.getElementById('outLaw');
             if(lawTitleEl) lawTitleEl.innerText = db[mode].lawName;
             
-            // [무결성 보강] 메모리 및 잔여 시각적 요소 강제 초기화
+            // [무결성 보강] 대분류 변경 시 기존 입력 데이터 완벽 파기
             quantities = {}; 
             currentSub = '';
             currentAction = '';
@@ -12523,13 +12531,13 @@ function openPrintWindow() {
             document.getElementById('outType').innerText = '-';
 
             renderLevel1();
-            calc();
+            calc(); // 빈 상태로 강제 계산하여 결과값 0으로 UI 통일
             
             // 고시 페이지 대기 모드 전환
             document.getElementById('gosiWrapper').classList.add('hidden');
             document.getElementById('gosiPlaceholder').classList.remove('hidden');
         } catch (error) {
-            console.error("[시스템 오류] 법령 탭 전환 처리 실패:", error);
+            console.error("[시스템 예외] 법령 탭 전환 처리 실패:", error);
         }
     }
 
@@ -12540,14 +12548,11 @@ function openPrintWindow() {
             area.innerHTML = '';
             
             db[currentMode].level1.forEach((sub, idx) => {
-                // 도법 등 버튼이 아닌 텍스트 타이틀인 경우
                 if (sub.isTitleOnly) {
                     const title = document.createElement('div');
                     title.className = 'sub-type-title';
                     title.innerText = sub.name;
                     area.appendChild(title);
-                    
-                    // 타이틀은 클릭할 수 없으므로, 논리적으로 하위 액션 영역만 노출시킴
                     setSubMode(sub.id); 
                 } else {
                     const btn = document.createElement('button');
@@ -12560,20 +12565,19 @@ function openPrintWindow() {
                 }
             });
         } catch (error) {
-            console.error("[시스템 오류] 심사 종류 렌더링 실패:", error);
+            console.error("[시스템 예외] 심사 종류 렌더링 실패:", error);
         }
     }
 
     function setSubMode(subId, btnEl = null) {
         try {
-            // [무결성 보완 및 사용자 혼선 방지]
             if (currentSub === subId) return;
 
-            if (currentSub !== subId) {
-                quantities = {}; 
-                const fieldsArea = document.getElementById('fields');
-                if(fieldsArea) fieldsArea.innerHTML = ''; // [무결성 보강] 입력 필드 강제 삭제
-            }
+            // [논리 결함 방어] 심사종류가 다르면 이전 심사종류에서 입력했던 내역은 파기하는 것이 논리적으로 타당함
+            quantities = {}; 
+            const fieldsArea = document.getElementById('fields');
+            if(fieldsArea) fieldsArea.innerHTML = ''; 
+            
             currentSub = subId;
             currentAction = ''; 
             currentCat = null; 
@@ -12593,7 +12597,6 @@ function openPrintWindow() {
             
             renderActions();
 
-            // 신규/변경 등 Action 구분이 아예 없는 심사 항목은 바로 카테고리를 노출
             const subData = db[currentMode].level1.find(l => l.id === currentSub);
             if (!subData.actions || subData.actions.length === 0) {
                 currentAction = 'base';
@@ -12603,7 +12606,7 @@ function openPrintWindow() {
             updateGosiPage();
             calc();
         } catch (error) {
-            console.error("[시스템 오류] 하위 모드 설정 실패:", error);
+            console.error("[시스템 예외] 하위 모드 설정 실패:", error);
         }
     }
 
@@ -12636,11 +12639,14 @@ function openPrintWindow() {
         }
     }
 
+    /**
+     * [주요 수정] 신규/변경 액션 탭 전환. (quantities 파기 로직 제거로 다중 합산 지원)
+     */
     function setAction(actId, btnEl) {
         try {
-            quantities = {}; 
+            // [논리 결함 수정] quantities = {}; 삭제 -> "특정제조 신규" + "특정제조 변경" 동시 계산 가능
             const fieldsArea = document.getElementById('fields');
-            if(fieldsArea) fieldsArea.innerHTML = ''; // [무결성 보강] 액션 전환 시 입력 폼 완전 제거
+            if(fieldsArea) fieldsArea.innerHTML = ''; 
 
             currentAction = actId;
             currentCat = null; 
@@ -12651,9 +12657,9 @@ function openPrintWindow() {
             document.getElementById('inputArea').classList.add('hidden'); 
             
             renderCategories(); 
-            calc();
+            calc(); // UI 상태 새로고침
         } catch (error) {
-            console.error("[시스템 오류] 액션 탭 설정 실패:", error);
+            console.error("[시스템 예외] 액션 탭 설정 실패:", error);
         }
     }
 
@@ -12678,9 +12684,12 @@ function openPrintWindow() {
         }
     }
 
+    /**
+     * [주요 수정] 세부 카테고리(시설) 선택. (quantities 파기 로직 제거로 다중 시설 합산 지원)
+     */
     function selectCategory(catObj, btnEl) {
         try {
-            quantities = {}; 
+            // [논리 결함 수정] quantities = {}; 삭제 -> 여러 시설을 돌아가며 입력하여 합산 가능하도록 조치
             currentCat = catObj;
             
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -12689,23 +12698,25 @@ function openPrintWindow() {
             renderInputArea();
             calc();
         } catch (error) {
-            console.error("[시스템 오류] 카테고리 선택 처리 실패:", error);
+            console.error("[시스템 예외] 카테고리 선택 처리 실패:", error);
         }
     }
 
     /**
-     * 입력 폼 생성 및 정수 입력 강제화 (무결성 보강)
+     * 입력 폼 생성 및 정수 입력 강제화
      */
     function renderInputArea() {
         try {
             const inArea = document.getElementById('inputArea');
+            const fArea = document.getElementById('fields');
+            
             if(!inArea || !currentCat) {
                 if(inArea) inArea.classList.add('hidden');
                 return;
             }
-            inArea.classList.remove('hidden');
-            const fArea = document.getElementById('fields');
             if(!fArea) return;
+            
+            inArea.classList.remove('hidden');
             
             let actKey = currentAction;
             let actName = "";
@@ -12719,14 +12730,17 @@ function openPrintWindow() {
             }
 
             const price = currentCat.prices[actKey];
-            if(price === undefined) return;
+            if(price === undefined) {
+                fArea.innerHTML = ''; // 가격 정보가 없으면 폼 비움
+                return;
+            }
 
             const qKey = `${currentCat.id}-${actKey}`;
             const val = quantities[qKey] || '';
 
             let displayActionName = actName ? ` - ${actName}` : "";
 
-            // [무결성 보완] 정수(건수) 강제화를 위해 pattern="\d*" 및 onkeydown 이벤트 통한 소수점/특수문자 물리적 차단 추가
+            // [무결성 보완] 정수(건수) 강제화를 위해 HTML 물리적 차단 장치 유지
             fArea.innerHTML = `
                 <div class="input-row">
                     <div class="input-label" style="font-weight:700; color:var(--primary);">
@@ -12737,17 +12751,23 @@ function openPrintWindow() {
                     oninput="if(this.value.length > 6) this.value = this.value.slice(0,6); handleInput('${currentCat.id}', '${actKey}', this.value)" title="수수료 수량 입력">
                     <span class="unit-label">건</span>
                 </div>
-                <div id="inputWarning" class="warning-text">⚠️ [입력값 오류] 정확한 정수(건수)를 입력해주세요.</div>`;
+                <div id="inputWarning" class="warning-text">⚠️ [입력값 오류] 정확한 정수(건수)만 입력 가능합니다.</div>`;
                 
             const inputEl = document.getElementById('currentInputVal');
-            if(inputEl) inputEl.focus();
+            if(inputEl) {
+                inputEl.focus();
+                // 포커스 시 기존 값이 있다면 커서를 끝으로 이동
+                if(val !== '') {
+                    inputEl.setSelectionRange(inputEl.value.length, inputEl.value.length);
+                }
+            }
         } catch (error) {
-            console.error("[시스템 오류] 폼 렌더링 중 오류:", error);
+            console.error("[시스템 예외] 폼 렌더링 중 오류:", error);
         }
     }
 
     /**
-     * 핵심 로직: 데이터 정제 및 예외 처리 (통일된 UI 경고 반영)
+     * 데이터 정제 및 예외 처리 (통일된 UI 경고 반영)
      */
     function handleInput(catId, actionId, val) {
         try {
@@ -12756,12 +12776,12 @@ function openPrintWindow() {
             
             if (val === '') {
                 delete quantities[qKey];
-                if(warningEl) warningEl.style.display = 'none'; // 빈 값일 때는 경고 숨김
+                if(warningEl) warningEl.style.display = 'none'; 
                 calc();
                 return;
             }
 
-            // 숫자 이외의 문자열을 정규식으로 걸러냄
+            // [규격화] 숫자 이외의 문자열을 정규식으로 걸러냄
             let cleanVal = val.replace(/[^0-9]/g, '');
             
             // 만약 사용자가 강제로 문자를 붙여넣었거나 소수점을 입력했다면 UI 경고창 노출
@@ -12790,23 +12810,23 @@ function openPrintWindow() {
             calc();
         } catch (error) {
             console.error("[시스템 예외] 입력값 정제 중 오류 발생:", error);
-            // 사용자 흐름을 끊는 alert 대신 안전하게 콘솔 에러 처리 및 상태 리셋으로 방어
             const warningEl = document.getElementById('inputWarning');
             if(warningEl) {
-                warningEl.innerHTML = '⚠️ [시스템 오류] 처리 중 문제가 발생했습니다. 다시 입력해주세요.';
+                warningEl.innerHTML = '⚠️ [시스템 오류] 내부 연산 중 문제가 발생했습니다.';
                 warningEl.style.display = 'flex';
             }
         }
     }
 
     /**
-     * 연산 및 DOM 업데이트 엔진
+     * 연산 및 DOM 업데이트 엔진 (다중 합산 완벽 지원)
      */
     function calc() {
         try {
             let fee = 0, qTot = 0, rowCount = 0;
             let rowsHtml = ''; 
             
+            // 기존 렌더링된 하이라이트 일괄 제거
             document.querySelectorAll('.highlight-cell').forEach(el => el.classList.remove('highlight-cell'));
 
             let hasVal = Object.keys(quantities).length > 0;
@@ -12814,6 +12834,7 @@ function openPrintWindow() {
             const detailSection = document.getElementById('detailSection');
             if(detailSection) detailSection.classList.toggle('hidden', !hasVal);
 
+            // [무결성 보장] 값이 없거나 초기화 상태일 때의 UI 잔재를 완전히 0으로 치환
             if(!hasVal || !currentMode) {
                 const outFee = document.getElementById('outFee');
                 const outVat = document.getElementById('outVat');
@@ -12825,6 +12846,7 @@ function openPrintWindow() {
                 if(outTotal) outTotal.innerText = "0";
                 if(detailBody) detailBody.innerHTML = "";
                 
+                // 고시 페이지 상태 제어
                 const gosiWrapper = document.getElementById('gosiWrapper');
                 const gosiPlaceholder = document.getElementById('gosiPlaceholder');
                 if(gosiWrapper) gosiWrapper.classList.add('hidden');
@@ -12848,12 +12870,14 @@ function openPrintWindow() {
                 qTot += q; 
                 rowCount++;
 
+                // 다중 선택 시 여러 개의 하이라이트가 발생할 수 있도록 조치됨
                 const targetCell = document.getElementById(item.cellId);
                 if(targetCell) {
                     targetCell.classList.add('highlight-cell');
                 }
             }
 
+            // 다중 행일 경우 하단에 '전체 합계' 로우 생성 (quantities 파기 버그 수정으로 드디어 이 로직이 빛을 발함)
             const totalRowHtml = (rowCount > 1) ? `<tr class="tr-sum"><td colspan="2">전체 합계</td><td>${qTot.toLocaleString()}</td><td></td><td>${fee.toLocaleString()}</td></tr>` : '';
             const detailBody = document.getElementById('detailBody');
             if(detailBody) detailBody.innerHTML = totalRowHtml + rowsHtml;
@@ -13018,6 +13042,47 @@ function openPrintWindow() {
                 <div class="page-num">- 65 -</div>
             </div>`;
         }
+        if(p === 68) {
+            return `
+            <div class="gosi-page-content">
+                <div style="font-weight:bold; margin-bottom:5px; font-size: 0.8rem;">6. 가스안전영향평가 수수료</div>
+                <table class="gosi-table">
+                    <tr><th>대 상</th><th>금 액</th><th>대 상</th><th>금 액</th></tr>
+                    <tr><td class="txt-l">전기철도건설공사</td><td id="cell-c_i_1-base">230만2천원</td><td class="txt-l">지하차도건설공사</td><td id="cell-c_i_3-base">135만7천원</td></tr>
+                    <tr><td class="txt-l">지하보도건설공사</td><td id="cell-c_i_2-base">95만3천원</td><td class="txt-l">지하상가건설공사</td><td id="cell-c_i_4-base">165만1천원</td></tr>
+                </table>
+                
+                <div style="font-weight:bold; margin-top:25px; margin-bottom:5px; font-size: 0.8rem;">7. 도시가스의 품질검사 수수료</div>
+                <div class="text-block">
+                    수수료는 국내 공급 또는 소비물량을 기준으로 0.041원/m3 (0℃, 101.3 kPa) 으로 한다.
+                </div>
+
+                <div style="font-weight:bold; margin-top:25px; margin-bottom:5px; font-size: 0.8rem;">8. 교육비</div>
+                <table class="gosi-table" style="font-size:0.58rem;">
+                    <tr><th colspan="2">교육과정별</th><th>교육대상자</th><th>구분</th><th>금액</th></tr>
+                    <tr><td rowspan="12" style="width:10%;">가. 전문교육</td><td rowspan="2" class="txt-l">(1)</td><td rowspan="2" class="txt-l">도시가스사업자의 안전관리책임자 및 안전관리원</td><td>신규</td><td>19만5천900원</td></tr>
+                    <tr><td>보수</td><td>3만7천100원</td></tr>
+                    <tr><td rowspan="2" class="txt-l">(2)</td><td rowspan="2" class="txt-l">도시가스사업자의 배관안전점검원</td><td>신규</td><td>13만300원</td></tr>
+                    <tr><td>보수</td><td>3만7천100원</td></tr>
+                    <tr><td rowspan="2" class="txt-l">(3)</td><td rowspan="2" class="txt-l">일반도시가스사업자 안전조치 대행업소의 기술인력 중 안전관리책임자 및 안전관리원</td><td>신규</td><td>19만5천900원</td></tr>
+                    <tr><td>보수</td><td>3만7천100원</td></tr>
+                    <tr><td rowspan="2" class="txt-l">(4)</td><td rowspan="2" class="txt-l">특정가스사용시설의 안전관리책임자</td><td>신규</td><td>6만1천400원</td></tr>
+                    <tr><td>보수</td><td>2만8천600원</td></tr>
+                    <tr><td rowspan="2" class="txt-l">(5)</td><td rowspan="2" class="txt-l">가스시설 시공업 제1·2종의 시공자 및 시공관리자</td><td>신규</td><td>19만5천900원</td></tr>
+                    <tr><td>보수</td><td>3만7천100원</td></tr>
+                    <tr><td rowspan="2" class="txt-l">(6)</td><td rowspan="2" class="txt-l">가스시설 시공업 제3종의 온수보일러시공자 및 온수보일러시공관리자</td><td>신규</td><td>19만2천700원</td></tr>
+                    <tr><td>보수</td><td>2만8천600원</td></tr>
+                    <tr><td rowspan="5">나. 특별교육</td><td colspan="2" class="txt-l">(1) 보수·유지관리원</td><td colspan="2">4만9천800원</td></tr>
+                    <tr><td colspan="2" class="txt-l">(2) 사용시설점검원</td><td colspan="2">2만4천400원</td></tr>
+                    <tr><td colspan="2" class="txt-l">(3) 도시가스사용자동차운전자</td><td colspan="2">2만2천200원</td></tr>
+                    <tr><td colspan="2" class="txt-l">(4) 도시가스자동차 충전시설의 충전원</td><td colspan="2">2만4천400원</td></tr>
+                    <tr><td colspan="2" class="txt-l">(5) 도시가스사용자동차 정비원</td><td colspan="2">2만4천400원</td></tr>
+                    <tr><td>다. 양성교육</td><td colspan="4" class="txt-l">교육대상자별 교육비는 산업통상자원부장관의 승인을 얻어 한국가스안전공사에서 정한다.</td></tr>
+                    <tr><td>비고</td><td colspan="4" class="txt-l">1. 가목의 교육대상 중 "신규"는 신규종사 후 6개월 이내에 받는 교육과정이며, "보수"는 신규과정 교육을 받은 후 매 3년마다 받는 교육과정을 말한다.</td></tr>
+                </table>
+                <div class="page-num">- 68 -</div>
+            </div>`;
+        }
         
         return `
         <div class="gosi-placeholder" style="flex-direction: column; gap: 15px;">
@@ -13092,14 +13157,6 @@ function openPrintWindow() {
 
             const lawName = document.getElementById('outLaw').innerText;
             const inspName = document.getElementById('outType').innerText;
-
-            let facilityName = '미지정';
-            const activeCatBtn = document.querySelector('.cat-btn.active');
-            if (activeCatBtn) {
-                facilityName = activeCatBtn.innerHTML.replace(/<br\s*[\/]?>/gi, '').trim();
-            } else {
-                facilityName = "다수 시설"; 
-            }
 
             const rows = document.querySelectorAll('#detailBody tr');
             let printTbodyHtml = '';
