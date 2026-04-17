@@ -13378,9 +13378,7 @@ function openPrintWindow() {
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            /* [버그 수정] 우선순위 충돌을 방지하기 위해 display, align, justify 속성을 제거하고 HTML 클래스로 위임 */
             background-color: #f1f5f9;
             position: relative;
         }
@@ -13564,7 +13562,8 @@ function openPrintWindow() {
         
         <!-- 최상단 헤더 -->
         <header class="bg-white sticky top-0 z-40 border-b border-slate-200 px-4 py-2 shadow-sm flex items-center justify-center">
-            <h1 class="text-xl font-black text-slate-800 tracking-tight">가스안전 칭찬/신고 포탈</h1>
+            <!-- [수정] 모바일 화면 제목줄 크기 20% 확대 (text-xl(20px) -> text-2xl(24px)) -->
+            <h1 class="text-2xl font-black text-slate-800 tracking-tight">가스안전 칭찬/신고 포탈</h1>
         </header>
 
         <!-- 메인 컨텐츠 영역 -->
@@ -13582,7 +13581,7 @@ function openPrintWindow() {
                     <button onclick="openModal('corrupt')" class="btn-3d-blue rounded-xl h-12 flex items-center justify-center font-bold text-[22px] sm:text-[27px] tracking-tighter w-full leading-none">
                         부정부패신고
                     </button>
-                    <!-- [개선] 상임감사 핫라인을 부정부패신고 바로 다음으로 재배치 (모바일 동기화) -->
+                    <!-- 상임감사 핫라인을 부정부패신고 바로 다음으로 재배치 -->
                     <button onclick="openModal('hotline')" class="btn-3d-blue rounded-xl h-12 flex items-center justify-center font-bold text-[22px] sm:text-[27px] tracking-tighter w-full leading-none">
                         상임감사 핫라인
                     </button>
@@ -13625,11 +13624,7 @@ function openPrintWindow() {
                        class="btn-3d-neutral rounded-xl h-14 sm:h-12 flex items-center justify-center text-center text-[18px] sm:text-[21px] font-bold px-1 whitespace-normal leading-none tracking-tighter">
                        민원업무 서식
                     </a>
-                    <!-- [개선] 국민제안 링크 업데이트 -->
-                    <a href="https://cyber.kgs.or.kr/scu.Scu01List.ex.do?vocCategory=01&vocChnlCd=02" target="_blank" rel="noopener noreferrer" 
-                       class="btn-3d-neutral rounded-xl h-14 sm:h-12 flex items-center justify-center text-center text-[18px] sm:text-[21px] font-bold px-1 whitespace-normal leading-none tracking-tighter">
-                       국민제안
-                    </a>
+                    <!-- [수정] 요청에 따라 "국민제안" 버튼 삭제 -->
                     <a href="https://www.kgs.or.kr/kgs/abca/board.do" target="_blank" rel="noopener noreferrer" 
                        class="btn-3d-neutral rounded-xl h-14 sm:h-12 flex items-center justify-center text-center text-[18px] sm:text-[21px] font-bold px-1 whitespace-normal leading-none tracking-tighter">
                        가스사고정보
@@ -13693,7 +13688,8 @@ function openPrintWindow() {
     <!-- ========================================== -->
     <!-- 2. 데스크톱 뷰 (가로 769px 이상 적응형 FHD 스케일링) -->
     <!-- ========================================== -->
-    <div id="desktop-wrapper" class="hidden md:flex">
+    <!-- [버그 수정] CSS에서 제거된 display:flex 속성을 대체하기 위해 class에 items-center justify-center 명시적 추가 -->
+    <div id="desktop-wrapper" class="hidden md:flex items-center justify-center">
         
         <!-- [배경 3D 이펙트] 단정하고 투명한 입체감 유지 -->
         <div class="absolute top-[-10%] left-[-5%] w-[40vw] h-[40vw] rounded-full bg-slate-300/30 blur-[100px] pointer-events-none"></div>
@@ -13745,7 +13741,7 @@ function openPrintWindow() {
                             </div>
                         </div>
 
-                        <!-- 2. 상임감사 핫라인 (위치 이동 및 링크 업데이트) -->
+                        <!-- 2. 상임감사 핫라인 -->
                         <div class="flex flex-row items-center gap-6 channel-group flex-1">
                             <a href="https://cyber.kgs.or.kr/sif.Sif03.branch.ex.do?vocChnlCd=37" target="_blank" rel="noopener noreferrer" class="w-64 btn-3d-blue rounded-full h-16 flex items-center justify-center shrink-0 block">
                                 <h3 class="text-[29px] font-bold tracking-tight">상임감사 핫라인</h3>
@@ -13834,7 +13830,7 @@ function openPrintWindow() {
                         <h2 class="text-3xl font-bold text-slate-800 tracking-tight">칭찬 및 정보제공</h2>
                     </div>
 
-                    <!-- [개선] 내부 컨테이너가 남은 세로 공간을 꽉 채우도록 flex-grow 속성 추가 -->
+                    <!-- 내부 컨테이너가 남은 세로 공간을 꽉 채우도록 flex-grow 속성 추가 -->
                     <div class="flex-grow flex flex-col gap-10 pt-4">
                         
                         <!-- 1. 칭찬하기 -->
@@ -13866,10 +13862,7 @@ function openPrintWindow() {
                                 <a href="https://www.kgs.or.kr/kgs/aceb/tab.do" target="_blank" rel="noopener noreferrer" 
                                    class="btn-3d-neutral rounded-xl h-16 flex items-center justify-center text-[24px] font-bold">민원업무 서식</a>
                                 
-                                <!-- [개선] 국민제안 링크 업데이트 -->
-                                <a href="https://cyber.kgs.or.kr/scu.Scu01List.ex.do?vocCategory=01&vocChnlCd=02" target="_blank" rel="noopener noreferrer" 
-                                   class="btn-3d-neutral rounded-xl h-16 flex items-center justify-center text-[24px] font-bold">국민제안</a>
-                                
+                                <!-- [수정] 요청에 따라 "국민제안" 버튼 삭제 -->
                                 <a href="https://www.kgs.or.kr/kgs/abca/board.do" target="_blank" rel="noopener noreferrer" 
                                    class="btn-3d-neutral rounded-xl h-16 flex items-center justify-center text-[24px] font-bold">가스사고정보</a>
                                 
@@ -13884,7 +13877,7 @@ function openPrintWindow() {
                             </div>
                         </div>
 
-                        <!-- [신규/개선] 모바일용 화면 하단의 청렴문구 박스를 우측 하단 빈칸에 동일하게 이식 (좌우 균형 맞춤) -->
+                        <!-- 모바일용 화면 하단의 청렴문구 박스를 우측 하단 빈칸에 동일하게 이식 -->
                         <div class="mt-auto w-full bg-white rounded-2xl shadow-[4px_4px_12px_-1px_rgba(0,0,0,0.15)] border border-slate-200 p-6 flex flex-col gap-2">
                             <h3 class="text-[24px] font-bold text-slate-700">
                                 반부패청렴은 KGS의 기본자세입니다.
