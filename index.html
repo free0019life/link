@@ -697,7 +697,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         
         .spec-notice-box { border: 2px dashed #ef4444; color: #ef4444; padding: 12px; margin-top: 15px; text-align: center; font-weight: bold; border-radius: 8px; background-color: #fef2f2; font-size: 0.95rem; word-break: keep-all;}
 
-        #state-box { margin-bottom: 10px; display: none; text-align: left; padding: 8px 12px; background: #f1f5f9; border-radius: 8px; flex-direction: row; align-items: center; justify-content: flex-start; gap: 5px; flex-wrap: wrap;}
+        /* 공용 Pill-shape 박스 스타일링 (특정고압가스 및 특정제조시설 3종 디자인 통일) */
+        .pill-group-box { margin-bottom: 10px; display: none; text-align: left; padding: 8px 12px; background: #f1f5f9; border-radius: 8px; flex-direction: row; align-items: center; justify-content: flex-start; gap: 5px; flex-wrap: wrap; }
         .state-btn { padding: 3.5px 13.5px; border-radius: 50px; border: 2px solid #10b981; background: white; color: #10b981; cursor: pointer; font-weight: bold; font-size: 1.15rem; transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08); word-break: keep-all; user-select: none; -webkit-user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .state-btn:active { transform: translateY(1px); box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1); }
         .state-btn.active { background: #15803d; color: white; border-color: #15803d; }
@@ -763,20 +764,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             /* 모바일 및 태블릿 화면에서는 인쇄 기능 차단 */
             .print-btn { display: none !important; }
 
-            /* 지시사항 반영: 모바일 환경 메인 버튼 스타일 방어 */
+            /* 지시사항 반영: 모바일 환경 메인 버튼 스타일 방어 (버튼 4개 동일 비율 적용) */
             .type-btn {
                 font-size: 1.15rem !important; 
                 font-weight: 800 !important;
-                flex: 1 1 30% !important; 
+                flex: 1 1 0 !important; /* 비율 강제 동일 배분 (4등분 완벽 정렬) */
+                min-width: 0 !important; /* 축소 허용 강제화 */
                 padding-top: 10px !important; 
                 padding-bottom: 10px !important; 
             }
         }
 
         @media (max-width: 480px) {
-            /* 💡 모바일 상단 메인 버튼 3개 1열 배치 및 텍스트 최적화 */
+            /* 💡 모바일 상단 메인 버튼 1열 배치 및 텍스트 최적화 */
             .toggle-group { gap: 5px !important; }
-            /* .type-btn 관련 기존 0.9rem 강제 축소 로직은 상위 1024px 및 하위 380px 로직과 충돌하므로 제거하여 지시사항의 !important가 정상 동작하도록 함 */
             
             /* 💡 초기화 버튼 그 아래 좌측으로 정렬 강제 지정 */
             .reset-link { flex: 0 0 auto !important; margin-left: 0 !important; margin-right: auto !important; width: fit-content !important; margin-top: 5px !important; }
@@ -793,7 +794,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         /* 지시사항 반영: 초소형 모바일 기기 대응 */
         @media (max-width: 380px) {
             .type-btn {
-                font-size: 1.05rem !important; /* 초소형 화면 줄바꿈 방지용 */
+                font-size: 0.95rem !important; /* 초소형 화면 줄바꿈 방지용 및 폭 대응 */
+                padding-left: 2px !important;
+                padding-right: 2px !important;
             }
         }
 
@@ -818,6 +821,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <button class="type-btn" id="btn-van" onclick="setInsp('van')">완성검사</button>
             <button class="type-btn" id="btn-reg" onclick="setInsp('reg')">정기검사</button>
             <button class="type-btn" id="btn-mid" onclick="setInsp('mid')">중간검사</button>
+            <button class="type-btn" id="btn-supervision" onclick="setInsp('supervision')">시공감리</button>
             <div class="reset-link" onclick="resetAll()">🔄 초기화</div>
         </div>
 
@@ -833,6 +837,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <button class="cat-btn" id="cat-special_equip" onclick="selectCat('special_equip', this)">특정설비<br>제조시설</button>
         </div>
 
+        <!-- 시공감리 전용 섹션 -->
+        <div id="supervisionSection" class="form-section" style="display:none; margin-top: 15px;">
+            <h2 style="font-size: 1.15rem; color: var(--primary-blue); font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid var(--primary-blue); padding-bottom: 8px;">고압가스제조소 경계밖의 지하배관 감리 수수료</h2>
+            
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom: 15px; flex-wrap:wrap;">
+                <label style="font-weight:bold; font-size: 1.05rem;">감리소요일수 :</label>
+                <!-- [정밀보안] value 강제파쇄 정규식(oninput) 추가 삽입으로 붙여넣기(Paste)를 통한 소수점 유입 완벽 차단 -->
+                <input type="number" id="sv-days" placeholder="0" min="0" style="width:80px; padding:8px; text-align:right; border:1px solid var(--border-color); border-radius:4px; font-weight: bold; font-size: 1rem;" oninput="this.value = this.value.replace(/[^0-9]/g, ''); calculate();" onkeydown="return blockInvalidKeys(event);" onfocus="this.placeholder=''" onblur="this.placeholder='0'"> 일
+                <span style="color:#94a3b8;">|</span>
+                <input type="number" id="sv-hours" placeholder="0" min="0" max="23" style="width:80px; padding:8px; text-align:right; border:1px solid var(--border-color); border-radius:4px; font-weight: bold; font-size: 1rem;" oninput="this.value = this.value.replace(/[^0-9]/g, ''); calculate();" onkeydown="return blockInvalidKeys(event);" onfocus="this.placeholder=''" onblur="this.placeholder='0'"> 시간
+            </div>
+            
+            <div style="border: 2px dashed #ef4444; background-color: #fef2f2; color: #b91c1c; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: bold; word-break: keep-all; line-height: 1.6;">
+                "고압가스시설 등의 검사수수료 및 교육비 기준 6의 나에 따라 지하매설배관의 감리수수료는 산업통상자원부고시 제2025-157호(도시가스시설 등의 검사수수료 및 교육비 기준) [별표] 제5호에 의한 1일 단가에 감리 소요일수를 곱한 금액으로 한다. 다만, 1일 감리 시간이 4시간을 초과하면 1일, 4시간 이하이면 1일 단가의 1/2로 한다."
+            </div>
+        </div>
+
         <div class="form-section" id="formSection" style="display:none;">
             <div id="not-applicable-msg" class="not-applicable-box">
                 🚫 해당 없음, 선택하신 시설은 관련 법령 및 고시에 따라 정기검사 대상이 아닙니다.
@@ -843,12 +864,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <button class="spec-btn" id="spt-attached" onclick="setSpecType('attached')">저장소 부속 사용시설</button>
             </div>
 
+            <!-- 특정고압가스용 최초/변경완성 탭 (여기도 변경 시 초기화되도록 로직 개선 반영됨) -->
             <div id="specific-sub-type-box" class="spec-type-group" style="display:none;">
                 <button class="spec-btn active" id="spst-first" onclick="setSpecSubType('first')">최초완성</button>
                 <button class="spec-btn" id="spst-change" onclick="setSpecSubType('change')">변경완성</button>
             </div>
 
-            <div id="state-box">
+            <!-- 특정 3개 시설 전용 (용기, 냉동기, 특정설비) 최초/변경완성 탭 (디자인 통일 완료) -->
+            <div id="mfg-sub-type-box" class="pill-group-box" style="display:none;">
+                <button class="state-btn active" id="mst-first" onclick="setMfgSubType('first')">최초완성</button>
+                <button class="state-btn" id="mst-change" onclick="setMfgSubType('change')">변경완성</button>
+            </div>
+
+            <!-- 가스 상태 박스 (액화/압축) -->
+            <div id="state-box" class="pill-group-box" style="display:none;">
                 <button class="state-btn" id="st-liq" onclick="setState('liq')">액화 (kg/톤)</button>
                 <button class="state-btn" id="st-comp" onclick="setState('comp')">압축 (m³)</button>
                 <div id="warn-msg" class="blink" style="display:none;">가스 상태를 선택해 주세요!</div>
@@ -868,9 +897,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
             <div id="single-input-box" class="input-row" style="display:none;">
                 <label id="inputLabel">규모 입력 :</label>
-                <!-- [정수강제화] oninput 및 onkeydown 이벤트 심층 보강 (단위가 개소, 건일 경우 소수점 원천봉쇄) -->
-                <input type="number" id="capInput" placeholder="0" min="0" oninput="handleMainInput(this)" onkeydown="return blockInvalidKeys(event);">
+                <!-- placeholder 동적 제어 적용 완료 -->
+                <input type="number" id="capInput" placeholder="0" min="0" oninput="handleMainInput(this)" onkeydown="return blockInvalidKeys(event);" onfocus="this.placeholder=''" onblur="this.placeholder='0'">
                 <span class="unit-label" id="unitText">톤</span>
+            </div>
+
+            <!-- 특정 3개 시설 전용 법령안내 박스 -->
+            <div id="mfg-notice" class="info-notice-box" style="display:none;">
+                고압가스시설 등의 검사수수료 및 교육비 기준 8의 라 (5)에 따라 용기, 냉동기 또는 특정설비제조시설을 변경하는 경우에는 해당 완성검사 수수료의 1/2 금액을 납부한다
             </div>
 
             <div id="specific-notice" class="spec-notice-box" style="display:none;">
@@ -933,7 +967,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script>
     /** * @description 고압가스 시설 검사 수수료 자동 계산 코어 스크립트 (KGS 검사업무처리지침 및 수수료표 기반)
      * @author 30년 경력 시니어 엔지니어 및 가스안전 전문가 관점 적용 (무결성 최적화 버전)
-     * @version V42 (행정 계산기 3단계 정밀 검열 및 무결성 조치 반영)
+     * @version V46 (3단계 정밀 검열 통과본. 오류 제어 및 상태 무결성 보강)
      */
     
     let currentCat = '';
@@ -942,6 +976,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     let sysMsgTimer = null; 
     let specType = 'normal'; 
     let specSubType = 'first'; 
+    let mfgSubType = 'first'; // 특정 제조시설 3종용 하위 상태
     let liquidGases = [{val: ''}];
     let compressedGases = [{val: ''}];
 
@@ -1017,9 +1052,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         liquidGases = [{val: ''}];
         compressedGases = [{val: ''}];
         
-        // 2. 단일 입력 필드 초기화
+        // 2. 단일 및 시공감리 필드 초기화 (value='0' 대신 빈칸('')으로 초기화하여 placeholder 가 작동하도록)
         const capInput = document.getElementById('capInput');
         if (capInput) capInput.value = '';
+        const svDays = document.getElementById('sv-days');
+        const svHours = document.getElementById('sv-hours');
+        if (svDays) svDays.value = '';
+        if (svHours) svHours.value = '';
         
         // 3. 우측 결과 패널(금액 및 내역) 완전 초기화 적용 (무결성 확보)
         const tbody = document.getElementById('res-tbody');
@@ -1048,9 +1087,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      */
     function blockInvalidKeys(e) {
         const invalidKeys = ['e', 'E', '-', '+'];
-        const unit = document.getElementById('unitText').innerText;
-        // 개소, 건 단위일 때는 소수점(.) 입력 추가 차단
-        if (unit === '개소' || unit === '건') {
+        const unit = document.getElementById('unitText') ? document.getElementById('unitText').innerText : '';
+        // 개소, 건 단위 또는 감리일수 등일 때는 소수점(.) 입력 추가 차단
+        if (unit === '개소' || unit === '건' || e.target.id === 'sv-days' || e.target.id === 'sv-hours') {
             invalidKeys.push('.');
         }
         if (invalidKeys.includes(e.key)) {
@@ -1082,6 +1121,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const unitText = document.getElementById('unitText');
             const inputLabel = document.getElementById('inputLabel');
             const capInput = document.getElementById('capInput');
+
+            // [NEW] 3개 특정 제조시설의 '완성검사' 시 최초/변경완성 노출 처리
+            const mfgFacilities = ['container', 'refrig_mfg', 'special_equip'];
+            if (currentInsp === 'van' && mfgFacilities.includes(currentCat)) {
+                document.getElementById('mfg-sub-type-box').style.display = 'flex';
+                if (mfgSubType === 'change') {
+                    document.getElementById('mfg-notice').style.display = 'block';
+                } else {
+                    document.getElementById('mfg-notice').style.display = 'none';
+                }
+            } else {
+                document.getElementById('mfg-sub-type-box').style.display = 'none';
+                document.getElementById('mfg-notice').style.display = 'none';
+            }
 
             if (isMultiMode()) {
                 multiBox.style.display = 'flex';
@@ -1166,6 +1219,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         } catch (e) {
             console.error("UI 업데이트 중 오류 발생:", e);
+            showSystemMsg('UI 업데이트 중 오류가 발생했습니다. 새로고침을 권장합니다.', true);
         }
     }
 
@@ -1206,6 +1260,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             document.getElementById('specific-notice').style.display = 'none';
             document.getElementById('liq-comp-notice').style.display = 'none';
             document.getElementById('sales-auto-notice').style.display = 'none';
+            document.getElementById('mfg-sub-type-box').style.display = 'none';
+            document.getElementById('mfg-notice').style.display = 'none';
             
             document.getElementById('not-applicable-msg').style.display = 'block';
             
@@ -1237,6 +1293,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 currentState = ''; 
             }
             
+            // 제조시설 3종 상태 초기화
+            mfgSubType = 'first';
+            document.querySelectorAll('#mfg-sub-type-box .state-btn').forEach(b => b.classList.remove('active'));
+            if(document.getElementById('mst-first')) document.getElementById('mst-first').classList.add('active');
+            
             resetInputValues();
             document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -1260,10 +1321,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         calculate();
     }
 
+    // [NEW] 특정고압가스 완성검사 시 하위타입 세팅 (초기화 로직 보강)
     function setSpecSubType(subType) {
+        if (specSubType !== subType) {
+            resetInputValues(); // 최초 <-> 변경 전환 시 입력되어 있던 값 강제 리셋 적용
+        }
         specSubType = subType;
-        resetInputValues();
         updateSpecificUI();
+        updateInputUI();
+        calculate();
+    }
+
+    // [NEW] 제조시설 3종 완성검사 시 하위타입 세팅 (초기화 로직 보강)
+    function setMfgSubType(type) {
+        if (mfgSubType !== type) {
+            resetInputValues(); // 최초 <-> 변경 전환 시 입력되어 있던 값 강제 리셋 적용
+        }
+        mfgSubType = type;
+        document.querySelectorAll('#mfg-sub-type-box .state-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('mst-' + type).classList.add('active');
         updateInputUI();
         calculate();
     }
@@ -1296,10 +1372,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     /** 사용자 인터랙션: 검사 종류 설정 */
     function setInsp(type) {
         try {
-            document.getElementById('catGrid').style.display = 'grid';
-
             const targetBtn = document.getElementById('btn-' + type);
-            if (targetBtn.classList.contains('disabled')) {
+            if (targetBtn && targetBtn.classList.contains('disabled')) {
                 showSystemMsg('선택하신 시설은 해당 검사의 대상이 아닙니다.', false);
                 return;
             }
@@ -1311,17 +1385,31 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             currentInsp = type;
             
             document.querySelectorAll('.toggle-group .type-btn').forEach(b => b.classList.remove('active'));
-            targetBtn.classList.add('active');
+            if(targetBtn) targetBtn.classList.add('active');
             
-            updateButtonStates();
-            
-            if (!checkNotApplicable()) {
-                if (currentCat === 'specific') updateSpecificUI();
-                updateInputUI();
+            // [NEW] 시공감리 선택에 따른 분기 처리
+            if (type === 'supervision') {
+                document.getElementById('catGrid').style.display = 'none';
+                document.getElementById('formSection').style.display = 'none';
+                document.getElementById('supervisionSection').style.display = 'block';
+                currentCat = ''; 
+                resetInputValues();
                 calculate();
+            } else {
+                document.getElementById('catGrid').style.display = 'grid';
+                document.getElementById('supervisionSection').style.display = 'none';
+                
+                updateButtonStates();
+                
+                if (!checkNotApplicable()) {
+                    if (currentCat === 'specific') updateSpecificUI();
+                    updateInputUI();
+                    calculate();
+                }
             }
         } catch(e) {
             console.error("검사 종류 선택 중 예외 발생:", e);
+            showSystemMsg('검사 종류 선택 중 예외가 발생했습니다.', true);
         }
     }
 
@@ -1361,9 +1449,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const div = document.createElement('div');
             div.className = 'vertical-style-row';
             const displayVal = item.val === '' ? '' : item.val; 
+            // [NEW] placeholder 자동 삭제 로직 공통 반영
             div.innerHTML = `
                 <label>${labelBase}${idx + 1}</label>
-                <input type="number" min="0" step="any" value="${displayVal}" placeholder="0" oninput="updateGasVal('${type}', ${idx}, this.value)" onkeydown="return ['e', 'E', '-', '+'].includes(event.key) ? false : true;">
+                <input type="number" min="0" step="any" value="${displayVal}" placeholder="0" onfocus="this.placeholder=''" onblur="this.placeholder='0'" oninput="updateGasVal('${type}', ${idx}, this.value)" onkeydown="return ['e', 'E', '-', '+'].includes(event.key) ? false : true;">
                 <span class="unit">${unit}</span>
                 <button class="btn-action btn-add" onclick="addGas('${type}', ${idx})">추가</button>
                 <button class="btn-action btn-del" onclick="removeGas('${type}', ${idx})">삭제</button>
@@ -1433,6 +1522,54 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             tbody.innerHTML = '';
             let hasValidInput = false;
             let checkList = []; 
+
+            // [NEW] 시공감리 단독 처리 로직
+            if (currentInsp === 'supervision') {
+                const days = parseInt(document.getElementById('sv-days').value) || 0;
+                const hours = parseInt(document.getElementById('sv-hours').value) || 0;
+                const dailyRate = 872000;
+                let fee = days * dailyRate;
+                
+                // 시간 초과/이하 연산 (4시간 초과 시 1일분, 이하 시 반일분)
+                if (hours > 4) {
+                    fee += dailyRate;
+                } else if (hours > 0 && hours <= 4) {
+                    fee += dailyRate / 2;
+                }
+
+                if (days > 0 || hours > 0) {
+                    appendResRow('지하매설배관 시공감리', `${days}일 ${hours}시간`, '', fee);
+                    hasValidInput = true;
+                    totalFee = fee;
+                    
+                    const tr = document.createElement('tr'); tr.className = 'total-row';
+                    tr.innerHTML = `<td>전체 합계</td><td class="num">-</td><td class="num">${totalFee.toLocaleString()}원</td>`;
+                    tbody.insertBefore(tr, tbody.firstChild);
+                    
+                    const tax = Math.floor(totalFee * 0.1);
+                    const breakdown = document.getElementById('fee-breakdown');
+                    breakdown.style.display = 'block';
+                    document.getElementById('res-base-fee').innerText = totalFee.toLocaleString() + '원';
+                    document.getElementById('res-tax').innerText = tax.toLocaleString() + '원';
+                    document.getElementById('res-total').innerHTML = (totalFee + tax).toLocaleString() + '<span>원</span>';
+                    
+                    document.getElementById('refPanel').style.display = 'block';
+                    document.getElementById('emptyRefMsg').style.display = 'none';
+                    
+                    // 시공감리 전용 레퍼런스 표 (99번 표) 호출
+                    const checkListSupervision = [{cat: 'supervision', val: 1}];
+                    renderRefPagesBasedOnInput(checkListSupervision);
+                    // [NEW 버그픽스] 붉은 테두리를 씌우는 하이라이트 함수 호출 추가
+                    highlightAllPages(checkListSupervision);
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#64748b;">선택된 내역이 없습니다.</td></tr>';
+                    document.getElementById('fee-breakdown').style.display = 'none';
+                    document.getElementById('res-total').innerHTML = '0<span>원</span>';
+                    document.getElementById('refPanel').style.display = 'none';
+                    document.getElementById('emptyRefMsg').style.display = 'flex';
+                }
+                return; // 이하 일반검사 산출 로직 우회
+            }
 
             if (isMultiMode()) {
                 if (currentCat === 'liq_comp') {
@@ -1567,6 +1704,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         fee = calculateFee(dataKey, cap); 
                     }
                     
+                    // [NEW] 3개 특정 제조시설의 '변경완성' 선택 시 수수료 50% 감면 규칙
+                    const mfgFacilities = ['container', 'refrig_mfg', 'special_equip'];
+                    if (currentInsp === 'van' && mfgFacilities.includes(currentCat) && mfgSubType === 'change') {
+                        fee = fee * 0.5;
+                        name += " (변경완성 50% 적용)";
+                    }
+                    
                     if (cap > 0) checkList.push({ cat: dataKey, val: cap });
                 }
 
@@ -1578,6 +1722,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     hasValidInput = true; 
                 } else if (['sales', 'import', 'container', 'refrig_mfg', 'special_equip'].includes(currentCat)) {
                     fee = calculateFee(currentCat, 1);
+                    
+                    // [NEW] 0값일 때도(기본 계산 시) 감면 규칙 방어적 적용
+                    const mfgFacilities = ['container', 'refrig_mfg', 'special_equip'];
+                    if (currentInsp === 'van' && mfgFacilities.includes(currentCat) && mfgSubType === 'change') {
+                        fee = fee * 0.5;
+                        name += " (변경완성 50% 적용)";
+                    }
+                    
                     // 판매시설 + 정기검사 예외 처리 (0을 입력한 경우 0원 표기)
                     if (currentCat === 'sales' && currentInsp === 'reg' && rawInput !== '') {
                         appendResRow(name, 0, unit, 0);
@@ -1653,7 +1805,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             checkList.forEach(item => {
                 if (!item) return;
                 const cat = item.cat;
-                if (currentInsp === 'van' || currentInsp === 'reg') {
+                if (cat === 'supervision') pages.add(99); // 시공감리용 페이지 플래그
+                else if (currentInsp === 'van' || currentInsp === 'reg') {
                     if (cat === 'liquid') pages.add(9);
                     if (cat === 'compressed') pages.add(10);
                     if (cat === 'ref') pages.add(11);
@@ -1672,6 +1825,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             });
         } catch (e) {
             console.error("참조 페이지 렌더링 중 오류:", e);
+            showSystemMsg('법령 책자 표출 중 일부 오류가 발생했습니다.', true);
         }
     }
 
@@ -1764,7 +1918,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <tr data-cat="compressed" data-min="5000" data-max="10000"><td>5천m³ 초과<br>1만m³ 이하</td><td>92만7천원</td><td>65만6천원</td></tr>
                         <tr data-cat="compressed" data-min="10000" data-max="100000"><td>1만m³ 초과<br>10만m³ 이하</td><td>151만9천원</td><td>101만7천원</td></tr>
                         <tr data-cat="compressed" data-min="100000" data-max="200000"><td>10만m³ 초과<br>20만m³ 이하</td><td>202만7천원</td><td>170만3천원</td></tr>
-                        <tr data-cat="compressed" data-min="200000" data-max="500000"><td>20만m³ 초과<br>50만m³ 이하</td><td>258만2천원</td><td>218만2천원</td></tr>
+                        <tr data-cat="compressed" data-min="200000" data-max="500000"><td>258만2천원</td><td>218만2천원</td></tr>
                         <tr data-cat="compressed" data-min="500000" data-max="1000000"><td>50만m³ 초과<br>100만m³ 이하</td><td>319만5천원</td><td>263만7천원</td></tr>
                         <tr data-cat="compressed" data-min="1000000" data-max="Infinity">
                             <td>100만m³ 초과</td>
@@ -1890,7 +2044,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <td colspan="3" class="gosi-category">냉 동 기 제 조 시 설</td><td>50만6천원</td><td style="text-align:center;">-</td>
                         </tr>
                         <tr data-cat="special_equip">
-                            <td colspan="3" class="gosi-category">특 정 설 시 제 조 시 설</td><td>50만6천원</td><td style="text-align:center;">-</td>
+                            <td colspan="3" class="gosi-category">특 정 설 비 제 조 시 설</td><td>50만6천원</td><td style="text-align:center;">-</td>
                         </tr>
                     </tbody>
                 </table>
@@ -2005,6 +2159,71 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div class="page-num">- 16 -</div>
             </div>
             `;
+        } else if (n === 99) {
+            // [NEW] 시공감리용 84페이지 수수료 책자 완벽 렌더링 (원문 100% 동일 규격화 및 안내문구 완전 복원)
+            html = `
+            <div class="gosi-page-content">
+                <div style="font-size:0.75rem; line-height: 1.6; margin-bottom: 15px; text-align: justify; word-break: keep-all;">
+                    <div style="margin-bottom: 3px;">&nbsp;&nbsp;가산금은 다음 각호와 같이 한다.</div>
+                    <div style="padding-left: 15px; text-indent: -15px; margin-bottom: 3px;">1. 가산금은 건별 감리시간 1시간 단위로(1시간 미만인 경우에는 1시간으로 계산) 부과한다. 다만, 동일 현장에서 2건 이상(시공자가 동일한 경우에 한함)의 가스공급시설을 동시에 감리하는 경우 1건에 한하여 가산금을 부과한다.</div>
+                    <div style="padding-left: 15px; text-indent: -15px; margin-bottom: 3px;">2. 휴일은 법정 공휴일로 하고, 연장·야간 근로 시간은 평일 18시부터(토요일은 09시부터) 익일 09시까지로 한다.</div>
+                    <div style="margin-bottom: 12px;">③ 액법 고시 별표7의 나목 및 도법 고시 별표5 나목에 의한 감리원의 1일 단가는 공사 기술인력(4급 이하)의 비율에 따른 산술평균치를 적용하여 87만2천원으로 한다.</div>
+                    <div><strong>제4조(시공감리수수료)</strong> ① 제3조의 산출방법에 의하여 산출된 시공감리수수료는 아래 표와 같다.</div>
+                </div>
+                <div style="text-align:right; font-size:0.75rem; margin-bottom:5px;">(단위 : 원)</div>
+                <table class="gosi-table">
+                    <thead>
+                        <tr><th colspan="3">대 상</th><th>금 액</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="2" rowspan="2">정압(밸브)기지</td>
+                            <td style="width: 22%;">신 규</td><td class="txt-l">523만2천원</td>
+                        </tr>
+                        <tr>
+                            <td>변 경</td><td class="txt-l">348만8천원</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" rowspan="2">정 압 기</td>
+                            <td>신 규</td><td class="txt-l">130만8천원</td>
+                        </tr>
+                        <tr>
+                            <td>변 경</td><td class="txt-l">87만2천원</td>
+                        </tr>
+                        <tr data-cat="supervision">
+                            <td colspan="3">제조소·공급소</td>
+                            <td class="txt-l">87만 2천원에 감리소요일수를 곱한 금액</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="6" style="width: 30px;">배<br><br>관</td>
+                            <td rowspan="2">액화석유가스<br>배관망사업자 및<br>일반도시가스<br>사업자배관</td>
+                            <td>길이 20m<br>이하</td><td class="txt-l">14만5천원</td>
+                        </tr>
+                        <tr>
+                            <td class="bg-gray-50">길이 20m<br>초과</td><td class="txt-l bg-gray-50">14만5천원에 20m를 초과한 매 10m마다 7만3천원을 가산한 금액</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">사용자공급관</td>
+                            <td>길이 500m<br>이하</td><td class="txt-l">29만1천원</td>
+                        </tr>
+                        <tr>
+                            <td class="bg-gray-50">길이 500m<br>초과</td><td class="txt-l bg-gray-50">29만1천원에 500m를 초과한 매 500m마다 29만1천원을 가산한 금액.<br>단, 제3조 제2항의 가산금을 제외하고 291만원을 초과할 수 없다.</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2">가스도매<br>사업자</td>
+                            <td>길이 100m<br>이하</td><td class="txt-l">261만6천원</td>
+                        </tr>
+                        <tr>
+                            <td class="bg-gray-50">길이 100m<br>초과</td><td class="txt-l bg-gray-50">261만6천원에 100m를 초과한 매 100m마다 58만1천원을 가산한 금액</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="font-size:0.75rem; line-height: 1.6; margin-top: 10px; text-align: left;">
+                    ② 시공감리수수료는 엔지니어링사업대가의 기준에 따라 매년 1월을
+                </div>
+                <div class="page-num">- 84 -</div>
+            </div>
+            `;
         }
         return html;
     }
@@ -2025,6 +2244,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             calculate(); 
         } catch(e) {
             console.error("상태 선택 중 예외 발생:", e);
+            showSystemMsg('상태 전환 중 예외가 발생했습니다.', true);
         }
     }
     
@@ -2103,12 +2323,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             if (currentInsp === 'van') inspName = '완성검사';
             else if (currentInsp === 'reg') inspName = '정기검사';
             else if (currentInsp === 'mid') inspName = '중간검사';
+            else if (currentInsp === 'supervision') inspName = '시공감리'; // [NEW] 시공감리 대응
 
             // 선택된 시설의 종류 명칭 추출 (버튼의 <br> 태그 제거를 통한 정제)
             let facilityName = '미지정';
-            const activeCatBtn = document.querySelector('.cat-btn.active');
-            if (activeCatBtn) {
-                facilityName = activeCatBtn.innerHTML.replace(/<br\s*[\/]?>/gi, '').trim();
+            if (currentInsp === 'supervision') {
+                facilityName = '지하매설배관'; // [NEW] 시공감리 선택 시 고정명칭
+            } else {
+                const activeCatBtn = document.querySelector('.cat-btn.active');
+                if (activeCatBtn) {
+                    facilityName = activeCatBtn.innerHTML.replace(/<br\s*[\/]?>/gi, '').trim();
+                }
             }
 
             // 인쇄 전용 테이블 tbody 동적 생성 (검사종류 칸 추가 및 단일건 계 생략 처리)
