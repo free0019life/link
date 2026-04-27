@@ -285,6 +285,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <div class="category-section">
                         <div class="category-title">도법</div>
                         <button class="calc-btn" onclick="openModule('source-7')">시설검사</button>
+                        <!-- PC화면: 도법 기밀유지시간 버튼 (신고포탈과 동일한 스타일) 추가 -->
+                        <button class="calc-btn report-btn" onclick="openModule('source-11')">도법 기밀유지시간</button>
                     </div>
                     <div class="category-section">
                         <div class="category-title">공통</div>
@@ -337,6 +339,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div class="category-title">도법 수수료</div>
                 <div class="button-grid">
                     <button class="calc-btn" onclick="openModule('source-7')"><span>시설검사(도)</span></button>
+                    <!-- 모바일화면: 도법 기밀유지시간 버튼 (신고포탈과 동일한 스타일) 추가 -->
+                    <button class="calc-btn report-btn" onclick="openModule('source-11')"><span>도법 기밀유지시간</span></button>
                 </div>
             </div>
             
@@ -14768,6 +14772,1150 @@ function openPrintWindow() {
     </script>
 </body>
 </html></textarea>
+    <!-- [신규] 11번째 소스코드 저장 영역 추가 -->
+    <textarea id="source-11" class="source-code-storage"><!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>배관 내용적 및 기밀시험 계산기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { -webkit-tap-highlight-color: transparent; }
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        .k-table { border-collapse: collapse; width: 100%; text-align: center; font-size: 0.875rem; color: #374151; }
+        .k-table th, .k-table td { border: 1px solid #9ca3af; padding: 0.5rem; vertical-align: middle; word-break: keep-all; }
+        .k-table th { background-color: #f3f4f6; font-weight: 600; }
+        
+        .highlight-cell {
+            border: 2px solid #ef4444 !important; 
+            position: relative;
+            z-index: 10;
+        }
+
+        .empty-ref-box { 
+            background: white; 
+            border: 2px dashed #cbd5e1; 
+            border-radius: 12px; 
+            padding: 60px 20px; 
+            text-align: center; 
+            color: #94a3b8; 
+            font-size: 1.05rem; 
+            line-height: 1.6; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 200px; 
+            word-break: keep-all;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .print-btn {
+            padding: 6px 16px;
+            border-radius: 50px;
+            border: 2px solid #10b981;
+            background: transparent;
+            color: #10b981;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            user-select: none;
+            -webkit-user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            word-break: keep-all;
+        }
+        .print-btn:hover {
+            background: #10b981;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.12);
+        }
+        .print-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 1024px) {
+            .print-btn { display: none !important; }
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+
+    <div class="w-[90%] max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-6 lg:gap-8 py-8 items-start">
+
+        <!-- ==========================================
+             [좌측 구역] 배관 제원 입력창
+             ========================================== -->
+        <div class="w-full lg:w-1/2 bg-white flex flex-col p-4 sm:p-6 rounded-2xl shadow-md border border-gray-200 z-20">
+            
+            <div class="flex justify-between items-center border-b-2 border-gray-200 pb-2 mb-3">
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 border-l-[5px] border-blue-600 pl-3 m-0 tracking-tight break-keep">
+                    배관 내용적 및 기밀시험시간 계산기
+                </h1>
+            </div>
+            
+            <!-- [개선] 0. 시설 선택 (Grid 레이아웃 적용 및 공동주택 정기 추가) -->
+            <div class="w-full mb-3 pb-3 border-b border-gray-200">
+                <div class="grid grid-cols-3 gap-1.5 sm:gap-2 w-full">
+                    <button id="btn-fac-usage" onclick="setFacility('사용시설')" class="col-span-1 py-2 sm:py-2.5 text-[14px] sm:text-[16px] font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap">사용시설</button>
+                    <button id="btn-fac-supply" onclick="setFacility('공급시설(배관)')" class="col-span-1 py-2 sm:py-2.5 text-[14px] sm:text-[16px] font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap">공급시설(배관)</button>
+                    <button id="btn-fac-charge" onclick="setFacility('충전시설')" class="col-span-1 py-2 sm:py-2.5 text-[14px] sm:text-[16px] font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap">충전시설</button>
+                    <button id="btn-fac-apt" onclick="setFacility('공동주택 정기')" class="col-span-1 py-2 sm:py-2.5 text-[14px] sm:text-[16px] font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap">공동주택 정기</button>
+                    <div class="col-span-2 flex justify-start">
+                        <button onclick="resetAll()" class="px-4 py-2 sm:py-2.5 text-[14px] sm:text-[16px] font-bold text-blue-600 bg-white border-2 border-slate-300 rounded-md shadow-sm hover:-translate-y-px hover:shadow-md transition whitespace-nowrap">
+                            🔄 초기화
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 초기화 시 나타나는 좌측 하단 대기화면 문구 -->
+            <div id="left-placeholder" class="w-full flex flex-col items-center justify-center py-16 text-gray-500 font-medium text-lg text-center" style="display: flex;">
+                시설을 선택한 후<br>배관제원을 입력하여 주시기 바랍니다.
+            </div>
+
+            <!-- 시설이 선택되어야만 나타나는 좌측 동적 구역 -->
+            <div id="left-dynamic-section" class="w-full flex flex-col" style="display: none;">
+                
+                <!-- ① 압력 선택 -->
+                <div class="flex flex-row items-center w-full mb-2.5 pb-2.5 border-b border-gray-100 gap-3 sm:gap-4">
+                    <h2 class="text-base sm:text-lg font-bold text-gray-800 tracking-tight shrink-0 w-[85px] sm:w-[95px] whitespace-nowrap">
+                        ① 압력선택
+                    </h2>
+                    <div class="flex flex-1 items-center gap-1.5 sm:gap-2">
+                        <div class="flex flex-1 space-x-1 bg-gray-100 p-1 rounded-lg border border-gray-200">
+                            <button id="btn-low" onclick="setPressure('저압')" class="flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-md bg-blue-600 text-white shadow-sm transition">저압</button>
+                            <button id="btn-mid" onclick="setPressure('중압')" class="flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition">중압</button>
+                            <button id="btn-high" onclick="setPressure('고압')" class="flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition">고압</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ② 기기 선택 -->
+                <div class="flex flex-row items-center w-full mb-2.5 pb-2.5 border-b border-gray-100 gap-3 sm:gap-4">
+                    <h2 class="text-base sm:text-lg font-bold text-gray-800 tracking-tight shrink-0 w-[85px] sm:w-[95px] whitespace-nowrap">
+                        ② 기기선택
+                    </h2>
+                    <div class="flex flex-1 items-center gap-1.5 sm:gap-2">
+                        <button id="btn-dev-digital" onclick="setDevice('마노메터')" class="flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-blue-500 bg-blue-50 text-blue-700 shadow-sm transition whitespace-nowrap">
+                            디지털 마노메터
+                        </button>
+                        <button id="btn-dev-record" onclick="setDevice('기록계')" class="flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:bg-gray-50 whitespace-nowrap">
+                            자기압력 기록계
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ③ 배관제원 입력 -->
+                <div class="w-full">
+                    <h2 class="text-base sm:text-lg font-bold text-gray-800 tracking-tight mb-2">
+                        ③ 배관제원 입력
+                    </h2>
+                    
+                    <div class="mb-3 bg-gray-50 rounded-xl px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-200">
+                        <h3 class="text-[14px] font-bold text-gray-800 border-b pb-1 mb-1.5">금속관 (KSD3589 등)</h3>
+                        <div id="metal-container" class="space-y-1.5"></div>
+                    </div>
+
+                    <div class="mb-1 bg-blue-50 rounded-xl px-3 py-1.5 sm:px-4 sm:py-2 border border-blue-100">
+                        <h3 class="text-[14px] font-bold text-gray-800 border-b border-blue-200 pb-1 mb-1.5">PE관 (KSM3514)</h3>
+                        <div id="pe-container" class="space-y-1.5"></div>
+                    </div>
+                </div>
+
+                <!-- [신규] 공동주택 정기 선택 시 표출되는 법적 근거 알림 박스 -->
+                <div id="apt-notice" class="mt-4 p-4 bg-red-50 border-[3px] border-dashed border-red-400 rounded-xl shadow-inner" style="display: none;">
+                    <p class="text-red-600 text-[13px] sm:text-[14px] font-bold text-left leading-relaxed m-0 break-keep">
+                        기 설치된 가스배관의 기밀시험은 다음 기준에 따라 실시한다.<br><br>
+                        (1) 기밀시험 방법은 4.2.2.9.4(신규로 설치되는 배관)에 따라 실시한다. 다만, 자기압력계 및 전기식다이어프램형압력계를 사용하여 기밀시험을 실시할 경우 기밀 유지시간은 표 4.2.2.9.4(4)에서 정한 수은주게이지 유지시간으로 실시할 수 있으며, 이 경우 자기압력기록계는 최소 기밀 유지시간을 30분으로 하고, 전기식다이어프램형압력계는 최소 기밀 유지시간을 4분으로 한다.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             [우측 구역] 산출 결과 및 기준 표
+             ========================================== -->
+        <div class="w-full lg:w-1/2 flex flex-col gap-6 lg:gap-8">
+
+            <div class="bg-gray-900 flex flex-col p-5 sm:p-6 rounded-2xl shadow-lg border border-gray-700 relative z-10">
+                
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xl font-semibold text-gray-300 flex items-center m-0">
+                        <svg class="w-6 h-6 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        최종 산출 결과
+                    </h2>
+                    <button class="print-btn" onclick="openPrintWindow()">🖨️ 출력하기</button>
+                </div>
+
+                <div class="bg-gray-800 rounded-xl py-4 px-5 border border-gray-700 shadow-md mb-4 flex flex-col justify-center">
+                    <div class="flex justify-between items-center w-full mb-2">
+                        <span class="text-gray-400 text-sm font-medium">통합 전체 체적 (V)</span>
+                        <div class="text-xs text-gray-400 bg-gray-900 px-2 py-1 rounded-md border border-gray-600">
+                            압력: <span id="display-pressure" class="text-yellow-400 font-bold text-sm ml-1">저압</span>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[40px] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500 leading-none pb-1">
+                            <span id="final-volume">0.0000</span> <span class="text-2xl text-orange-400">m³</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="device-times-container" class="w-full mb-5">
+                    <!-- 값이 연동되어 표출되는 영역 -->
+                </div>
+
+                <div class="bg-gray-700 rounded-lg p-3 mb-3 flex justify-between items-center shadow-md">
+                    <div class="text-sm text-gray-300">총 연장: <span id="total-length-summary" class="text-white font-bold text-base">0.0</span> m</div>
+                    <div class="text-sm text-gray-300">총 체적: <span id="total-volume-summary" class="text-green-400 font-bold text-base">0.0000</span> m³</div>
+                </div>
+
+                <div class="rounded-lg border border-gray-600 bg-gray-900 shadow-md overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-700 text-sm whitespace-nowrap">
+                        <thead class="bg-gray-800">
+                            <tr>
+                                <th class="px-3 py-2 text-center font-medium text-gray-300 uppercase">재질</th>
+                                <th class="px-3 py-2 text-center font-medium text-gray-300 uppercase">관경</th>
+                                <th class="px-3 py-2 text-right font-medium text-gray-300 uppercase">내경(cm)</th>
+                                <th class="px-3 py-2 text-right font-medium text-gray-300 uppercase">길이(m)</th>
+                                <th class="px-3 py-2 text-right font-medium text-gray-300 uppercase">체적(m³)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="result-tbody" class="divide-y divide-gray-700 bg-gray-900">
+                            <tr><td colspan="5" class="px-3 py-4 text-center text-gray-500">입력된 데이터가 없습니다.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- [우측 하단] 기밀시험 방법 기준 표 영역 -->
+            
+            <div id="table-placeholder" class="empty-ref-box relative z-10" style="display: flex;">
+                좌측의 배관제원을 입력하면 관련된<br>KGS코드의 기밀유지시간 표가 정밀 연동되어 나타납니다.
+            </div>
+
+            <!-- 1. 사용시설 표 -->
+            <div id="table-usage-container" class="bg-white flex flex-col p-5 sm:p-6 rounded-2xl shadow-md border border-gray-200 relative z-10" style="display: none;">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 text-center">표 4.2.2.1.15① 압력 측정기구별 기밀 유지 시간</h2>
+                <div class="overflow-x-auto rounded-lg shadow-sm border border-gray-300">
+                    <table class="k-table min-w-[600px]">
+                        <thead>
+                            <tr>
+                                <th width="25%">압력측정기구</th>
+                                <th width="20%">최고사용압력</th>
+                                <th width="30%">용 적</th>
+                                <th width="25%">기 밀 유 지 시 간</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="row-usage-merc-1">
+                                <td rowspan="3" id="td-usage-merc-title">수은주<br>게이지</td>
+                                <td rowspan="3" id="td-usage-merc-press">0.3MPa<br>미만</td>
+                                <td>1m³ 미만</td><td>2분</td>
+                            </tr>
+                            <tr id="row-usage-merc-2"><td>1m³ 이상<br>10m³ 미만</td><td>10분</td></tr>
+                            <tr id="row-usage-merc-3"><td>10m³ 이상<br>300m³ 미만</td><td>V분(다만, 120분을 초과할 경우는<br>120분으로 할 수 있다)</td></tr>
+
+                            <tr id="row-usage-water-1">
+                                <td rowspan="3" id="td-usage-water-title">수주게이지</td>
+                                <td rowspan="3" id="td-usage-water-press">저 압</td>
+                                <td>1m³ 미만</td><td>1분</td>
+                            </tr>
+                            <tr id="row-usage-water-2"><td>1m³ 이상<br>10m³ 미만</td><td>5분</td></tr>
+                            <tr id="row-usage-water-3"><td>10m³ 이상<br>300m³ 미만</td><td>0.5×V분(다만, 60분을 초과한 경우는<br>60분으로 할 수 있다)</td></tr>
+
+                            <tr id="row-usage-elec-1">
+                                <td rowspan="3" id="td-usage-elec-title">전기식다이어프램형<br>압력계</td>
+                                <td rowspan="3" id="td-usage-elec-press">저 압</td>
+                                <td>1m³ 미만</td><td>4분</td>
+                            </tr>
+                            <tr id="row-usage-elec-2"><td>1m³ 이상<br>10m³ 미만</td><td>40분</td></tr>
+                            <tr id="row-usage-elec-3"><td>10m³ 이상<br>300m³ 미만</td><td>4×V분(다만, 240분을 초과한 경우는<br>240분으로 할 수 있다)</td></tr>
+
+                            <tr id="row-usage-rec1-1">
+                                <td rowspan="3" id="td-usage-rec1-title">압력계 또는<br>자기압력<br>기록계</td>
+                                <td rowspan="3" id="td-usage-rec1-press">저 압<br>중 압</td>
+                                <td>1m³ 미만</td><td>24분</td>
+                            </tr>
+                            <tr id="row-usage-rec1-2"><td>1m³ 이상<br>10m³ 미만</td><td>240분</td></tr>
+                            <tr id="row-usage-rec1-3"><td>10m³ 이상<br>300m³ 미만</td><td>24×V분(다만, 1 440분을 초과한<br>경우는 1 440분으로 할 수 있다)</td></tr>
+
+                            <tr id="row-usage-rec2-1">
+                                <td rowspan="3" id="td-usage-rec2-title">압력계 또는<br>자기압력<br>기록계</td>
+                                <td rowspan="3" id="td-usage-rec2-press">고 압</td>
+                                <td>1m³ 미만</td><td>48분</td>
+                            </tr>
+                            <tr id="row-usage-rec2-2"><td>1m³ 이상<br>10m³ 미만</td><td>480분</td></tr>
+                            <tr id="row-usage-rec2-3"><td>10m³ 이상<br>300m³ 미만</td><td>48×V분(다만, 2 880분을 초과한<br>경우는 2 880분으로 할 수 있다)</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="p-2 text-xs text-gray-500 bg-gray-50 border-t border-gray-300 text-left">
+                        [비고] 1. V는 피시험부분의 용적(단위 : m³)이다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. 전기식 다이어프램형 압력계는 공인기관으로부터 성능인증을 받아 합격한 것이어야 한다.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 공급시설(배관) 및 공동주택 정기 공통 사용 표 -->
+            <div id="table-supply-container" class="bg-white flex flex-col p-5 sm:p-6 rounded-2xl shadow-md border border-gray-200 relative z-10" style="display: none;">
+                <div class="overflow-x-auto rounded-lg shadow-sm border border-gray-300">
+                    <table class="k-table min-w-[600px] border-b-0">
+                        <thead>
+                            <tr>
+                                <th width="25%">압력측정기구</th>
+                                <th width="20%">최고사용압력</th>
+                                <th width="30%">용 적</th>
+                                <th width="25%">기 밀 유 지 시 간</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="row-supp-merc-1">
+                                <td rowspan="3" id="td-supp-merc-title">수은주<br>게이지</td>
+                                <td rowspan="3" id="td-supp-merc-press">0.3MPa<br>미만</td>
+                                <td>1m³ 미만</td><td>2분</td>
+                            </tr>
+                            <tr id="row-supp-merc-2"><td>1m³ 이상<br>10m³ 미만</td><td>10분</td></tr>
+                            <tr id="row-supp-merc-3"><td>10m³ 이상<br>300m³ 미만</td><td>V분(다만, 120분을 초과할 경우는<br>120분으로 할 수 있다)</td></tr>
+
+                            <tr id="row-supp-water-1">
+                                <td rowspan="3" id="td-supp-water-title">수주게이지</td>
+                                <td rowspan="3" id="td-supp-water-press">저 압</td>
+                                <td>1m³ 미만</td><td>1분</td>
+                            </tr>
+                            <tr id="row-supp-water-2"><td>1m³ 이상<br>10m³ 미만</td><td>5분</td></tr>
+                            <tr id="row-supp-water-3"><td>10m³ 이상<br>300m³ 미만</td><td>0.5×V분(다만, 60분을 초과한 경우는<br>60분으로 할 수 있다)</td></tr>
+
+                            <tr id="row-supp-elec-1">
+                                <td rowspan="3" id="td-supp-elec-title">전기식다이어프램형<br>압력계</td>
+                                <td rowspan="3" id="td-supp-elec-press">저 압</td>
+                                <td>1m³ 미만</td><td>4분</td>
+                            </tr>
+                            <tr id="row-supp-elec-2"><td>1m³ 이상<br>10m³ 미만</td><td>40분</td></tr>
+                            <tr id="row-supp-elec-3"><td>10m³ 이상<br>300m³ 미만</td><td>4×V분(다만, 240분을 초과한 경우는<br>240분으로 할 수 있다)</td></tr>
+
+                            <tr id="row-supp-rec1-1">
+                                <td rowspan="3" id="td-supp-rec1-title">압력계 또는<br>자기압력<br>기록계</td>
+                                <td rowspan="3" id="td-supp-rec1-press">저 압<br>중 압</td>
+                                <td>1m³ 미만</td><td>24분</td>
+                            </tr>
+                            <tr id="row-supp-rec1-2"><td>1m³ 이상<br>10m³ 미만</td><td>240분</td></tr>
+                            <tr id="row-supp-rec1-3"><td>10m³ 이상<br>300m³ 미만</td><td>24×V분(다만, 1 440분을 초과한<br>경우는 1 440분으로 할 수 있다)</td></tr>
+
+                            <tr id="row-supp-rec2-1">
+                                <td rowspan="3" id="td-supp-rec2-title">압력계 또는<br>자기압력<br>기록계</td>
+                                <td rowspan="3" id="td-supp-rec2-press">고 압</td>
+                                <td>1m³ 미만</td><td>48분</td>
+                            </tr>
+                            <tr id="row-supp-rec2-2"><td>1m³ 이상<br>10m³ 미만</td><td>480분</td></tr>
+                            <tr id="row-supp-rec2-3"><td>10m³ 이상<br>300m³ 미만</td><td>48×V분(다만, 2 880분을 초과한<br>경우는 2 880분으로 할 수 있다)</td></tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="p-2 text-xs text-gray-500 bg-gray-50 border-t border-gray-300 text-left">
+                        [비고] 1. V는 피시험부분의 용적(단위 : m³)이다.<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. 전기식 다이어프램형 압력계는 공인기관으로부터 성능인증을 받아 합격한 것이어야 한다.
+                    </div>
+
+                    <div class="font-bold text-center py-3 bg-white border-t border-b border-gray-300 text-[15px]">장거리 구간의 기밀유지시간</div>
+                    <table class="k-table min-w-[600px] border-t-0">
+                        <thead>
+                            <tr>
+                                <th width="20%" class="bg-[#f3f4f6]">배관 내용적</th>
+                                <th width="20%" class="bg-white font-normal">5 000 m³ 미만</th>
+                                <th width="20%" class="bg-white font-normal">5 000 m³ 이상<br>10 000 m³ 미만</th>
+                                <th width="20%" class="bg-white font-normal">10 000 m³ 이상<br>25 000 m³ 미만</th>
+                                <th width="20%" class="bg-white font-normal">25 000 m³ 이상</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-bold bg-[#f3f4f6]">기밀유지<br>시간</td>
+                                <td id="td-supp-long-1">48시간<br>(2일)</td>
+                                <td id="td-supp-long-2">96시간<br>(4일)</td>
+                                <td id="td-supp-long-3">120시간<br>(5일)</td>
+                                <td id="td-supp-long-4">144시간<br>(6일)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. 충전시설 표 -->
+            <div id="table-charge-container" class="bg-white flex flex-col p-5 sm:p-6 rounded-2xl shadow-md border border-gray-200 relative z-10" style="display: none;">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 text-center">표 4.2.1.5.3 기밀유지시간</h2>
+                <div class="overflow-x-auto rounded-lg shadow-sm border border-gray-300">
+                    <table class="k-table min-w-[600px]">
+                        <thead>
+                            <tr>
+                                <th width="30%">압력측정기구</th>
+                                <th width="35%">용 적</th>
+                                <th width="35%">기밀유지시간</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="row-charge-1">
+                                <td rowspan="3" id="td-charge-title">압력계 또는<br>자기압력기록계</td>
+                                <td>1m³ 미만</td>
+                                <td>48분</td>
+                            </tr>
+                            <tr id="row-charge-2">
+                                <td>1m³ 이상 10m³ 미만</td>
+                                <td>480분</td>
+                            </tr>
+                            <tr id="row-charge-3">
+                                <td>10m³ 이상</td>
+                                <td>48×V분(다만, 2 880분을 초과한 경우는 2 880분으로 할 수 있다)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="p-2 text-xs text-gray-500 bg-gray-50 border-t border-gray-300 text-left">
+                        [비고] V는 피시험 부분의 용적(단위 : m³)이다.
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- 우측 구역 끝 -->
+    </div> <!-- 메인 컨테이너 끝 -->
+
+    <script>
+        let currentFacility = ''; 
+        let currentPressure = '저압';
+        let currentDevice = '마노메터';
+        let items = [
+            { id: generateId(), type: 'metal', sizeIndex: 0, length: '' },
+            { id: generateId(), type: 'pe', sizeIndex: 0, length: '' }
+        ];
+
+        const pipeData = {
+            metal: [
+                { label: '15A', innerDiameter: 1.64 }, { label: '20A', innerDiameter: 2.19 },
+                { label: '25A', innerDiameter: 2.75 }, { label: '32A', innerDiameter: 3.62 },
+                { label: '40A', innerDiameter: 4.21 }, { label: '50A', innerDiameter: 5.32 },
+                { label: '65A', innerDiameter: 6.90 }, { label: '80A', innerDiameter: 8.10 },
+                { label: '100A', innerDiameter: 10.53 }, { label: '125A', innerDiameter: 13.01 },
+                { label: '150A', innerDiameter: 15.55 }, { label: '175A', innerDiameter: 18.01 },
+                { label: '200A', innerDiameter: 20.48 }, { label: '250A', innerDiameter: 25.46 },
+                { label: '300A', innerDiameter: 30.45 }, { label: '350A', innerDiameter: 34.04 },
+                { label: '400A', innerDiameter: 39.00 }, { label: '500A', innerDiameter: 49.30 },
+                { label: '30인치', innerDiameter: 73.02 }
+            ],
+            pe: [
+                { label: '50A', innerDiameter: 4.08 }, { label: '63A', innerDiameter: 5.14 },
+                { label: '75A', innerDiameter: 6.14 }, { label: '90A', innerDiameter: 7.36 },
+                { label: '110A', innerDiameter: 9.00 }, { label: '125A', innerDiameter: 10.22 },
+                { label: '140A', innerDiameter: 11.46 }, { label: '160A', innerDiameter: 13.18 },
+                { label: '180A', innerDiameter: 14.72 }, { label: '200A', innerDiameter: 16.36 },
+                { label: '225A', innerDiameter: 18.50 }, { label: '250A', innerDiameter: 20.56 },
+                { label: '280A', innerDiameter: 22.92 }, { label: '315A', innerDiameter: 25.78 },
+                { label: '355A', innerDiameter: 29.04 }, { label: '400A', innerDiameter: 32.92 },
+                { label: '450A', innerDiameter: 36.82 }, { label: '500A', innerDiameter: 40.90 }
+            ]
+        };
+
+        function generateId() { return Math.random().toString(36).substr(2, 9); }
+
+        window.onload = init;
+
+        function init() {
+            updateFacilityUI();
+            renderInputs();
+            calculateAndRenderOutput(); 
+        }
+        
+        function resetAll() {
+            location.reload();
+        }
+
+        // [개선] 시설선택 로직 (공동주택 정기검사 예외 처리 추가)
+        function setFacility(f) {
+            if (f === '충전시설') {
+                if (currentFacility !== '' && currentFacility !== '충전시설' && (currentPressure !== '고압' || currentDevice !== '기록계')) {
+                    alert("충전시설 기밀시험은 고압배관만 해당됩니다.\n자동으로 고압 및 자기압력기록계로 설정됩니다.");
+                }
+                
+                const hasPeData = items.some(item => item.type === 'pe' && item.length.trim() !== '' && parseFloat(item.length) > 0);
+                
+                if (hasPeData && currentPressure !== '고압') {
+                    alert("PE관은 고압배관으로 사용할 수 없습니다.\n입력된 PE관 제원을 먼저 삭제한 후 충전시설을 선택해주세요.");
+                    return; 
+                } else if (currentPressure !== '고압') {
+                    items = items.filter(item => item.type !== 'pe');
+                }
+
+                currentPressure = '고압';
+                currentDevice = '기록계';
+            } else if (f === '공동주택 정기') {
+                if (currentPressure === '고압') {
+                    alert("공동주택 정기검사는 고압배관을 지원하지 않습니다.\n자동으로 중압으로 변경됩니다.");
+                    currentPressure = '중압';
+                }
+            }
+
+            currentFacility = f;
+
+            const fBtns = ['사용시설', '공급시설(배관)', '충전시설', '공동주택 정기'];
+            const fBtnIds = ['btn-fac-usage', 'btn-fac-supply', 'btn-fac-charge', 'btn-fac-apt'];
+            fBtns.forEach((fac, index) => {
+                const btn = document.getElementById(fBtnIds[index]);
+                if(fac === f) {
+                    btn.className = "col-span-1 py-2 sm:py-2.5 text-[14px] sm:text-[16px] font-bold rounded-md bg-blue-600 text-white shadow-sm transition whitespace-nowrap";
+                } else {
+                    btn.className = "col-span-1 py-2 sm:py-2.5 text-[14px] sm:text-[16px] font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap";
+                }
+            });
+
+            updateFacilityUI();
+            renderInputs();
+            calculateAndRenderOutput();
+        }
+
+        function updateFacilityUI() {
+            const leftDyn = document.getElementById('left-dynamic-section');
+            const leftPlaceholder = document.getElementById('left-placeholder');
+            const tablePlaceholder = document.getElementById('table-placeholder');
+
+            if (!currentFacility) {
+                leftDyn.style.display = 'none';
+                leftPlaceholder.style.display = 'flex';
+                
+                tablePlaceholder.style.display = 'flex';
+                document.getElementById('table-usage-container').style.display = 'none';
+                document.getElementById('table-supply-container').style.display = 'none';
+                document.getElementById('table-charge-container').style.display = 'none';
+                return; 
+            } else {
+                leftDyn.style.display = 'flex';
+                leftPlaceholder.style.display = 'none';
+                tablePlaceholder.style.display = 'none';
+            }
+
+            const isCharge = (currentFacility === '충전시설');
+            const isSupplyOrApt = (currentFacility === '공급시설(배관)' || currentFacility === '공동주택 정기');
+            const isApt = (currentFacility === '공동주택 정기');
+
+            document.getElementById('table-usage-container').style.display = (currentFacility === '사용시설') ? 'flex' : 'none';
+            document.getElementById('table-supply-container').style.display = isSupplyOrApt ? 'flex' : 'none';
+            document.getElementById('table-charge-container').style.display = isCharge ? 'flex' : 'none';
+            
+            // [개선] 공동주택 정기 알림 박스 토글
+            document.getElementById('apt-notice').style.display = isApt ? 'block' : 'none';
+
+            const pBtns = ['저압', '중압', '고압'];
+            const pBtnIds = ['btn-low', 'btn-mid', 'btn-high'];
+            pBtns.forEach((pr, index) => {
+                const btn = document.getElementById(pBtnIds[index]);
+                // [개선] 공동주택 정기 시 고압 비활성화
+                if ((isCharge && pr !== '고압') || (isApt && pr === '고압')) {
+                    btn.disabled = true;
+                    btn.className = "flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-md bg-gray-100 text-gray-400 cursor-not-allowed transition";
+                } else {
+                    btn.disabled = false;
+                    if(pr === currentPressure) {
+                        btn.className = "flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-md bg-blue-600 text-white shadow-sm transition";
+                    } else {
+                        btn.className = "flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition";
+                    }
+                }
+            });
+
+            const btnDigi = document.getElementById('btn-dev-digital');
+            const btnRec = document.getElementById('btn-dev-record');
+            
+            if (isCharge) {
+                btnDigi.disabled = true;
+                btnDigi.className = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed transition whitespace-nowrap";
+                btnRec.disabled = false;
+                btnRec.className = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-blue-500 bg-blue-50 text-blue-700 shadow-sm transition whitespace-nowrap";
+            } else {
+                btnDigi.disabled = false;
+                btnRec.disabled = false;
+                if(currentDevice === '마노메터') {
+                    btnDigi.className = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-blue-500 bg-blue-50 text-blue-700 shadow-sm transition whitespace-nowrap";
+                    btnRec.className  = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:bg-gray-50 whitespace-nowrap";
+                } else {
+                    btnDigi.className = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:bg-gray-50 whitespace-nowrap";
+                    btnRec.className  = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-blue-500 bg-blue-50 text-blue-700 shadow-sm transition whitespace-nowrap";
+                }
+            }
+        }
+
+        function setPressure(p) {
+            if (currentFacility === '충전시설' && p !== '고압') {
+                alert("충전시설 기밀시험은 고압배관만 해당됩니다.");
+                return;
+            }
+            if (currentFacility === '공동주택 정기' && p === '고압') {
+                alert("공동주택 정기검사는 고압배관을 지원하지 않습니다.");
+                return;
+            }
+
+            if (p === '고압' && currentPressure !== '고압') {
+                const hasPeData = items.some(item => item.type === 'pe' && item.length.trim() !== '' && parseFloat(item.length) > 0);
+                
+                if (hasPeData) {
+                    alert("PE관은 고압배관으로 사용할 수 없습니다.\n입력된 PE관 제원을 삭제한 후 고압을 선택해주세요.");
+                    return; 
+                } else {
+                    items = items.filter(item => item.type !== 'pe');
+                }
+            }
+
+            currentPressure = p;
+            document.getElementById('display-pressure').textContent = p;
+            updateFacilityUI();
+            renderInputs(); 
+            calculateAndRenderOutput();
+        }
+
+        function setDevice(d) {
+            if (currentFacility === '충전시설' && d !== '기록계') {
+                alert("충전시설 기밀시험은 자기압력기록계만 사용 가능합니다.");
+                return;
+            }
+
+            currentDevice = d;
+            updateFacilityUI();
+            calculateAndRenderOutput();
+        }
+
+        function getOptionsHTML(type, selectedIndex) {
+            return pipeData[type].map((pipe, index) => 
+                `<option value="${index}" ${index == selectedIndex ? 'selected' : ''}>${pipe.label}</option>`
+            ).join('');
+        }
+
+        function renderInputs() {
+            const metalContainer = document.getElementById('metal-container');
+            const peContainer = document.getElementById('pe-container');
+            metalContainer.innerHTML = '';
+            peContainer.innerHTML = '';
+
+            items.forEach((item) => {
+                const isMetal = item.type === 'metal';
+                const container = isMetal ? metalContainer : peContainer;
+                const btnAddColor = 'bg-gray-500 hover:bg-gray-600';
+
+                const row = document.createElement('div');
+                row.className = "flex items-center gap-1 sm:gap-2 w-full";
+                
+                row.innerHTML = `
+                    <div class="relative w-[28%] sm:w-[30%] shrink-0">
+                        <select onchange="updateItem('${item.id}', 'sizeIndex', this.value)" 
+                            class="w-full h-8 pl-1 sm:pl-2 pr-6 text-sm border-gray-300 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white shadow-sm font-medium text-gray-700 text-center">
+                            ${getOptionsHTML(item.type, item.sizeIndex)}
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1 text-gray-500">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                        </div>
+                    </div>
+                    
+                    <div class="relative w-[28%] sm:w-[30%] shrink-0">
+                        <input type="number" min="0" step="0.1" value="${item.length}" placeholder="길이"
+                            oninput="updateItem('${item.id}', 'length', this.value)"
+                            class="w-full h-8 pl-2 pr-5 text-sm border-gray-300 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm text-right font-medium">
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-gray-400 font-medium text-xs">m</div>
+                    </div>
+                    
+                    <div class="flex gap-1 flex-1 shrink-0">
+                        <button onclick="addItem('${item.type}')" class="flex-1 h-8 rounded-md text-white font-bold text-xs sm:text-sm ${btnAddColor} transition shadow-sm whitespace-nowrap px-1">
+                            배관추가
+                        </button>
+                        <button onclick="removeItem('${item.id}')" class="flex-1 h-8 rounded-md font-bold text-xs sm:text-sm text-red-500 border border-red-200 bg-white hover:bg-red-50 transition shadow-sm whitespace-nowrap px-1">
+                            삭제
+                        </button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+
+            if (metalContainer.children.length === 0) {
+                metalContainer.innerHTML = `<button onclick="addItem('metal')" class="w-full py-1.5 border-2 border-dashed border-gray-300 text-gray-500 rounded-md hover:bg-gray-100 transition text-sm font-bold">+ 금속관 추가</button>`;
+            }
+            
+            if (peContainer.children.length === 0) {
+                if (currentPressure === '고압') {
+                    peContainer.innerHTML = `<button disabled class="w-full py-1.5 border-2 border-dashed border-gray-300 bg-gray-100 text-gray-400 rounded-md cursor-not-allowed transition text-sm font-bold">고압에서는 PE관 사용 불가</button>`;
+                } else {
+                    peContainer.innerHTML = `<button onclick="addItem('pe')" class="w-full py-1.5 border-2 border-dashed border-blue-200 text-blue-500 rounded-md hover:bg-blue-50 transition text-sm font-bold">+ PE관 추가</button>`;
+                }
+            }
+        }
+
+        function updateItem(id, field, value) {
+            const item = items.find(i => i.id === id);
+            if (item) {
+                item[field] = value;
+                calculateAndRenderOutput(); 
+            }
+        }
+
+        function addItem(type) {
+            if (type === 'pe' && currentPressure === '고압') {
+                alert("고압에서는 PE관을 사용할 수 없습니다.");
+                return;
+            }
+            items.push({ id: generateId(), type: type, sizeIndex: 0, length: '' });
+            renderInputs();
+            calculateAndRenderOutput();
+        }
+
+        function removeItem(id) {
+            items = items.filter(item => item.id !== id);
+            renderInputs();
+            calculateAndRenderOutput();
+        }
+
+        function formatTimeDisplay(t, isLongDistance = false) {
+            const minClass = "text-[34px] sm:text-[36px] font-extrabold leading-none whitespace-nowrap tracking-tight";
+            const parenClass = "text-[19px] sm:text-[20px] text-gray-300 font-medium ml-1 whitespace-nowrap tracking-tight";
+
+            if (isLongDistance) {
+                const h = Math.floor(t / 60);
+                const d = Math.floor(h / 24);
+                return `<div class="flex items-end flex-nowrap"><span class="${minClass}">${h}시간</span><span class="${parenClass}">(${d}일)</span></div>`;
+            }
+
+            if (t < 60) {
+                return `<span class="${minClass}">${t}분</span>`;
+            }
+
+            const d = Math.floor(t / 1440);
+            const h = Math.floor((t % 1440) / 60);
+            const m = t % 60;
+
+            let timeStr = "";
+            if (d > 0) timeStr += `${d}일 `;
+            if (h > 0) timeStr += `${h}시간 `;
+            if (m > 0) timeStr += `${m}분`;
+            timeStr = timeStr.trim();
+            
+            return `<div class="flex items-end flex-nowrap"><span class="${minClass}">${t}분</span><span class="${parenClass}">(${timeStr})</span></div>`;
+        }
+
+        function getRecommendedTimer(t) {
+            const timers = [
+                { label: '30분', min: 30 }, { label: '1시간', min: 60 }, { label: '2시간', min: 120 },
+                { label: '4시간', min: 240 }, { label: '6시간', min: 360 }, { label: '8시간', min: 480 },
+                { label: '12시간', min: 720 }, { label: '1일', min: 1440 }, { label: '2일', min: 2880 },
+                { label: '3일', min: 4320 }, { label: '4일', min: 5760 }, { label: '7일', min: 10080 }
+            ];
+            for (let i = 0; i < timers.length; i++) {
+                if (t <= timers[i].min) return timers[i].label;
+            }
+            return '7일 초과'; 
+        }
+
+        function calculateAndRenderOutput() {
+            let totalLength = 0;
+            let totalVolumeM3 = 0;
+            let resultHTML = '';
+
+            const validItems = items.filter(item => item.length && parseFloat(item.length) > 0);
+            const resultTbody = document.getElementById('result-tbody');
+            const container = document.getElementById('device-times-container');
+
+            if (validItems.length === 0 || !currentFacility) {
+                resultTbody.innerHTML = `<tr><td colspan="5" class="px-3 py-6 text-center text-gray-500 italic">선택된 내역이 없습니다.</td></tr>`;
+                document.getElementById('total-length-summary').textContent = "0.0";
+                document.getElementById('total-volume-summary').textContent = "0.0000";
+                document.getElementById('final-volume').textContent = "0.0000";
+                
+                container.innerHTML = `
+                    <div class="bg-gray-800 bg-opacity-70 border border-gray-600 p-3 rounded-lg text-center text-gray-500 text-sm shadow">
+                        시설을 선택하고 체적을 입력하면 시간이 산출됩니다.
+                    </div>`;
+                
+                clearHighlights();
+                return;
+            }
+
+            validItems.forEach(item => {
+                const pipe = pipeData[item.type][item.sizeIndex];
+                const length = parseFloat(item.length);
+                const typeName = item.type === 'metal' ? '<span class="text-gray-300">금속</span>' : '<span class="text-blue-300">PE</span>';
+                
+                const innerDiameterDisplay = pipe.innerDiameter.toFixed(2);
+                
+                const radiusM = (pipe.innerDiameter / 2) / 100;
+                const volumeM3 = Math.PI * Math.pow(radiusM, 2) * length;
+
+                totalLength += length;
+                totalVolumeM3 += volumeM3;
+
+                resultHTML += `
+                    <tr class="hover:bg-gray-700 transition">
+                        <td class="px-3 py-2 text-center">${typeName}</td>
+                        <td class="px-3 py-2 text-center text-white font-medium">${pipe.label}</td>
+                        <td class="px-3 py-2 text-right text-yellow-200 font-mono tracking-wider">${innerDiameterDisplay}</td>
+                        <td class="px-3 py-2 text-right text-gray-300">${length.toFixed(1)}</td>
+                        <td class="px-3 py-2 text-right text-green-300 font-medium">${volumeM3.toFixed(4)}</td>
+                    </tr>
+                `;
+            });
+
+            resultTbody.innerHTML = resultHTML;
+            document.getElementById('total-length-summary').textContent = totalLength.toFixed(1);
+            document.getElementById('total-volume-summary').textContent = totalVolumeM3.toFixed(4);
+            document.getElementById('final-volume').textContent = totalVolumeM3.toFixed(4);
+
+            processTestTimes(totalVolumeM3);
+        }
+
+        function processTestTimes(v) {
+            let container = document.getElementById('device-times-container');
+            
+            let cat = v < 1 ? 1 : (v < 10 ? 2 : 3);
+            let result = null;
+            let highlights = [];
+
+            const isLongDistance = (currentFacility === '공급시설(배관)' && v >= 300);
+
+            if (currentFacility === '공동주택 정기') {
+                // [신규] 공동주택 정기: 기기 구분 없이 수은주게이지 산출시간을 기준으로 적용하되 최소시간 방어 적용
+                let t_base = 0; let baseId = 'merc';
+                if (cat === 1) { t_base = 2; highlights.push(`row-supp-${baseId}-1`); }
+                else if (cat === 2) { t_base = 10; highlights.push(`row-supp-${baseId}-2`); }
+                else { t_base = Math.min(Math.ceil(v), 120); highlights.push(`row-supp-${baseId}-3`); }
+
+                let final_time = t_base;
+                if (currentDevice === '마노메터') {
+                    final_time = Math.max(t_base, 4); // 최소 4분 강제
+                    result = { 
+                        name: `디지털 마노메터`, 
+                        time: formatTimeDisplay(final_time, false), 
+                        valid: true, rawTime: final_time, rawName: '디지털 마노메터', timer: '', isLong: false 
+                    };
+                } else if (currentDevice === '기록계') {
+                    final_time = Math.max(t_base, 30); // 최소 30분 강제
+                    const timerLabel = getRecommendedTimer(final_time);
+                    result = { 
+                        name: `자기압력 기록계 <span class="text-sm font-normal text-blue-300 ml-1">(${timerLabel})</span>`, 
+                        time: formatTimeDisplay(final_time, false), 
+                        valid: true, rawTime: final_time, rawName: '자기압력 기록계', timer: timerLabel, isLong: false 
+                    };
+                }
+            }
+            else if (isLongDistance) {
+                let t = 0; let targetId = '';
+                if (v < 5000) { t = 48 * 60; targetId = 'td-supp-long-1'; }
+                else if (v < 10000) { t = 96 * 60; targetId = 'td-supp-long-2'; }
+                else if (v < 25000) { t = 120 * 60; targetId = 'td-supp-long-3'; }
+                else { t = 144 * 60; targetId = 'td-supp-long-4'; }
+
+                highlights.push(targetId);
+
+                if (currentDevice === '마노메터') {
+                    result = { 
+                        name: `디지털 마노메터`, 
+                        time: formatTimeDisplay(t, true), 
+                        valid: true, rawTime: t, rawName: '디지털 마노메터', timer: '', isLong: true 
+                    };
+                } else {
+                    const timerLabel = getRecommendedTimer(t);
+                    result = { 
+                        name: `자기압력 기록계 <span class="text-sm font-normal text-blue-300 ml-1">(${timerLabel})</span>`, 
+                        time: formatTimeDisplay(t, true), 
+                        valid: true, rawTime: t, rawName: '자기압력 기록계', timer: timerLabel, isLong: true 
+                    };
+                }
+
+            } else if (currentFacility === '사용시설' || currentFacility === '공급시설(배관)') {
+                const basePrefix = currentFacility === '사용시설' ? 'usage' : 'supp';
+
+                if (currentDevice === '마노메터') {
+                    if (currentPressure === '저압') {
+                        let t = 0; let baseId = 'elec';
+                        if (cat === 1) { t = 4; highlights.push(`row-${basePrefix}-${baseId}-1`); }
+                        else if (cat === 2) { t = 40; highlights.push(`row-${basePrefix}-${baseId}-2`); }
+                        else { t = Math.min(240, Math.ceil(4 * v)); highlights.push(`row-${basePrefix}-${baseId}-3`); }
+                        
+                        result = { 
+                            name: `디지털 마노메터`, 
+                            time: formatTimeDisplay(t, false), 
+                            valid: true, rawTime: t, rawName: '디지털 마노메터', timer: '', isLong: false 
+                        };
+                    } else {
+                        result = { name: '디지털 마노메터', time: '측정 불가 (저압 전용)', valid: false, isLong: false };
+                    }
+                } 
+                else if (currentDevice === '기록계') {
+                    if (currentPressure === '저압' || currentPressure === '중압') {
+                        let t = 0; let baseId = 'rec1';
+                        if (cat === 1) { t = 24; highlights.push(`row-${basePrefix}-${baseId}-1`); }
+                        else if (cat === 2) { t = 240; highlights.push(`row-${basePrefix}-${baseId}-2`); }
+                        else { t = Math.min(1440, Math.ceil(24 * v)); highlights.push(`row-${basePrefix}-${baseId}-3`); }
+                        
+                        const timerLabel = getRecommendedTimer(t);
+                        result = { 
+                            name: `자기압력 기록계 <span class="text-sm font-normal text-blue-300 ml-1">(${timerLabel})</span>`, 
+                            time: formatTimeDisplay(t, false), 
+                            valid: true, rawTime: t, rawName: '자기압력 기록계', timer: timerLabel, isLong: false 
+                        };
+                    } else if (currentPressure === '고압') {
+                        let t = 0; let baseId = 'rec2';
+                        if (cat === 1) { t = 48; highlights.push(`row-${basePrefix}-${baseId}-1`); }
+                        else if (cat === 2) { t = 480; highlights.push(`row-${basePrefix}-${baseId}-2`); }
+                        else { t = Math.min(2880, Math.ceil(48 * v)); highlights.push(`row-${basePrefix}-${baseId}-3`); }
+                        
+                        const timerLabel = getRecommendedTimer(t);
+                        result = { 
+                            name: `자기압력 기록계 <span class="text-sm font-normal text-blue-300 ml-1">(${timerLabel})</span>`, 
+                            time: formatTimeDisplay(t, false), 
+                            valid: true, rawTime: t, rawName: '자기압력 기록계', timer: timerLabel, isLong: false 
+                        };
+                    }
+                }
+            } 
+            else if (currentFacility === '충전시설') {
+                let t = 0; let baseId = 'charge';
+                if (cat === 1) { t = 48; highlights.push(`row-${baseId}-1`); }
+                else if (cat === 2) { t = 480; highlights.push(`row-${baseId}-2`); }
+                else { t = Math.min(2880, Math.ceil(48 * v)); highlights.push(`row-${baseId}-3`); }
+                
+                const timerLabel = getRecommendedTimer(t);
+                result = { 
+                    name: `자기압력 기록계 <span class="text-sm font-normal text-blue-300 ml-1">(${timerLabel})</span>`, 
+                    time: formatTimeDisplay(t, false), 
+                    valid: true, rawTime: t, rawName: '자기압력 기록계', timer: timerLabel, isLong: false 
+                };
+            }
+
+            if (result) {
+                const colorClass = result.valid ? 'text-yellow-400' : 'text-red-400 text-lg';
+                
+                container.innerHTML = `
+                    <div class="bg-gray-800 bg-opacity-80 border border-gray-600 p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center sm:items-end shadow-md gap-3 sm:gap-0 overflow-hidden"
+                         data-device="${result.rawName || result.name}" 
+                         data-timer="${result.timer || ''}"
+                         data-time="${result.rawTime || ''}"
+                         data-long="${result.isLong ? 'true' : 'false'}"
+                         data-valid="${result.valid}">
+                        <span class="text-gray-200 text-base font-bold shrink-0">${result.name}</span>
+                        <div class="flex items-center justify-end shrink-0 w-full sm:w-auto overflow-x-auto no-scrollbar ${colorClass}">
+                            ${result.time}
+                        </div>
+                    </div>
+                `;
+            }
+
+            applyHighlights(highlights);
+        }
+
+        function clearHighlights() {
+            document.querySelectorAll('.k-table td').forEach(td => {
+                td.classList.remove('highlight-cell');
+            });
+        }
+
+        function applyHighlights(ids) {
+            clearHighlights();
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (el.tagName.toLowerCase() === 'tr') {
+                        el.querySelectorAll('td').forEach(td => td.classList.add('highlight-cell'));
+                        
+                        if (id.includes('-usage-') || id.includes('-supp-')) {
+                            if (id.endsWith('-2') || id.endsWith('-3')) {
+                                const basePrefix = id.substring(0, id.lastIndexOf('-'));
+                                const tdTitle = document.getElementById(`td-${basePrefix.replace('row-', '')}-title`);
+                                const tdPress = document.getElementById(`td-${basePrefix.replace('row-', '')}-press`);
+                                if (tdTitle) tdTitle.classList.add('highlight-cell');
+                                if (tdPress) tdPress.classList.add('highlight-cell');
+                            }
+                        }
+                        
+                        if (id.includes('-charge-')) {
+                            if (id.endsWith('-2') || id.endsWith('-3')) {
+                                const tdTitle = document.getElementById('td-charge-title');
+                                if (tdTitle) tdTitle.classList.add('highlight-cell');
+                            }
+                        }
+                    } else if (el.tagName.toLowerCase() === 'td') {
+                        el.classList.add('highlight-cell'); 
+                    }
+                }
+            });
+        }
+
+        function openPrintWindow() {
+            const tbodyHtml = document.getElementById('result-tbody').innerHTML;
+
+            if (tbodyHtml.includes('선택된 내역이 없습니다')) {
+                alert("출력할 내역이 없습니다. 좌측 입력창에 시설과 배관 제원을 먼저 입력해주세요.");
+                return;
+            }
+
+            const totalVolume = document.getElementById('final-volume').innerText;
+            const pressure = document.getElementById('display-pressure').innerText;
+            
+            const timeContainer = document.getElementById('device-times-container');
+            let deviceName = '';
+            let testTime = '';
+            
+            const timeBox = timeContainer.querySelector('div[data-valid]');
+            if (timeBox) {
+                const isValid = timeBox.getAttribute('data-valid') === 'true';
+                if (isValid) {
+                    const rawName = timeBox.getAttribute('data-device');
+                    const timerInfo = timeBox.getAttribute('data-timer');
+                    const isLong = timeBox.getAttribute('data-long') === 'true';
+                    
+                    deviceName = (timerInfo && !isLong) ? `${rawName} (${timerInfo})` : rawName;
+                    
+                    const rTime = parseInt(timeBox.getAttribute('data-time'), 10);
+                    
+                    if (isLong) {
+                        const h = Math.floor(rTime / 60);
+                        const d = Math.floor(h / 24);
+                        testTime = `${h}시간 (${d}일)`;
+                    } else {
+                        let hStr = "";
+                        if(rTime >= 60) {
+                            const d = Math.floor(rTime / 1440);
+                            const h = Math.floor((rTime % 1440) / 60);
+                            const m = rTime % 60;
+                            
+                            let tStr = "";
+                            if (d > 0) tStr += `${d}일 `;
+                            if (h > 0) tStr += `${h}시간 `;
+                            if (m > 0) tStr += `${m}분`;
+
+                            hStr = ` (${tStr.trim()})`;
+                        }
+                        testTime = `${rTime}분${hStr}`;
+                    }
+                } else {
+                    deviceName = '디지털 마노메터';
+                    testTime = '측정 불가 (저압 전용)';
+                }
+            }
+
+            const printWin = window.open('', '_blank', 'width=850,height=800');
+            if (!printWin) {
+                alert("인쇄 팝업 창이 브라우저에 의해 차단되었습니다. 팝업 차단을 해제해주세요.");
+                return;
+            }
+
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const dateStr = yyyy + '년 ' + mm + '월 ' + dd + '일';
+            
+            let printFacility = currentFacility;
+            const totalVolNum = parseFloat(totalVolume.replace(/,/g, ''));
+            if (currentFacility === '공급시설(배관)' && totalVolNum >= 300) {
+                printFacility += ' (장거리 구간 적용)';
+            }
+
+            const htmlContent = "<!DOCTYPE html>" +
+                "<html lang='ko'>" +
+                "<head>" +
+                "    <meta charset='UTF-8'>" +
+                "    <title>내용적 및 기밀시험 시간 산출결과</title>" +
+                "    <style>" +
+                "        body { font-family: 'Malgun Gothic', 'Dotum', sans-serif; color: #000; background: #fff; padding: 20px; line-height: 1.6; margin: 0; }" +
+                "        h1 { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 30px; font-size: 24px; }" +
+                "        .info-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }" +
+                "        .facility-name { font-size: 16px; font-weight: bold; color: #000; }" +
+                "        .date-info { font-size: 14px; text-align: right; }" +
+                "        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; table-layout: fixed; }" +
+                "        th, td { border: 1px solid #000; padding: 10px; font-size: 14px; text-align: center; color: #000 !important; background: transparent !important; word-break: keep-all; }" +
+                "        th { font-weight: bold; border-bottom: 2px solid #000; background: #f2f2f2 !important; -webkit-print-color-adjust: exact; }" +
+                "        td.num, th.num { text-align: right; }" +
+                "        .summary-box { border: 2px solid #000; padding: 25px; margin-top: 30px; background: #fdfdfd !important; -webkit-print-color-adjust: exact; }" +
+                "        .summary-item { font-size: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding-bottom: 8px; }" +
+                "        .summary-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }" +
+                "        .summary-title { font-weight: bold; color: #333; }" +
+                "        .summary-val { font-weight: bold; font-size: 18px; }" +
+                "        .print-watermark { display: none; }" +
+                "        @media print { " +
+                "           body { padding: 0; } " +
+                "           @page { margin: 20mm; } " +
+                "           .print-watermark { " +
+                "               display: block !important; " +
+                "               position: fixed !important; " +
+                "               bottom: 2cm !important; " +
+                "               left: 0 !important; " +
+                "               width: 100% !important; " +
+                "               text-align: center !important; " +
+                "               font-size: 24px !important; " +
+                "               font-weight: 900 !important; " +
+                "               color: rgba(0, 0, 0, 0.25) !important; " +
+                "               z-index: 9999 !important; " +
+                "               pointer-events: none !important; " +
+                "               transform: none !important; " +
+                "               margin: 0 !important; " +
+                "               padding: 0 !important; " +
+                "           } " +
+                "        }" +
+                "    </style>" +
+                "</head>" +
+                "<body>" +
+                "    <div class='print-watermark'>출력일 : " + dateStr + "</div>" +
+                "    <h1>내용적 및 기밀시험 시간 산출결과</h1>" +
+                "    <div class='info-header'>" +
+                "        <div class='facility-name'>■ 대상 시설 : " + printFacility + "</div>" +
+                "        <div class='date-info'>출력일자: " + dateStr + "</div>" +
+                "    </div>" +
+                "    <table>" +
+                "        <thead>" +
+                "            <tr>" +
+                "                <th>재질</th>" +
+                "                <th>관경</th>" +
+                "                <th class='num'>내경(cm)</th>" +
+                "                <th class='num'>길이(m)</th>" +
+                "                <th class='num'>체적(m³)</th>" +
+                "            </tr>" +
+                "        </thead>" +
+                "        <tbody>" +
+                "            " + tbodyHtml +
+                "        </tbody>" +
+                "    </table>" +
+                "    <div class='summary-box'>" +
+                "        <div class='summary-item'>" +
+                "            <span class='summary-title'>통합 전체 체적 (V):</span>" +
+                "            <span class='summary-val'>" + totalVolume + " m³</span>" +
+                "        </div>" +
+                "        <div class='summary-item'>" +
+                "            <span class='summary-title'>선택 압력:</span>" +
+                "            <span class='summary-val'>" + pressure + "</span>" +
+                "        </div>" +
+                "        <div class='summary-item'>" +
+                "            <span class='summary-title'>기밀시험장비:</span>" +
+                "            <span class='summary-val'>" + deviceName + "</span>" +
+                "        </div>" +
+                "        <div class='summary-item' style='margin-top: 20px; padding-top: 15px; border-top: 2px solid #000; border-bottom: none;'>" +
+                "            <span class='summary-title' style='font-size:22px; color:#000;'>최종 기밀시험 시간:</span>" +
+                "            <span class='summary-val' style='font-size:26px; color:#000;'>" + testTime + "</span>" +
+                "        </div>" +
+                "    </div>" +
+                "    <script>" +
+                "        window.onload = function() { window.focus(); window.print(); }" +
+                "    <\/script>" +
+                "</body>" +
+                "</html>";
+
+            printWin.document.open();
+            printWin.document.write(htmlContent);
+            printWin.document.close();
+        }
+    </script>
+</body>
+</html></textarea>
 
     <!-- =========================================================
          [통합 시스템 구동 자바스크립트] 
@@ -14776,7 +15924,7 @@ function openPrintWindow() {
         // =========================================================
         // [신규] 시스템 버전 관리 상수 정의 (YYYYMMDD 형식 등)
         // =========================================================
-        const CURRENT_VERSION = "26.4.24.1"; 
+        const CURRENT_VERSION = "26.4.27.1"; 
 
         // PC 버전에 사용되던 풍부한 이름을 기준으로 통일
         const MODULE_NAMES = Object.freeze({
@@ -14789,7 +15937,9 @@ function openPrintWindow() {
             'source-7': '시설검사(도)',
             'source-8': '기술검토',
             'source-9': '<div style="line-height: 1.1;">안전관리규정<br><span style="font-size: 0.7em; letter-spacing: -0.5px;">등 심사</span></div>',
-            'source-10': '칭찬/신고 포탈'
+            'source-10': '칭찬/신고 포탈',
+            // [신규] 11번째 모듈 이름 매핑 추가
+            'source-11': '도법 기밀유지시간'
         });
 
         let currentOpenModuleId = null; 
