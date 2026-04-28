@@ -14906,12 +14906,13 @@ function openPrintWindow() {
             <!-- 0. 시설 선택 -->
             <div class="w-full mb-3 pb-3 border-b border-gray-200">
                 <div class="grid grid-cols-3 gap-1.5 sm:gap-2 w-full">
-                    <button id="btn-fac-usage" onclick="setFacility('사용시설')" class="col-span-1 py-2 sm:py-2.5 text-[14px] sm:text-[16px] font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap">사용시설</button>
-                    <button id="btn-fac-supply" onclick="setFacility('공급시설(배관)')" class="col-span-1 py-2 sm:py-2.5 text-[14px] sm:text-[16px] font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap">공급시설(배관)</button>
-                    <button id="btn-fac-charge" onclick="setFacility('충전시설')" class="col-span-1 py-2 sm:py-2.5 text-[14px] sm:text-[16px] font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap">충전시설</button>
-                    <button id="btn-fac-apt" onclick="setFacility('공동주택 정기')" class="col-span-1 py-2 sm:py-2.5 text-[14px] sm:text-[16px] font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap">공동주택 정기</button>
+                    <!-- [개선] 폰트 크기 유지, 버튼 높이(상하 여백) 15~16% 축소 (py-2.5) -->
+                    <button id="btn-fac-usage" onclick="setFacility('사용시설')" class="col-span-1 py-2.5 sm:py-2.5 px-0 text-[16px] sm:text-[16px] font-extrabold tracking-tighter rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap">사용시설</button>
+                    <button id="btn-fac-supply" onclick="setFacility('공급시설(배관)')" class="col-span-1 py-2.5 sm:py-2.5 px-0 text-[16px] sm:text-[16px] font-extrabold tracking-tighter rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap">공급시설</button>
+                    <button id="btn-fac-charge" onclick="setFacility('충전시설')" class="col-span-1 py-2.5 sm:py-2.5 px-0 text-[16px] sm:text-[16px] font-extrabold tracking-tighter rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap">충전시설</button>
+                    <button id="btn-fac-apt" onclick="setFacility('공동주택 정기')" class="col-span-1 py-2.5 sm:py-2.5 px-0 text-[16px] sm:text-[16px] font-extrabold tracking-tighter rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap">공동주택정기</button>
                     <div class="col-span-2 flex justify-start">
-                        <button onclick="resetAll()" class="px-4 py-2 sm:py-2.5 text-[14px] sm:text-[16px] font-bold text-blue-600 bg-white border-2 border-slate-300 rounded-md shadow-sm hover:-translate-y-px hover:shadow-md transition whitespace-nowrap">
+                        <button onclick="resetAll()" class="px-4 py-2.5 sm:py-2.5 text-[15px] sm:text-[16px] font-extrabold text-blue-600 bg-white border-2 border-slate-300 rounded-md shadow-sm hover:-translate-y-px hover:shadow-md transition whitespace-nowrap">
                             🔄 초기화
                         </button>
                     </div>
@@ -14933,9 +14934,10 @@ function openPrintWindow() {
                     </h2>
                     <div class="flex flex-1 items-center gap-1.5 sm:gap-2">
                         <div class="flex flex-1 space-x-1 bg-gray-100 p-1 rounded-lg border border-gray-200">
-                            <button id="btn-low" onclick="setPressure('저압')" class="flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-md bg-blue-600 text-white shadow-sm transition">저압</button>
-                            <button id="btn-mid" onclick="setPressure('중압')" class="flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition">중압</button>
-                            <button id="btn-high" onclick="setPressure('고압')" class="flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition">고압</button>
+                            <!-- [개선] 폰트 18px 유지, 버튼 높이(상하 여백) 20% 축소 (py-2) -->
+                            <button id="btn-low" onclick="setPressure('저압')" class="flex-1 py-2 sm:py-1.5 px-0 text-[18px] sm:text-sm font-extrabold tracking-tighter rounded-md bg-blue-600 text-white shadow-sm transition">저압</button>
+                            <button id="btn-mid" onclick="setPressure('중압')" class="flex-1 py-2 sm:py-1.5 px-0 text-[18px] sm:text-sm font-extrabold tracking-tighter rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition">중압</button>
+                            <button id="btn-high" onclick="setPressure('고압')" class="flex-1 py-2 sm:py-1.5 px-0 text-[18px] sm:text-sm font-extrabold tracking-tighter rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition">고압</button>
                         </div>
                     </div>
                 </div>
@@ -14946,10 +14948,11 @@ function openPrintWindow() {
                         ② 기기선택
                     </h2>
                     <div class="flex flex-1 items-center gap-1.5 sm:gap-2">
-                        <button id="btn-dev-digital" onclick="setDevice('마노메터')" class="flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-blue-500 bg-blue-50 text-blue-700 shadow-sm transition whitespace-nowrap">
+                        <!-- [개선] 폰트 15px 꽉 채움 유지, 버튼 높이(상하 여백) 20% 축소 (py-2) -->
+                        <button id="btn-dev-digital" onclick="setDevice('마노메터')" class="flex-1 sm:flex-none px-0.5 sm:px-4 py-2 sm:py-1.5 text-[15px] sm:text-sm font-extrabold tracking-tighter rounded-lg border border-blue-500 bg-blue-50 text-blue-700 shadow-sm transition whitespace-nowrap">
                             디지털 마노메터
                         </button>
-                        <button id="btn-dev-record" onclick="setDevice('기록계')" class="flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:bg-gray-50 whitespace-nowrap">
+                        <button id="btn-dev-record" onclick="setDevice('기록계')" class="flex-1 sm:flex-none px-0.5 sm:px-4 py-2 sm:py-1.5 text-[15px] sm:text-sm font-extrabold tracking-tighter rounded-lg border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:bg-gray-50 whitespace-nowrap">
                             자기압력 기록계
                         </button>
                     </div>
@@ -15306,12 +15309,14 @@ function openPrintWindow() {
 
                 const fBtns = ['사용시설', '공급시설(배관)', '충전시설', '공동주택 정기'];
                 const fBtnIds = ['btn-fac-usage', 'btn-fac-supply', 'btn-fac-charge', 'btn-fac-apt'];
+                
+                // [수정] 모바일 버튼 높이(py) 15~16% 축소 동기화 (py-3 -> py-2.5)
                 fBtns.forEach((fac, index) => {
                     const btn = document.getElementById(fBtnIds[index]);
                     if(fac === f) {
-                        btn.className = "col-span-1 py-2 sm:py-2.5 text-[14px] sm:text-[16px] font-bold rounded-md bg-blue-600 text-white shadow-sm transition whitespace-nowrap";
+                        btn.className = "col-span-1 py-2.5 sm:py-2.5 px-0 text-[16px] sm:text-[16px] font-extrabold tracking-tighter rounded-md bg-blue-600 text-white shadow-sm transition whitespace-nowrap";
                     } else {
-                        btn.className = "col-span-1 py-2 sm:py-2.5 text-[14px] sm:text-[16px] font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap";
+                        btn.className = "col-span-1 py-2.5 sm:py-2.5 px-0 text-[16px] sm:text-[16px] font-extrabold tracking-tighter rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap";
                     }
                 });
 
@@ -15356,17 +15361,19 @@ function openPrintWindow() {
 
                 const pBtns = ['저압', '중압', '고압'];
                 const pBtnIds = ['btn-low', 'btn-mid', 'btn-high'];
+                
+                // [수정] 압력 버튼 높이(py) 20% 축소 동기화 (py-2.5 -> py-2)
                 pBtns.forEach((pr, index) => {
                     const btn = document.getElementById(pBtnIds[index]);
                     if ((isCharge && pr !== '고압') || (isApt && pr === '고압')) {
                         btn.disabled = true;
-                        btn.className = "flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-md bg-gray-100 text-gray-400 cursor-not-allowed transition";
+                        btn.className = "flex-1 py-2 sm:py-1.5 px-0 text-[18px] sm:text-sm font-extrabold tracking-tighter rounded-md bg-gray-100 text-gray-400 cursor-not-allowed transition";
                     } else {
                         btn.disabled = false;
                         if(pr === currentPressure) {
-                            btn.className = "flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-md bg-blue-600 text-white shadow-sm transition";
+                            btn.className = "flex-1 py-2 sm:py-1.5 px-0 text-[18px] sm:text-sm font-extrabold tracking-tighter rounded-md bg-blue-600 text-white shadow-sm transition";
                         } else {
-                            btn.className = "flex-1 py-1.5 text-xs sm:text-sm font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition";
+                            btn.className = "flex-1 py-2 sm:py-1.5 px-0 text-[18px] sm:text-sm font-extrabold tracking-tighter rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition";
                         }
                     }
                 });
@@ -15374,20 +15381,21 @@ function openPrintWindow() {
                 const btnDigi = document.getElementById('btn-dev-digital');
                 const btnRec = document.getElementById('btn-dev-record');
                 
+                // [수정] 기기 버튼 높이(py) 20% 축소 동기화 (py-2.5 -> py-2)
                 if (isCharge) {
                     btnDigi.disabled = true;
-                    btnDigi.className = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed transition whitespace-nowrap";
+                    btnDigi.className = "flex-1 sm:flex-none px-0.5 sm:px-4 py-2 sm:py-1.5 text-[15px] sm:text-sm font-extrabold tracking-tighter rounded-lg border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed transition whitespace-nowrap";
                     btnRec.disabled = false;
-                    btnRec.className = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-blue-500 bg-blue-50 text-blue-700 shadow-sm transition whitespace-nowrap";
+                    btnRec.className = "flex-1 sm:flex-none px-0.5 sm:px-4 py-2 sm:py-1.5 text-[15px] sm:text-sm font-extrabold tracking-tighter rounded-lg border border-blue-500 bg-blue-50 text-blue-700 shadow-sm transition whitespace-nowrap";
                 } else {
                     btnDigi.disabled = false;
                     btnRec.disabled = false;
                     if(currentDevice === '마노메터') {
-                        btnDigi.className = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-blue-500 bg-blue-50 text-blue-700 shadow-sm transition whitespace-nowrap";
-                        btnRec.className  = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:bg-gray-50 whitespace-nowrap";
+                        btnDigi.className = "flex-1 sm:flex-none px-0.5 sm:px-4 py-2 sm:py-1.5 text-[15px] sm:text-sm font-extrabold tracking-tighter rounded-lg border border-blue-500 bg-blue-50 text-blue-700 shadow-sm transition whitespace-nowrap";
+                        btnRec.className  = "flex-1 sm:flex-none px-0.5 sm:px-4 py-2 sm:py-1.5 text-[15px] sm:text-sm font-extrabold tracking-tighter rounded-lg border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:bg-gray-50 whitespace-nowrap";
                     } else {
-                        btnDigi.className = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:bg-gray-50 whitespace-nowrap";
-                        btnRec.className  = "flex-1 sm:flex-none px-2 sm:px-4 py-1.5 text-xs sm:text-sm font-bold rounded-lg border border-blue-500 bg-blue-50 text-blue-700 shadow-sm transition whitespace-nowrap";
+                        btnDigi.className = "flex-1 sm:flex-none px-0.5 sm:px-4 py-2 sm:py-1.5 text-[15px] sm:text-sm font-extrabold tracking-tighter rounded-lg border border-gray-300 bg-white text-gray-600 shadow-sm transition hover:bg-gray-50 whitespace-nowrap";
+                        btnRec.className  = "flex-1 sm:flex-none px-0.5 sm:px-4 py-2 sm:py-1.5 text-[15px] sm:text-sm font-extrabold tracking-tighter rounded-lg border border-blue-500 bg-blue-50 text-blue-700 shadow-sm transition whitespace-nowrap";
                     }
                 }
             } catch (error) {
@@ -16048,21 +16056,21 @@ function openPrintWindow() {
             margin: 0; 
         }
         
-        /* 테이블 기본 스타일 (하단 근거표 및 결과표 용) */
+        /* 테이블 기본 스타일 */
         .k-table { border-collapse: collapse; width: 100%; text-align: center; font-size: 0.875rem; color: #374151; }
         .k-table th, .k-table td { border: 1px solid #9ca3af; padding: 0.6rem; vertical-align: middle; word-break: keep-all; }
         .k-table th { background-color: #f3f4f6; font-weight: bold; }
         
-        /* 다크 테마 결과 테이블 (세부 계산 결과용) - table-layout: fixed 추가로 칸 너비 고정 */
-        .result-table { border-collapse: collapse; width: 100%; text-align: center; font-size: 0.85rem; color: #e5e7eb; table-layout: fixed; }
+        /* 다크 테마 결과 테이블 (모바일 폰트 크기 및 여백 극단적 최적화) */
+        .result-table { border-collapse: collapse; width: 100%; text-align: center; font-size: 0.95rem; color: #e5e7eb; table-layout: fixed; }
         .result-table th, .result-table td { border: 1px solid #4b5563; vertical-align: middle; word-break: keep-all; }
         
-        /* 모바일 극단적 여백 축소 적용, PC환경(sm이상)에서만 여백 확대 */
-        .result-table th { background-color: #374151; font-weight: bold; color: #f3f4f6; padding: 0.15rem 0.1rem; }
-        .result-table td { padding: 0.15rem 0.1rem; }
+        /* 모바일 환경: 여백을 0으로 만들어 내부 공간 최대로 확보 */
+        .result-table th { background-color: #374151; font-weight: bold; color: #f3f4f6; padding: 0; letter-spacing: -0.5px; }
+        .result-table td { padding: 0; letter-spacing: -0.5px; }
         @media (min-width: 640px) {
-            .result-table th { padding: 0.25rem 0.5rem; }
-            .result-table td { padding: 0.2rem 0.5rem; }
+            .result-table th { padding: 0.25rem 0.5rem; letter-spacing: normal; }
+            .result-table td { padding: 0.2rem 0.5rem; letter-spacing: normal; }
         }
 
         .result-table td.val-high { color: #f87171; } 
@@ -16130,52 +16138,52 @@ function openPrintWindow() {
 </head>
 <body class="bg-gray-100 min-h-screen font-sans">
 
-    <div class="w-[98%] sm:w-[90%] max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 py-6 items-start">
+    <div class="w-full px-1 sm:w-[90%] max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-3 sm:gap-6 lg:gap-8 py-3 items-start">
 
         <!-- ==========================================
              [좌측 구역] 정압기 제원 입력창
              ========================================== -->
-        <div class="w-full lg:w-1/2 bg-white flex flex-col p-4 sm:p-6 rounded-2xl shadow-md border border-gray-200 z-20">
+        <div class="w-full lg:w-1/2 bg-white flex flex-col p-2 sm:p-6 rounded-xl sm:rounded-2xl shadow-md border border-gray-200 z-20">
             
-            <div class="flex justify-between items-center border-b-2 border-gray-200 pb-2 mb-3">
-                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 border-l-[5px] border-blue-600 pl-3 m-0 tracking-tight break-keep">
+            <div class="flex justify-between items-center border-b-2 border-gray-200 pb-2 mb-2">
+                <h1 class="text-[19px] sm:text-2xl font-bold text-gray-800 border-l-[5px] border-blue-600 pl-2 m-0 tracking-tight break-keep">
                     정압기 압력조정기 셋팅압력 계산기
                 </h1>
             </div>
             
-            <!-- 0. 시설 선택 -->
-            <div class="w-full mb-3 pb-3 border-b border-gray-200">
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full">
-                    <button id="btn-fac-gen" onclick="setFacility('일반사업 정압기')" class="col-span-1 py-2 sm:py-2.5 text-[14px] font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap">일반사업 정압기</button>
-                    <button id="btn-fac-spec" onclick="setFacility('특정사용 정압기')" class="col-span-1 py-2 sm:py-2.5 text-[14px] font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap">특정사용 정압기</button>
-                    <button id="btn-fac-whole" onclick="setFacility('도매사업 정압기')" class="col-span-1 py-2 sm:py-2.5 text-[14px] font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap">도매사업 정압기</button>
-                    <button onclick="resetAll()" class="col-span-1 py-2 sm:py-2.5 text-[14px] font-bold text-blue-600 bg-white border-2 border-slate-300 rounded-md shadow-sm hover:-translate-y-px hover:shadow-md transition whitespace-nowrap">🔄 초기화</button>
+            <!-- 0. 시설 선택 ([개선] 모바일은 20px 꽉차게, 데스크탑(sm:)은 17px로 20% 축소하여 여백 확보) -->
+            <div class="w-full mb-2 pb-2 border-b border-gray-200">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 w-full">
+                    <button id="btn-fac-gen" onclick="setFacility('일반사업 정압기')" class="col-span-1 h-[56px] flex items-center justify-center text-[20px] sm:text-[17px] font-extrabold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap leading-none px-0 tracking-[-1.3px] sm:tracking-tight">일반사업 정압기</button>
+                    <button id="btn-fac-spec" onclick="setFacility('특정사용 정압기')" class="col-span-1 h-[56px] flex items-center justify-center text-[20px] sm:text-[17px] font-extrabold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap leading-none px-0 tracking-[-1.3px] sm:tracking-tight">특정사용 정압기</button>
+                    <button id="btn-fac-whole" onclick="setFacility('도매사업 정압기')" class="col-span-1 h-[56px] flex items-center justify-center text-[20px] sm:text-[17px] font-extrabold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap leading-none px-0 tracking-[-1.3px] sm:tracking-tight">도매사업 정압기</button>
+                    <button onclick="resetAll()" class="col-span-1 h-[56px] flex items-center justify-center text-[20px] sm:text-[17px] font-extrabold text-blue-600 bg-white border-2 border-slate-300 rounded-md shadow-sm hover:-translate-y-px hover:shadow-md transition whitespace-nowrap leading-none px-0 tracking-[-1.3px] sm:tracking-tight">🔄 초기화</button>
                 </div>
             </div>
 
             <!-- 초기화 시 대기화면 문구 -->
-            <div id="left-placeholder" class="w-full flex flex-col items-center justify-center py-16 text-gray-500 font-medium text-lg text-center">
+            <div id="left-placeholder" class="w-full flex flex-col items-center justify-center py-12 text-gray-500 font-medium text-base text-center">
                 시설을 선택한 후<br>정압기의 압력을 입력하여 주시기 바랍니다.
             </div>
 
             <!-- 시설 선택 후 동적 입력 구역 -->
             <div id="left-dynamic-section" class="w-full flex flex-col" style="display: none;">
                 
-                <!-- 줄바꿈 발생 시 극단적 간격 유지를 위한 leading-[1.05] 적용 -->
-                <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
-                    <h2 id="input-section-title" class="text-[17px] sm:text-lg font-bold text-gray-800 tracking-tight leading-[1.05]">정압기 제원 입력</h2>
+                <div class="flex flex-col w-full mb-3 gap-2">
+                    <h2 id="input-section-title" class="text-[19px] sm:text-lg font-bold text-gray-800 tracking-tight leading-[1.0] w-full break-keep">정압기 제원 입력</h2>
                     
-                    <div id="btn-group-general" class="flex gap-1 sm:gap-2" style="display: none;">
-                        <button onclick="addGeneralRegulator(true)" class="px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-bold rounded-md bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200 transition">+ 상용압력 2.5kPa 추가</button>
-                        <button onclick="addGeneralRegulator(false)" class="px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-bold rounded-md bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm transition">+ 기타 상용압력 추가</button>
+                    <!-- [개선] 제원 입력 버튼 모바일은 20px, 데스크탑(sm:)은 17px로 20% 축소 -->
+                    <div id="btn-group-general" class="flex w-full gap-1.5 sm:gap-2" style="display: none;">
+                        <button onclick="addGeneralRegulator(true)" class="flex-1 h-[54px] flex items-center justify-center text-[20px] sm:text-[17px] font-extrabold rounded-md bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200 transition shadow-sm whitespace-nowrap leading-none px-0 tracking-[-1.3px] sm:tracking-tight">+ 상용압력 2.5kPa</button>
+                        <button onclick="addGeneralRegulator(false)" class="flex-1 h-[54px] flex items-center justify-center text-[20px] sm:text-[17px] font-extrabold rounded-md bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 shadow-sm transition whitespace-nowrap leading-none px-0 tracking-[-1.3px] sm:tracking-tight">+ 기타 상용압력</button>
                     </div>
-                    <div id="btn-group-wholesale" style="display: none;">
-                        <button onclick="addWholesaleRegulator()" class="px-4 py-1.5 text-sm font-bold rounded-md bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm transition">+ 정압기 추가</button>
+                    <div id="btn-group-wholesale" class="flex w-full" style="display: none;">
+                        <button onclick="addWholesaleRegulator()" class="w-full h-[54px] flex items-center justify-center text-[21px] sm:text-[18px] font-extrabold rounded-md bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm transition whitespace-nowrap leading-none px-0 tracking-[-1.3px] sm:tracking-tight">+ 정압기 추가</button>
                     </div>
                 </div>
 
                 <!-- 정압기 입력 리스트 컨테이너 -->
-                <div id="regulator-list-container" class="space-y-3">
+                <div id="regulator-list-container" class="space-y-2.5">
                     <!-- Javascript로 동적 생성됨 -->
                 </div>
 
@@ -16190,22 +16198,21 @@ function openPrintWindow() {
         <!-- ==========================================
              [우측 구역] 산출 결과 및 기준 표
              ========================================== -->
-        <div class="w-full lg:w-1/2 flex flex-col gap-6 lg:gap-8">
+        <div class="w-full lg:w-1/2 flex flex-col gap-4 lg:gap-8">
 
-            <!-- 1. 산출 결과 영역 (모바일 p-5 -> p-2 로 극단적 외부 패딩 축소) -->
-            <div class="bg-gray-900 flex flex-col p-2 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg border border-gray-700 relative z-10">
+            <div class="bg-gray-900 flex flex-col p-1 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg border border-gray-700 relative z-10">
                 
-                <div class="flex justify-between items-center mb-4 px-2 sm:px-0 border-b border-gray-700 pb-3 mt-2 sm:mt-0">
-                    <h2 class="text-lg sm:text-xl font-semibold text-gray-200 flex items-center m-0">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div class="flex justify-between items-center mb-2 px-1 sm:px-0 border-b border-gray-700 pb-1.5 mt-1 sm:mt-0">
+                    <h2 class="text-[19px] sm:text-xl font-semibold text-gray-200 flex items-center m-0 tracking-tight">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6 mr-1.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         세부 계산 결과
                     </h2>
                     <button class="print-btn" onclick="openPrintWindow()" id="btn-print" style="display: none;">🖨️ 출력하기</button>
                 </div>
 
-                <!-- 결과 표출 구역: 전체 카드들 사이의 간격 축소 -->
-                <div id="output-container" class="w-full flex flex-col gap-2.5 min-h-[150px] justify-center overflow-x-auto">
-                    <div class="text-center text-gray-500 text-sm">
+                <!-- 결과 표출 구역 -->
+                <div id="output-container" class="w-full flex flex-col gap-2 min-h-[150px] justify-center overflow-x-auto no-scrollbar">
+                    <div class="text-center text-gray-500 text-sm my-8">
                         좌측에서 정압기를 추가하고 압력을 입력하시면<br>계산 결과가 이곳에 표시됩니다.
                     </div>
                 </div>
@@ -16217,7 +16224,7 @@ function openPrintWindow() {
             </div>
 
             <!-- 2-1. 일반/특정 정압기 근거표 -->
-            <div id="ref-general-container" class="bg-white flex flex-col p-5 sm:p-6 rounded-2xl shadow-md border border-gray-200 relative z-10" style="display: none;">
+            <div id="ref-general-container" class="bg-white flex flex-col p-3 sm:p-6 rounded-xl shadow-md border border-gray-200 relative z-10" style="display: none;">
                 <h2 class="text-lg font-bold text-gray-800 mb-3 text-center">표 2.7.1.2 안전장치의 설정 압력</h2>
                 <div class="overflow-x-auto rounded-lg shadow-sm border border-gray-300">
                     <table class="k-table min-w-[500px]">
@@ -16261,7 +16268,7 @@ function openPrintWindow() {
             </div>
 
             <!-- 2-2. 도매사업 정압기 근거표 -->
-            <div id="ref-wholesale-container" class="bg-white flex flex-col p-5 sm:p-6 rounded-2xl shadow-md border border-gray-200 relative z-10 space-y-6" style="display: none;">
+            <div id="ref-wholesale-container" class="bg-white flex flex-col p-3 sm:p-6 rounded-xl shadow-md border border-gray-200 relative z-10 space-y-6" style="display: none;">
                 
                 <div>
                     <h2 class="text-base font-bold text-gray-800 mb-2 text-left border-l-4 border-indigo-500 pl-2">이상압력 통보설비 설정근거 (경보장치)</h2>
@@ -16326,28 +16333,25 @@ function openPrintWindow() {
             location.reload();
         }
 
-        // 1. 시설 선택 로직
+        // 1. 시설 선택 로직 (클래스 동적 변경 시 데스크탑(sm) 사이즈 20% 축소 룰 동일하게 적용)
         function setFacility(facility) {
             currentFacility = facility;
             
-            // 데이터 초기화
             generalRegulators = [];
             wholesaleRegulators = [];
 
-            // 버튼 UI 업데이트
             const fBtns = ['일반사업 정압기', '특정사용 정압기', '도매사업 정압기'];
             const fBtnIds = ['btn-fac-gen', 'btn-fac-spec', 'btn-fac-whole'];
             
             fBtns.forEach((fac, index) => {
                 const btn = document.getElementById(fBtnIds[index]);
                 if(fac === facility) {
-                    btn.className = "col-span-1 py-2 sm:py-2.5 text-[14px] font-bold rounded-md bg-blue-600 text-white shadow-sm transition whitespace-nowrap";
+                    btn.className = "col-span-1 h-[56px] flex items-center justify-center text-[20px] sm:text-[17px] font-extrabold rounded-md bg-blue-600 text-white shadow-sm transition whitespace-nowrap leading-none px-0 tracking-[-1.3px] sm:tracking-tight";
                 } else {
-                    btn.className = "col-span-1 py-2 sm:py-2.5 text-[14px] font-bold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap";
+                    btn.className = "col-span-1 h-[56px] flex items-center justify-center text-[20px] sm:text-[17px] font-extrabold rounded-md bg-gray-200 text-gray-600 hover:bg-gray-300 transition whitespace-nowrap leading-none px-0 tracking-[-1.3px] sm:tracking-tight";
                 }
             });
 
-            // 화면 전환 제어
             document.getElementById('left-placeholder').style.display = 'none';
             document.getElementById('left-dynamic-section').style.display = 'flex';
             
@@ -16357,16 +16361,13 @@ function openPrintWindow() {
             const isGenSpec = (facility === '일반사업 정압기' || facility === '특정사용 정압기');
             const isWhole = (facility === '도매사업 정압기');
 
-            // 좌측 입력 버튼 제어
             document.getElementById('btn-group-general').style.display = isGenSpec ? 'flex' : 'none';
-            document.getElementById('btn-group-wholesale').style.display = isWhole ? 'block' : 'none';
+            document.getElementById('btn-group-wholesale').style.display = isWhole ? 'flex' : 'none';
             document.getElementById('warning-msg-special').style.display = (facility === '특정사용 정압기') ? 'block' : 'none';
 
-            // 우측 하단 기준표 제어
             document.getElementById('ref-general-container').style.display = isGenSpec ? 'flex' : 'none';
             document.getElementById('ref-wholesale-container').style.display = isWhole ? 'flex' : 'none';
 
-            // 렌더링 호출
             renderInputs();
             renderOutputs();
         }
@@ -16378,33 +16379,33 @@ function openPrintWindow() {
 
             if (currentFacility === '일반사업 정압기' || currentFacility === '특정사용 정압기') {
                 if(generalRegulators.length === 0) {
-                    container.innerHTML = '<div class="text-sm text-gray-400 text-center py-4 border border-dashed border-gray-300 rounded-lg">상단 버튼을 눌러 정압기를 추가해주세요.</div>';
+                    container.innerHTML = '<div class="text-[15px] text-gray-400 text-center py-4 border border-dashed border-gray-300 rounded-lg">위의 추가 버튼을 눌러주세요.</div>';
                     return;
                 }
                 generalRegulators.forEach((reg, index) => {
                     const row = document.createElement('div');
-                    row.className = "flex items-center gap-2 p-3 bg-gray-50 border border-gray-200 rounded-lg shadow-sm";
+                    row.className = "flex items-center gap-1.5 sm:gap-2 p-2 sm:p-3 bg-gray-50 border border-gray-200 rounded-lg shadow-sm";
                     
-                    const numBadge = `<span class="bg-gray-200 text-gray-600 font-bold px-2 py-1 rounded text-xs">정압기 ${index+1}</span>`;
+                    const numBadge = `<span class="bg-gray-200 text-gray-600 font-bold px-2 py-1 rounded text-[14px] tracking-tight whitespace-nowrap">정압기 ${index+1}</span>`;
                     
                     if (reg.isFixed) {
                         row.innerHTML = `
                             ${numBadge}
-                            <div class="flex-1 font-bold text-blue-700 text-sm pl-2">상용압력 : 2.5 kPa</div>
-                            <button onclick="removeGeneral('${reg.id}')" class="px-3 py-1 bg-white border border-red-200 text-red-500 text-xs font-bold rounded hover:bg-red-50 transition shadow-sm">삭제</button>
+                            <div class="flex-1 font-bold text-blue-700 text-[16px] pl-1 tracking-tight">상용압력 : 2.5 kPa</div>
+                            <button onclick="removeGeneral('${reg.id}')" class="px-3 py-1.5 bg-white border border-red-200 text-red-500 text-[14px] font-bold rounded hover:bg-red-50 transition shadow-sm tracking-tight whitespace-nowrap">삭제</button>
                         `;
                     } else {
                         row.innerHTML = `
                             ${numBadge}
-                            <div class="flex-1 flex items-center gap-2">
-                                <span class="text-sm font-bold text-gray-700 whitespace-nowrap">상용압력</span>
-                                <div class="relative w-full max-w-[150px]">
+                            <div class="flex-1 flex items-center gap-1.5 sm:gap-2">
+                                <span class="text-[15px] font-bold text-gray-700 whitespace-nowrap tracking-tight">상용압력</span>
+                                <div class="relative w-full max-w-[130px]">
                                     <input type="number" step="0.1" value="${reg.p}" placeholder="입력" oninput="updateGeneral('${reg.id}', this.value)"
-                                        class="w-full h-8 pl-2 pr-8 text-sm border-gray-300 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right font-medium">
-                                    <span class="absolute inset-y-0 right-0 flex items-center pr-2 text-gray-500 text-xs font-bold pointer-events-none">kPa</span>
+                                        class="w-full h-9 pl-1.5 pr-7 text-[16px] border-gray-300 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right font-bold">
+                                    <span class="absolute inset-y-0 right-0 flex items-center pr-1.5 text-gray-500 text-[13px] font-bold pointer-events-none">kPa</span>
                                 </div>
                             </div>
-                            <button onclick="removeGeneral('${reg.id}')" class="px-3 py-1 bg-white border border-red-200 text-red-500 text-xs font-bold rounded hover:bg-red-50 transition shadow-sm">삭제</button>
+                            <button onclick="removeGeneral('${reg.id}')" class="px-3 py-1.5 bg-white border border-red-200 text-red-500 text-[14px] font-bold rounded hover:bg-red-50 transition shadow-sm tracking-tight whitespace-nowrap">삭제</button>
                         `;
                     }
                     container.appendChild(row);
@@ -16412,7 +16413,7 @@ function openPrintWindow() {
             } 
             else if (currentFacility === '도매사업 정압기') {
                 if(wholesaleRegulators.length === 0) {
-                    container.innerHTML = '<div class="text-sm text-gray-400 text-center py-4 border border-dashed border-gray-300 rounded-lg">정압기 추가 버튼을 눌러주세요.</div>';
+                    container.innerHTML = '<div class="text-[15px] text-gray-400 text-center py-4 border border-dashed border-gray-300 rounded-lg">정압기 추가 버튼을 눌러주세요.</div>';
                     return;
                 }
                 wholesaleRegulators.forEach((reg, index) => {
@@ -16421,27 +16422,27 @@ function openPrintWindow() {
                     
                     box.innerHTML = `
                         <div class="flex justify-between items-center border-b border-indigo-100 pb-2 mb-1">
-                            <div class="font-bold text-indigo-800 text-sm flex items-center gap-2">
-                                <span class="bg-indigo-200 text-indigo-700 px-2 py-0.5 rounded-md text-xs">정압기 ${index+1}</span>
+                            <div class="font-bold text-indigo-800 text-[16px] flex items-center gap-2">
+                                <span class="bg-indigo-200 text-indigo-700 px-2 py-0.5 rounded-md text-[14px] tracking-tight">정압기 ${index+1}</span>
                             </div>
-                            <button onclick="removeWholesale('${reg.id}')" class="text-xs text-red-500 hover:text-red-700 font-bold underline">삭제</button>
+                            <button onclick="removeWholesale('${reg.id}')" class="text-[14px] text-red-500 hover:text-red-700 font-bold underline tracking-tight">삭제</button>
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[11px] font-bold text-gray-600">최고사용압력 <span class="text-red-500">*</span></label>
-                                <div class="relative"><input type="number" step="0.1" value="${reg.mop}" oninput="updateWholesale('${reg.id}', 'mop', this.value)" class="w-full h-8 pl-2 pr-8 text-sm border-gray-300 border rounded text-right"><span class="absolute right-2 top-1.5 text-xs text-gray-400 pointer-events-none">MPa</span></div>
+                        <div class="grid grid-cols-2 gap-2 sm:gap-3">
+                            <div class="flex flex-col gap-0.5">
+                                <label class="text-[13px] font-bold text-gray-600 tracking-tight">최고사용압력 <span class="text-red-500">*</span></label>
+                                <div class="relative"><input type="number" step="0.1" value="${reg.mop}" oninput="updateWholesale('${reg.id}', 'mop', this.value)" class="w-full h-9 pl-1 pr-7 text-[16px] font-bold border-gray-300 border rounded text-right"><span class="absolute right-1.5 top-1.5 text-[12px] font-bold text-gray-400 pointer-events-none">MPa</span></div>
                             </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[11px] font-bold text-gray-600">최대허용압력 <span class="text-red-500">*</span></label>
-                                <div class="relative"><input type="number" step="0.1" value="${reg.maop}" oninput="updateWholesale('${reg.id}', 'maop', this.value)" class="w-full h-8 pl-2 pr-8 text-sm border-gray-300 border rounded text-right"><span class="absolute right-2 top-1.5 text-xs text-gray-400 pointer-events-none">MPa</span></div>
+                            <div class="flex flex-col gap-0.5">
+                                <label class="text-[13px] font-bold text-gray-600 tracking-tight">최대허용압력 <span class="text-red-500">*</span></label>
+                                <div class="relative"><input type="number" step="0.1" value="${reg.maop}" oninput="updateWholesale('${reg.id}', 'maop', this.value)" class="w-full h-9 pl-1 pr-7 text-[16px] font-bold border-gray-300 border rounded text-right"><span class="absolute right-1.5 top-1.5 text-[12px] font-bold text-gray-400 pointer-events-none">MPa</span></div>
                             </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[11px] font-bold text-gray-600">운용하는 압력 <span class="text-gray-400 font-normal">(선택)</span></label>
-                                <div class="relative"><input type="number" step="0.1" value="${reg.op}" oninput="updateWholesale('${reg.id}', 'op', this.value)" class="w-full h-8 pl-2 pr-8 text-sm border-gray-300 border rounded text-right"><span class="absolute right-2 top-1.5 text-xs text-gray-400 pointer-events-none">MPa</span></div>
+                            <div class="flex flex-col gap-0.5">
+                                <label class="text-[13px] font-bold text-gray-600 tracking-tight">운용하는 압력 <span class="text-gray-400 font-normal">(선택)</span></label>
+                                <div class="relative"><input type="number" step="0.1" value="${reg.op}" oninput="updateWholesale('${reg.id}', 'op', this.value)" class="w-full h-9 pl-1 pr-7 text-[16px] font-bold border-gray-300 border rounded text-right"><span class="absolute right-1.5 top-1.5 text-[12px] font-bold text-gray-400 pointer-events-none">MPa</span></div>
                             </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[11px] font-bold text-gray-600">정상운전압력 <span class="text-red-500">*</span></label>
-                                <div class="relative"><input type="number" step="0.1" value="${reg.nop}" oninput="updateWholesale('${reg.id}', 'nop', this.value)" class="w-full h-8 pl-2 pr-8 text-sm border-gray-300 border rounded text-right"><span class="absolute right-2 top-1.5 text-xs text-gray-400 pointer-events-none">MPa</span></div>
+                            <div class="flex flex-col gap-0.5">
+                                <label class="text-[13px] font-bold text-gray-600 tracking-tight">정상운전압력 <span class="text-red-500">*</span></label>
+                                <div class="relative"><input type="number" step="0.1" value="${reg.nop}" oninput="updateWholesale('${reg.id}', 'nop', this.value)" class="w-full h-9 pl-1 pr-7 text-[16px] font-bold border-gray-300 border rounded text-right"><span class="absolute right-1.5 top-1.5 text-[12px] font-bold text-gray-400 pointer-events-none">MPa</span></div>
                             </div>
                         </div>
                     `;
@@ -16476,24 +16477,21 @@ function openPrintWindow() {
             if(reg) { reg[field] = val; renderOutputs(); }
         }
 
-        // [중요 개선] 소수점 자릿수 최적화 함수 (무의미한 0 생략 알고리즘)
         function formatNumber(val, decimals) {
             if (val === '-' || isNaN(val)) return val;
-            // 지정된 소수점 자리까지 반올림 후 parseFloat를 통해 끝자리 0을 지능적으로 제거
             return parseFloat(Number(val).toFixed(decimals)).toString();
         }
 
-        // [중요 개선] 일반/특정 수치와 단위를 묶고 크기를 차등 적용하는 전용 포맷팅 함수
+        // 결과창 포맷팅: KGS 로직은 동일
         function formatRegCell(val, condition) {
-            if (val === "-") return `<span class="text-xl leading-none font-bold text-gray-500">-</span>`;
-            // 수치 1.25em (25% 확대), 단위 0.85em (15% 축소) / whitespace-nowrap 강제 한줄 묶음
+            if (val === "-") return `<span class="text-[28px] leading-none font-bold text-gray-500">-</span>`;
             return `
-                <div class="leading-[1.15] py-0.5 w-full flex flex-col items-center justify-center">
+                <div class="leading-[1.05] py-0 w-full flex flex-col items-center justify-center">
                     <div class="whitespace-nowrap flex items-baseline justify-center">
-                        <span style="font-size: 1.25em; font-weight: 900; letter-spacing: -0.5px;">${val}</span>
-                        <span style="font-size: 0.85em; font-weight: normal; margin-left: 2px;">kPa</span>
+                        <span style="font-size: 1.8em; font-weight: 900; letter-spacing: -1px;">${val}</span>
+                        <span style="font-size: 0.7em; font-weight: bold; margin-left: 1px;">kPa</span>
                     </div>
-                    <div style="font-size: 0.95em; font-weight: bold; margin-top: 2px;">${condition}</div>
+                    <div style="font-size: 1.1em; font-weight: bold; margin-top: 1px; letter-spacing: -0.5px;">${condition}</div>
                 </div>`;
         }
 
@@ -16504,7 +16502,7 @@ function openPrintWindow() {
 
             if (currentFacility === '일반사업 정압기' || currentFacility === '특정사용 정압기') {
                 if(generalRegulators.length === 0) {
-                    container.innerHTML = '<div class="text-center text-gray-500 text-sm py-8">입력된 데이터가 없습니다.</div>';
+                    container.innerHTML = '<div class="text-center text-gray-500 text-[15px] py-8">입력된 데이터가 없습니다.</div>';
                     return;
                 }
                 
@@ -16520,7 +16518,7 @@ function openPrintWindow() {
                         aHigh = formatRegCell("3.2", "이하");
                         aLow  = formatRegCell("1.2", "이상");
                         ssv1  = formatRegCell("3.6", "이하");
-                        sv    = formatRegCell("4", "이하"); // 4.0의 무의미한 0 생략
+                        sv    = formatRegCell("4", "이하"); 
                         ssv2  = formatRegCell("4.4", "이하");
                     } else if (isVal) {
                         pStr  = formatNumber(p, 1);
@@ -16536,23 +16534,23 @@ function openPrintWindow() {
 
                     htmlStr += `
                         <div class="bg-gray-800 rounded-xl border border-gray-600 overflow-hidden shadow-md shrink-0">
-                            <!-- 구분(정압기 식별자) 박스 헤더 여백 최소화 -->
-                            <div class="bg-gray-700 px-2 sm:px-4 py-0.5 flex justify-between items-center border-b border-gray-600">
-                                <span class="text-white font-bold text-sm tracking-wide">■ 정압기 ${i+1}</span>
-                                <span class="text-[11px] sm:text-xs text-gray-300 bg-gray-800 px-1.5 py-0.5 rounded border border-gray-500 tracking-tight">상용압력 : <span class="font-bold text-green-400">${pStr} kPa</span></span>
+                            <!-- 헤더 패딩 최소화 -->
+                            <div class="bg-gray-700 px-1.5 sm:px-4 py-1 flex justify-between items-center border-b border-gray-600">
+                                <span class="text-white font-bold text-[16px] tracking-wide">■ 정압기 ${i+1}</span>
+                                <span class="text-[13px] sm:text-[14px] text-gray-300 bg-gray-800 px-1.5 py-0.5 rounded border border-gray-500 tracking-tight whitespace-nowrap">상용압력 : <span class="font-bold text-green-400">${pStr} kPa</span></span>
                             </div>
                             <div class="w-full">
                                 <table class="result-table w-full">
                                     <thead>
                                         <tr>
-                                            <th colspan="2" width="40%" class="bg-gray-700 text-gray-200 text-xs sm:text-sm">이상압력 통보</th>
-                                            <th rowspan="2" width="20%" class="bg-gray-700 text-yellow-300 leading-[1.1]"><span class="text-xs sm:text-sm">SSV1</span><br><span class="text-[9px] sm:text-[10px] font-normal text-gray-300 tracking-tighter">(주정압기 긴급)</span></th>
-                                            <th rowspan="2" width="20%" class="bg-gray-700 text-blue-300 leading-[1.1]"><span class="text-xs sm:text-sm">SV</span><br><span class="text-[9px] sm:text-[10px] font-normal text-gray-300 tracking-tighter">(안전밸브)</span></th>
-                                            <th rowspan="2" width="20%" class="bg-gray-700 text-red-300 leading-[1.1]"><span class="text-xs sm:text-sm">SSV2</span><br><span class="text-[9px] sm:text-[10px] font-normal text-gray-300 tracking-tighter">(예비 긴급)</span></th>
+                                            <th colspan="2" width="36%" class="bg-gray-700 text-gray-200 text-[14.5px] sm:text-sm tracking-tighter">이상압력 통보</th>
+                                            <th rowspan="2" width="21%" class="bg-gray-700 text-yellow-300 leading-[1.1]"><span class="text-[14.5px] sm:text-sm tracking-tighter">SSV1</span><br><span class="text-[11px] font-normal text-gray-300 tracking-tighter">(주정압기)</span></th>
+                                            <th rowspan="2" width="21%" class="bg-gray-700 text-blue-300 leading-[1.1]"><span class="text-[14.5px] sm:text-sm tracking-tighter">SV</span><br><span class="text-[11px] font-normal text-gray-300 tracking-tighter">(안전밸브)</span></th>
+                                            <th rowspan="2" width="22%" class="bg-gray-700 text-red-300 leading-[1.1]"><span class="text-[14.5px] sm:text-sm tracking-tighter">SSV2</span><br><span class="text-[11px] font-normal text-gray-300 tracking-tighter">(예비긴급)</span></th>
                                         </tr>
                                         <tr>
-                                            <th class="bg-gray-600 text-red-200 text-[11px] sm:text-sm" width="20%">상한</th>
-                                            <th class="bg-gray-600 text-blue-200 text-[11px] sm:text-sm" width="20%">하한</th>
+                                            <th class="bg-gray-600 text-red-200 text-[13px] sm:text-[14px] tracking-tighter" width="18%">상한</th>
+                                            <th class="bg-gray-600 text-blue-200 text-[13px] sm:text-[14px] tracking-tighter" width="18%">하한</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -16574,7 +16572,7 @@ function openPrintWindow() {
             } 
             else if (currentFacility === '도매사업 정압기') {
                 if(wholesaleRegulators.length === 0) {
-                    container.innerHTML = '<div class="text-center text-gray-500 text-sm py-8">입력된 데이터가 없습니다.</div>';
+                    container.innerHTML = '<div class="text-center text-gray-500 text-[15px] py-8">입력된 데이터가 없습니다.</div>';
                     return;
                 }
 
@@ -16586,7 +16584,6 @@ function openPrintWindow() {
                     let alarmDesc = '';
 
                     if(!isNaN(mop) && mop > 0) {
-                        // formatNumber(..., 2) 를 통해 소수점 2자리 제한 및 불필요 0 생략 적용
                         if (!isNaN(op) && op > 0 && op < mop) { alarmHigh = formatNumber(op * 1.05, 2); alarmDesc = '(운용압력 기준)'; } 
                         else if (mop >= 4.0) { alarmHigh = formatNumber(mop + 0.2, 2); alarmDesc = '(최고압+0.2)'; } 
                         else { alarmHigh = formatNumber(mop * 1.05, 2); alarmDesc = '(최고압 1.05배)'; }
@@ -16598,64 +16595,64 @@ function openPrintWindow() {
                     const card = document.createElement('div');
                     card.className = "bg-gray-800 rounded-xl border border-indigo-900/50 overflow-hidden shrink-0";
                     card.innerHTML = `
-                        <div class="bg-indigo-900/40 px-2 sm:px-4 py-0.5 border-b border-indigo-800/50 flex justify-between items-center">
-                            <span class="text-indigo-200 font-bold text-sm">■ 정압기 ${i+1} 설정값</span>
-                            <span class="text-xs text-gray-400">단위: MPa</span>
+                        <div class="bg-indigo-900/40 px-1.5 sm:px-4 py-1 border-b border-indigo-800/50 flex justify-between items-center">
+                            <span class="text-indigo-200 font-bold text-[16px] tracking-wide">■ 정압기 ${i+1} 설정값</span>
+                            <span class="text-[13px] text-gray-400 tracking-tight">단위: MPa</span>
                         </div>
-                        <div class="p-2 sm:p-3 flex flex-col gap-2.5">
+                        <div class="p-1 sm:p-3 flex flex-col gap-1.5 sm:gap-2.5">
                             
-                            <!-- 이상압력 통보설비 (타이틀 약 50% 증대) -->
-                            <div class="bg-gray-900/50 rounded-lg p-2 sm:p-3 border border-gray-700">
-                                <div class="text-[19px] sm:text-[20px] font-bold text-gray-300 mb-2 border-b border-gray-600 pb-1.5 text-center leading-tight">이상압력 통보설비 (알람)</div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div class="flex flex-col items-center justify-center bg-gray-800/80 rounded-lg py-2 px-1">
-                                        <span class="text-base text-gray-400 mb-1">상한값 <span class="text-[12px] text-gray-500">${alarmDesc}</span></span>
-                                        <div class="text-red-400 font-bold tracking-tight whitespace-nowrap">
-                                            ${alarmHigh !== '-' ? `<span class="text-[28px] sm:text-[36px] leading-none">${alarmHigh}</span><span class="text-sm font-normal ml-1 text-gray-300 tracking-normal">MPa 초과</span>` : `<span class="text-xl leading-none">-</span>`}
+                            <!-- 이상압력 통보설비 -->
+                            <div class="bg-gray-900/50 rounded-lg p-1.5 sm:p-3 border border-gray-700">
+                                <div class="text-[20px] sm:text-[22px] font-bold text-gray-300 mb-1.5 border-b border-gray-600 pb-1 text-center leading-tight tracking-tighter">이상압력 통보설비 (알람)</div>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div class="flex flex-col items-center justify-center bg-gray-800/80 rounded-lg py-2 px-0.5 w-full">
+                                        <span class="text-[16px] text-gray-400 mb-0.5 tracking-tight whitespace-nowrap">상한값 <span class="text-[13px] text-gray-500 tracking-tighter">${alarmDesc}</span></span>
+                                        <div class="text-red-400 font-bold tracking-tight whitespace-nowrap flex items-baseline justify-center w-full">
+                                            ${alarmHigh !== '-' ? `<span class="text-[38px] sm:text-[42px] leading-[1.0] tracking-tighter">${alarmHigh}</span><span class="text-[14px] font-bold ml-1 text-gray-300 tracking-tighter">MPa 초과</span>` : `<span class="text-[30px] leading-none">-</span>`}
                                         </div>
                                     </div>
-                                    <div class="flex flex-col items-center justify-center bg-gray-800/80 rounded-lg py-2 px-1">
-                                        <span class="text-base text-gray-400 mb-1">하한값</span>
-                                        <div class="text-blue-400 font-bold tracking-tight whitespace-nowrap">
-                                            ${alarmLow !== '-' ? `<span class="text-[28px] sm:text-[36px] leading-none">${alarmLow}</span><span class="text-sm font-normal ml-1 text-gray-300 tracking-normal">MPa 이하</span>` : `<span class="text-xl leading-none">-</span>`}
+                                    <div class="flex flex-col items-center justify-center bg-gray-800/80 rounded-lg py-2 px-0.5 w-full">
+                                        <span class="text-[16px] text-gray-400 mb-0.5 tracking-tight whitespace-nowrap">하한값</span>
+                                        <div class="text-blue-400 font-bold tracking-tight whitespace-nowrap flex items-baseline justify-center w-full">
+                                            ${alarmLow !== '-' ? `<span class="text-[38px] sm:text-[42px] leading-[1.0] tracking-tighter">${alarmLow}</span><span class="text-[14px] font-bold ml-1 text-gray-300 tracking-tighter">MPa 이하</span>` : `<span class="text-[30px] leading-none">-</span>`}
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- 긴급차단 -->
-                            <div class="bg-gray-900/50 rounded-lg p-2 sm:p-3 border border-gray-700">
-                                <div class="text-[19px] sm:text-[20px] font-bold text-yellow-300 mb-2 border-b border-gray-600 pb-1.5 text-center leading-tight">SSV (긴급차단장치)</div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div class="flex flex-col items-center justify-center bg-gray-800/80 rounded-lg py-2 px-1">
-                                        <span class="text-base text-gray-400 mb-1">상한 작동</span>
-                                        <div class="text-yellow-400 font-bold tracking-tight whitespace-nowrap">
-                                            ${ssvHigh !== '-' ? `<span class="text-[28px] sm:text-[36px] leading-none">${ssvHigh}</span><span class="text-sm font-normal ml-1 text-gray-300 tracking-normal">MPa 초과</span>` : `<span class="text-xl leading-none">-</span>`}
+                            <div class="bg-gray-900/50 rounded-lg p-1.5 sm:p-3 border border-gray-700">
+                                <div class="text-[20px] sm:text-[22px] font-bold text-yellow-300 mb-1.5 border-b border-gray-600 pb-1 text-center leading-tight tracking-tighter">SSV (긴급차단장치)</div>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div class="flex flex-col items-center justify-center bg-gray-800/80 rounded-lg py-2 px-0.5 w-full">
+                                        <span class="text-[16px] text-gray-400 mb-0.5 tracking-tight whitespace-nowrap">상한 작동</span>
+                                        <div class="text-yellow-400 font-bold tracking-tight whitespace-nowrap flex items-baseline justify-center w-full">
+                                            ${ssvHigh !== '-' ? `<span class="text-[38px] sm:text-[42px] leading-[1.0] tracking-tighter">${ssvHigh}</span><span class="text-[14px] font-bold ml-1 text-gray-300 tracking-tighter">MPa 초과</span>` : `<span class="text-[30px] leading-none">-</span>`}
                                         </div>
                                     </div>
-                                    <div class="flex flex-col items-center justify-center bg-gray-800/80 rounded-lg py-2 px-1">
-                                        <span class="text-base text-gray-400 mb-1">하한 작동</span>
-                                        <div class="text-yellow-400 font-bold tracking-tight whitespace-nowrap">
-                                            ${ssvLow !== '-' ? `<span class="text-[28px] sm:text-[36px] leading-none">${ssvLow}</span><span class="text-sm font-normal ml-1 text-gray-300 tracking-normal">MPa 이하</span>` : `<span class="text-xl leading-none">-</span>`}
+                                    <div class="flex flex-col items-center justify-center bg-gray-800/80 rounded-lg py-2 px-0.5 w-full">
+                                        <span class="text-[16px] text-gray-400 mb-0.5 tracking-tight whitespace-nowrap">하한 작동</span>
+                                        <div class="text-yellow-400 font-bold tracking-tight whitespace-nowrap flex items-baseline justify-center w-full">
+                                            ${ssvLow !== '-' ? `<span class="text-[38px] sm:text-[42px] leading-[1.0] tracking-tighter">${ssvLow}</span><span class="text-[14px] font-bold ml-1 text-gray-300 tracking-tighter">MPa 이하</span>` : `<span class="text-[30px] leading-none">-</span>`}
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- 안전밸브 -->
-                            <div class="bg-gray-900/50 rounded-lg p-2 sm:p-3 border border-gray-700">
-                                <div class="text-[19px] sm:text-[20px] font-bold text-indigo-300 mb-2 border-b border-gray-600 pb-1.5 text-center leading-tight">SV (안전밸브) 설정</div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div class="flex flex-col items-center justify-center bg-gray-800/80 rounded-lg py-2 px-1">
-                                        <span class="text-base font-bold text-gray-400 mb-1">SV #1 (첫 번째 밸브)</span>
-                                        <div class="text-indigo-400 font-bold tracking-tight whitespace-nowrap">
-                                            ${sv1 !== '-' ? `<span class="text-[28px] sm:text-[36px] leading-none">${sv1}</span><span class="text-sm font-normal ml-1 text-gray-300 tracking-normal">MPa</span>` : `<span class="text-xl leading-none">-</span>`}
+                            <div class="bg-gray-900/50 rounded-lg p-1.5 sm:p-3 border border-gray-700">
+                                <div class="text-[20px] sm:text-[22px] font-bold text-indigo-300 mb-1.5 border-b border-gray-600 pb-1 text-center leading-tight tracking-tighter">SV (안전밸브) 설정</div>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <div class="flex flex-col items-center justify-center bg-gray-800/80 rounded-lg py-2 px-0.5 w-full">
+                                        <span class="text-[15px] sm:text-[16px] font-bold text-gray-400 mb-0.5 tracking-tight whitespace-nowrap">SV #1 (첫 번째)</span>
+                                        <div class="text-indigo-400 font-bold tracking-tight whitespace-nowrap flex items-baseline justify-center w-full">
+                                            ${sv1 !== '-' ? `<span class="text-[38px] sm:text-[42px] leading-[1.0] tracking-tighter">${sv1}</span><span class="text-[14px] font-bold ml-1 text-gray-300 tracking-tighter">MPa</span>` : `<span class="text-[30px] leading-none">-</span>`}
                                         </div>
                                     </div>
-                                    <div class="flex flex-col items-center justify-center bg-gray-800/80 rounded-lg py-2 px-1">
-                                        <span class="text-base font-bold text-gray-400 mb-1">SV #2 (추가된 밸브)</span>
-                                        <div class="text-indigo-400 font-bold tracking-tight whitespace-nowrap">
-                                            ${sv2 !== '-' ? `<span class="text-[28px] sm:text-[36px] leading-none">${sv2}</span><span class="text-sm font-normal ml-1 text-gray-300 tracking-normal">MPa</span>` : `<span class="text-xl leading-none">-</span>`}
+                                    <div class="flex flex-col items-center justify-center bg-gray-800/80 rounded-lg py-2 px-0.5 w-full">
+                                        <span class="text-[15px] sm:text-[16px] font-bold text-gray-400 mb-0.5 tracking-tight whitespace-nowrap">SV #2 (추가 밸브)</span>
+                                        <div class="text-indigo-400 font-bold tracking-tight whitespace-nowrap flex items-baseline justify-center w-full">
+                                            ${sv2 !== '-' ? `<span class="text-[38px] sm:text-[42px] leading-[1.0] tracking-tighter">${sv2}</span><span class="text-[14px] font-bold ml-1 text-gray-300 tracking-tighter">MPa</span>` : `<span class="text-[30px] leading-none">-</span>`}
                                         </div>
                                     </div>
                                 </div>
@@ -16668,7 +16665,7 @@ function openPrintWindow() {
             }
         }
 
-        // 4. 출력 로직 (인쇄 환경에서도 0 생략 포맷팅 함수 적용)
+        // 4. 출력 로직 (인쇄 환경에서도 완벽히 유지됨)
         function openPrintWindow() {
             const isGenSpec = (currentFacility === '일반사업 정압기' || currentFacility === '특정사용 정압기');
             const dataArr = isGenSpec ? generalRegulators : wholesaleRegulators;
