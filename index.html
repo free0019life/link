@@ -13881,11 +13881,12 @@ function openPrintWindow() {
                 addPoint((R + D/2) * Math.cos(a), (R + D/2) * Math.sin(a));
             }
 
-            // 강제 여백
-            addPoint(-R - 1500, 0); 
-            addPoint(pEndX + 1500, 0);  
-            addPoint(0, Math.max(ext, 1000));              
-            addPoint(0, Math.min(pEndY, -1000));              
+            // [수정] 모바일 좌우 스크롤 시 끝단이 잘리지 않도록 픽셀 기반의 동적 여백 확보 로직 점검 및 적용
+            const approxScale = Math.max(width, 700) / (Math.max(pEndX, outEndX) - (-R - D) || 1);
+            addPoint(-R - D/2 - (150 / approxScale), 0); // 좌측 여백 (R텍스트, 가이드라인 등)
+            addPoint(Math.max(pEndX, outEndX) + D/2 + (250 / approxScale), 0); // 우측 여백 (배관굽힘각도, 수직/수평 치수 등)
+            addPoint(0, Math.min(pEndY, outEndY) - (150 / approxScale)); // 상단 여백 (이격거리 등)
+            addPoint(0, ext + (100 / approxScale)); // 하단 여백
 
             const boxWidth = maxX - minX;
             const boxHeight = maxY - minY;
@@ -14059,22 +14060,15 @@ function openPrintWindow() {
             drawDimLine(ctx, -R, offsetLineY, pEndX, offsetLineY, scale);
             drawTextUpright(ctx, `${offset_cm}cm`, (-R + pEndX)/2, textY, "center", textBaseline, `bold ${16/scale}px sans-serif`, "#0f172a");
 
-            // [핵심 복구] 최종 굽힘각도 텍스트 (배관 말단 연장선상, 70도 이상 동적 우측 정렬)
+            // [수정] 안내문구 변경 및 배관 말단 우측(붉은점 지점)으로 위치 고정하여 간섭 완전히 해결
             const angle_deg = fmtDeg(angleDeg); 
-            const finalAngleStr = `최종 굽힘각도 : ${angle_deg}°`;
+            const finalAngleStr = `배관굽힘각도 : ${angle_deg}°`;
             
-            let finalAlign = "center";
-            let distToMove = 40 / scale;
+            // 배관의 말단(끝단) 중심(outEndX)에서 파이프 반경(D/2) + 약간의 여백(20px) 만큼 우측으로 띄움
+            const finalAngleX = outEndX + (D/2) + (20 / scale);
+            const finalAngleY = outEndY; // 배관 끝단 높이와 동일하게 고정
             
-            if (angleDeg >= 70) {
-                finalAlign = "left"; 
-                distToMove = 20 / scale; 
-            }
-
-            const finalAngleX = outEndX + distToMove * Math.cos(tangentDir);
-            const finalAngleY = outEndY + distToMove * Math.sin(tangentDir);
-            
-            drawTextUpright(ctx, finalAngleStr, finalAngleX, finalAngleY, finalAlign, "middle", `bold ${18/scale}px 'Consolas', sans-serif`, "#475569");
+            drawTextUpright(ctx, finalAngleStr, finalAngleX, finalAngleY, "left", "middle", `bold ${18/scale}px 'Consolas', sans-serif`, "#475569");
 
             // [핵심 복구] 내부 각도 표시선 및 원호
             ctx.setLineDash([8/scale, 8/scale]);
@@ -14181,8 +14175,11 @@ function openPrintWindow() {
 
     </script>
 </body>
-</html></textarea>
-    
+</html></xmp>
+</body>
+</html>
+
+</textarea>
     <!-- 9. 기술검토 -->
     <textarea id="source-9" class="source-code-storage"><!DOCTYPE html>
 <html lang="ko">
