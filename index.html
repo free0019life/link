@@ -11106,10 +11106,10 @@ function openPrintWindow() {
         </h1>
 
         <!-- 계산기 선택 버튼 그룹 -->
-        <div class="flex flex-col gap-6">
+        <div class="flex flex-col gap-5">
             <!-- 1. 기밀유지시간 계산 -->
             <button onclick="openModule('sub-source-1')" 
-                    class="group relative w-full flex items-center justify-center bg-blue-50 hover:bg-blue-600 text-blue-900 hover:text-white border-2 border-blue-400 hover:border-blue-700 rounded-xl py-5 px-4 shadow-[0_4px_10px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_20px_rgba(37,99,235,0.4)] transition-all duration-300 transform hover:-translate-y-1">
+                    class="group relative w-full flex items-center justify-center bg-blue-50 hover:bg-blue-600 text-blue-900 hover:text-white border-2 border-blue-400 hover:border-blue-700 rounded-xl py-5 px-2 shadow-[0_4px_10px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_20px_rgba(37,99,235,0.4)] transition-all duration-300 transform hover:-translate-y-1">
                 <span class="font-black text-2xl md:text-3xl tracking-tight leading-none group-hover:scale-105 transition-transform duration-300">
                     기밀유지시간 계산
                 </span>
@@ -11117,7 +11117,7 @@ function openPrintWindow() {
 
             <!-- 2. 정압기 셋팅압력 계산 -->
             <button onclick="openModule('sub-source-2')" 
-                    class="group relative w-full flex items-center justify-center bg-green-50 hover:bg-green-600 text-green-900 hover:text-white border-2 border-green-400 hover:border-green-700 rounded-xl py-5 px-4 shadow-[0_4px_10px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_20px_rgba(22,163,74,0.4)] transition-all duration-300 transform hover:-translate-y-1">
+                    class="group relative w-full flex items-center justify-center bg-green-50 hover:bg-green-600 text-green-900 hover:text-white border-2 border-green-400 hover:border-green-700 rounded-xl py-5 px-2 shadow-[0_4px_10px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_20px_rgba(22,163,74,0.4)] transition-all duration-300 transform hover:-translate-y-1">
                 <span class="font-black text-2xl md:text-3xl tracking-tight leading-none group-hover:scale-105 transition-transform duration-300">
                     정압기 셋팅압력 계산
                 </span>
@@ -11125,14 +11125,22 @@ function openPrintWindow() {
 
             <!-- 3. PE관 곡률반경 시뮬레이터 -->
             <button onclick="openModule('sub-source-3')" 
-                    class="group relative w-full flex items-center justify-center bg-purple-50 hover:bg-purple-600 text-purple-900 hover:text-white border-2 border-purple-400 hover:border-purple-700 rounded-xl py-5 px-4 shadow-[0_4px_10px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_20px_rgba(147,51,234,0.4)] transition-all duration-300 transform hover:-translate-y-1">
+                    class="group relative w-full flex items-center justify-center bg-purple-50 hover:bg-purple-600 text-purple-900 hover:text-white border-2 border-purple-400 hover:border-purple-700 rounded-xl py-5 px-2 shadow-[0_4px_10px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_20px_rgba(147,51,234,0.4)] transition-all duration-300 transform hover:-translate-y-1">
                 <span class="font-black text-2xl md:text-3xl tracking-tight leading-none group-hover:scale-105 transition-transform duration-300">
                     PE관 곡률반경 시뮬레이터
                 </span>
             </button>
+
+            <!-- 4. 월사용예정량 계산(검증) (명칭 수정 완료) -->
+            <button onclick="openModule('sub-source-4')" 
+                    class="group relative w-full flex items-center justify-center bg-amber-50 hover:bg-amber-600 text-amber-900 hover:text-white border-2 border-amber-400 hover:border-amber-700 rounded-xl py-5 px-2 shadow-[0_4px_10px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_20px_rgba(245,158,11,0.4)] transition-all duration-300 transform hover:-translate-y-1">
+                <span class="font-black text-2xl md:text-3xl tracking-tight leading-none group-hover:scale-105 transition-transform duration-300">
+                    월사용예정량 계산(검증)
+                </span>
+            </button>
         </div>
 
-        <div class="mt-10 pt-4 border-t-2 border-gray-300 text-center text-gray-500 font-bold text-sm">
+        <div class="mt-8 pt-4 border-t-2 border-gray-300 text-center text-gray-500 font-bold text-sm">
             ※ 원하시는 계산기를 선택하여 주십시오.
         </div>
     </div>
@@ -11177,12 +11185,11 @@ function openPrintWindow() {
             // XMP 태그에서 원본 코드를 텍스트로 추출
             let sourceCode = sourceElement.textContent;
 
-            // [핵심 해결] 세부 계산기의 초기화(location.reload) 시, 
-            // 최상위 책자가 아닌 '현재 프레임(도법 필수계산기)'의 openModule을 호출하도록 수정
+            // [초기화 로직] 세부 계산기의 초기화(location.reload) 시, 현재 모듈만 다시 로드하여 메뉴 복귀 방지
             const safeReloadCode = "try { if(window.parent && typeof window.parent.openModule === 'function') { window.parent.openModule('" + sourceId + "'); } else { location.reload(); } } catch(e) { location.reload(); }";
             sourceCode = sourceCode.replace(/(window\.)?location\.reload\([^)]*\)/g, safeReloadCode);
 
-            // 상호작용 추적 스크립트 주입
+            // 상호작용 추적 스크립트 주입 (SecurityError 우회 통신 포함)
             const interactionScript = `<script>
                 function triggerDirty() {
                     try {
@@ -13347,9 +13354,10 @@ function openPrintWindow() {
         <!-- 좌측: 입력 및 제어 패널 -->
         <section class="bg-white p-2 sm:p-4 rounded-lg shadow-md lg:w-1/3 flex flex-col justify-start border border-gray-400">
             
-            <!-- [1. 최상단] 곡률반경 역산기능 박스 -->
-            <div class="bg-slate-800 p-2 sm:p-3 rounded-lg shadow-inner mb-3 border-2 border-slate-900 relative">
-                
+            <!-- ============================================== -->
+            <!-- [1. 최상단] 곡률반경 역산기능 박스 (입력 1) -->
+            <!-- ============================================== -->
+            <div class="bg-slate-800 p-2 sm:p-3 rounded-lg shadow-inner border-2 border-slate-900 relative">
                 <div class="flex justify-between items-center mb-2 border-b border-slate-600 pb-2">
                     <h3 class="text-white font-extrabold text-sm sm:text-base flex items-center tracking-tight">
                         <svg class="w-4 h-4 mr-1 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
@@ -13460,8 +13468,74 @@ function openPrintWindow() {
                 </div>
             </div>
 
-            <!-- [2. 중간] 최종 모델링 제원표 -->
-            <div class="mb-3">
+            <!-- [구분선] -->
+            <div class="w-full h-1 bg-slate-300 rounded-full my-3"></div>
+
+            <!-- ============================================== -->
+            <!-- [2. 중간] 수동 시뮬레이션 박스 (입력 2) -->
+            <!-- ============================================== -->
+            <!-- [수정] 박스 배경을 10% 연한 짙은 색(bg-slate-700)으로 변경하여 시각적 독립성 확보 -->
+            <div class="border-4 border-green-800 rounded-xl p-2 sm:p-3 bg-slate-700 relative transition-colors shadow-sm">
+                <!-- [수정] 헤더 폰트 색상 및 밑줄 색상 변경 (다크모드 대응) -->
+                <h3 class="font-extrabold text-sm sm:text-base text-white flex items-center mb-2 border-b border-slate-500 pb-1 tracking-tight">
+                    <svg class="w-4 h-4 mr-1 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    수동 입력 (직접 설계)
+                </h3>
+                
+                <div class="flex flex-row gap-2 mb-2 h-11">
+                    <div class="w-1/2 relative h-full">
+                        <label class="block text-slate-200 font-bold text-[10px] absolute -top-1.5 left-2 bg-slate-700 px-1 z-10">곡률반경(배수)</label>
+                        <!-- [수정] 테두리 두께를 border-[3px]에서 border-[1.5px]로 절반 축소 -->
+                        <input type="number" id="manual-radius-ratio" class="w-full h-full border-[1.5px] border-lime-400 shadow-sm shadow-lime-400/50 rounded bg-slate-800 text-white text-lg font-bold px-1 focus:border-yellow-400 focus:outline-none transition-colors" placeholder="예: 20">
+                    </div>
+                    <div class="w-1/2 relative h-full">
+                        <label class="block text-slate-200 font-bold text-[10px] absolute -top-1.5 left-2 bg-slate-700 px-1 z-10">굽힘 각도(°)</label>
+                        <!-- [수정] 테두리 두께를 border-[3px]에서 border-[1.5px]로 절반 축소 -->
+                        <input type="number" id="manual-angle" class="w-full h-full border-[1.5px] border-lime-400 shadow-sm shadow-lime-400/50 rounded bg-slate-800 text-white text-lg font-bold px-1 focus:border-yellow-400 focus:outline-none transition-colors" placeholder="예: 45">
+                    </div>
+                </div>
+
+                <div class="flex flex-row gap-2 h-11">
+                    <div class="w-1/2 relative h-full">
+                        <!-- [수정] 테두리 두께를 border-[3px]에서 border-[1.5px]로 절반 축소 -->
+                        <select id="manual-diameter" class="w-full h-full border-[1.5px] border-lime-400 shadow-sm shadow-lime-400/50 rounded bg-slate-800 text-white text-[0.9rem] font-bold px-0 cursor-pointer focus:border-yellow-400 focus:outline-none transition-colors text-center">
+                            <option value="" disabled selected hidden>관경선택</option>
+                            <option value="50">50 mm</option>
+                            <option value="63">63 mm</option>
+                            <option value="75">75 mm</option>
+                            <option value="90">90 mm</option>
+                            <option value="100">100 mm</option>
+                            <option value="110">110 mm</option>
+                            <option value="125">125 mm</option>
+                            <option value="140">140 mm</option>
+                            <option value="160">160 mm</option>
+                            <option value="180">180 mm</option>
+                            <option value="200">200 mm</option>
+                            <option value="225">225 mm</option>
+                            <option value="250">250 mm</option>
+                            <option value="280">280 mm</option>
+                            <option value="315">315 mm</option>
+                            <option value="355">355 mm</option>
+                            <option value="400">400 mm</option>
+                            <option value="450">450 mm</option>
+                            <option value="500">500 mm</option>
+                        </select>
+                    </div>
+                    <div class="w-1/2 h-full">
+                        <button id="manual-draw-btn" class="btn-3d-green whitespace-nowrap">
+                            시뮬레이션
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [구분선] -->
+            <div class="w-full h-1 bg-slate-300 rounded-full my-3"></div>
+
+            <!-- ============================================== -->
+            <!-- [3. 최하단] 최종 모델링 제원표 (출력부) -->
+            <!-- ============================================== -->
+            <div class="mb-1">
                 <div class="flex justify-between items-center mb-1 pl-1 border-l-4 border-slate-800">
                     <h2 class="text-sm font-extrabold text-slate-800">최종 모델링 제원</h2>
                     <span id="warning-msg" class="text-red-600 font-extrabold text-[11px] hidden tracking-tighter">* 규정 미달(20D 이하)</span>
@@ -13498,57 +13572,6 @@ function openPrintWindow() {
                 <p class="text-left pl-1 text-xs sm:text-sm font-extrabold text-red-600 mt-2 tracking-tight break-keep">
                     * 본 결과는 간이 측정에 의한 어림값으로 참고용으로 활용
                 </p>
-            </div>
-
-            <!-- [3. 최하단] 수동 시뮬레이션 박스 -->
-            <div class="border-4 border-green-800 rounded-xl p-2 sm:p-3 bg-slate-50 relative transition-colors shadow-sm">
-                <h3 class="font-extrabold text-sm text-slate-800 flex items-center mb-2 border-b border-slate-300 pb-1">
-                    <svg class="w-4 h-4 mr-1 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    수동 입력 (직접 설계)
-                </h3>
-                
-                <div class="flex flex-row gap-2 mb-2 h-11">
-                    <div class="w-1/2 relative h-full">
-                        <label class="block text-slate-600 font-bold text-[10px] absolute -top-1.5 left-2 bg-slate-50 px-1 z-10">곡률반경(배수)</label>
-                        <input type="number" id="manual-radius-ratio" class="w-full h-full border-2 border-slate-400 rounded bg-white text-lg font-bold px-1 focus:border-slate-800 focus:outline-none transition-colors" placeholder="예: 20">
-                    </div>
-                    <div class="w-1/2 relative h-full">
-                        <label class="block text-slate-600 font-bold text-[10px] absolute -top-1.5 left-2 bg-slate-50 px-1 z-10">굽힘 각도(°)</label>
-                        <input type="number" id="manual-angle" class="w-full h-full border-2 border-slate-400 rounded bg-white text-lg font-bold px-1 focus:border-slate-800 focus:outline-none transition-colors" placeholder="예: 45">
-                    </div>
-                </div>
-
-                <div class="flex flex-row gap-2 h-11">
-                    <div class="w-1/2 relative h-full">
-                        <select id="manual-diameter" class="w-full h-full border-2 border-slate-400 rounded bg-white text-slate-800 text-[0.9rem] font-bold px-0 cursor-pointer focus:border-slate-800 focus:outline-none transition-colors text-center">
-                            <option value="" disabled selected hidden>관경선택</option>
-                            <option value="50">50 mm</option>
-                            <option value="63">63 mm</option>
-                            <option value="75">75 mm</option>
-                            <option value="90">90 mm</option>
-                            <option value="100">100 mm</option>
-                            <option value="110">110 mm</option>
-                            <option value="125">125 mm</option>
-                            <option value="140">140 mm</option>
-                            <option value="160">160 mm</option>
-                            <option value="180">180 mm</option>
-                            <option value="200">200 mm</option>
-                            <option value="225">225 mm</option>
-                            <option value="250">250 mm</option>
-                            <option value="280">280 mm</option>
-                            <option value="315">315 mm</option>
-                            <option value="355">355 mm</option>
-                            <option value="400">400 mm</option>
-                            <option value="450">450 mm</option>
-                            <option value="500">500 mm</option>
-                        </select>
-                    </div>
-                    <div class="w-1/2 h-full">
-                        <button id="manual-draw-btn" class="btn-3d-green whitespace-nowrap">
-                            시뮬레이션
-                        </button>
-                    </div>
-                </div>
             </div>
 
         </section>
@@ -13661,7 +13684,8 @@ function openPrintWindow() {
 
         manRatio.addEventListener('input', handleManualInput);
         manAngle.addEventListener('input', handleManualInput);
-        manD.addEventListener('change', () => { manD.style.color = '#1e293b'; handleManualInput(); });
+        // [수정] 수동입력창이 다크 테마로 변경되었으므로, 선택 시 글씨를 검은색(#1e293b)이 아닌 흰색(#ffffff)으로 렌더링
+        manD.addEventListener('change', () => { manD.style.color = '#ffffff'; handleManualInput(); });
         manRatio.addEventListener('focus', handleManualInput);
         manAngle.addEventListener('focus', handleManualInput);
         manD.addEventListener('focus', handleManualInput);
@@ -13881,12 +13905,12 @@ function openPrintWindow() {
                 addPoint((R + D/2) * Math.cos(a), (R + D/2) * Math.sin(a));
             }
 
-            // [수정] 모바일 좌우 스크롤 시 끝단이 잘리지 않도록 픽셀 기반의 동적 여백 확보 로직 점검 및 적용
+            // 모바일 렌더링 시 좌우 스크롤을 위한 동적 여백 계산
             const approxScale = Math.max(width, 700) / (Math.max(pEndX, outEndX) - (-R - D) || 1);
-            addPoint(-R - D/2 - (150 / approxScale), 0); // 좌측 여백 (R텍스트, 가이드라인 등)
-            addPoint(Math.max(pEndX, outEndX) + D/2 + (250 / approxScale), 0); // 우측 여백 (배관굽힘각도, 수직/수평 치수 등)
-            addPoint(0, Math.min(pEndY, outEndY) - (150 / approxScale)); // 상단 여백 (이격거리 등)
-            addPoint(0, ext + (100 / approxScale)); // 하단 여백
+            addPoint(-R - D/2 - (150 / approxScale), 0); 
+            addPoint(Math.max(pEndX, outEndX) + D/2 + (250 / approxScale), 0); 
+            addPoint(0, Math.min(pEndY, outEndY) - (150 / approxScale)); 
+            addPoint(0, ext + (100 / approxScale)); 
 
             const boxWidth = maxX - minX;
             const boxHeight = maxY - minY;
@@ -14034,7 +14058,7 @@ function openPrintWindow() {
             ctx.stroke();
             drawTextUpright(ctx, "곡률시점", canvasGuideLineX - (10/scale), 0, "right", "middle", `bold ${18 / scale}px sans-serif`, "#2563eb");
 
-            // [핵심 복구] 이격거리 치수선 및 텍스트 (80도 이상 시 위치 대폭 하향 조정)
+            // 이격거리 치수선 및 텍스트
             const offset_cm = fmtCm(Math.abs(pEndX - (-R)) / 10); 
             
             let offsetLineY = pEndY - (40 / scale);
@@ -14060,17 +14084,15 @@ function openPrintWindow() {
             drawDimLine(ctx, -R, offsetLineY, pEndX, offsetLineY, scale);
             drawTextUpright(ctx, `${offset_cm}cm`, (-R + pEndX)/2, textY, "center", textBaseline, `bold ${16/scale}px sans-serif`, "#0f172a");
 
-            // [수정] 안내문구 변경 및 배관 말단 우측(붉은점 지점)으로 위치 고정하여 간섭 완전히 해결
+            // 배관 말단 우측으로 위치 고정된 배관굽힘각도 텍스트
             const angle_deg = fmtDeg(angleDeg); 
             const finalAngleStr = `배관굽힘각도 : ${angle_deg}°`;
-            
-            // 배관의 말단(끝단) 중심(outEndX)에서 파이프 반경(D/2) + 약간의 여백(20px) 만큼 우측으로 띄움
             const finalAngleX = outEndX + (D/2) + (20 / scale);
-            const finalAngleY = outEndY; // 배관 끝단 높이와 동일하게 고정
+            const finalAngleY = outEndY; 
             
             drawTextUpright(ctx, finalAngleStr, finalAngleX, finalAngleY, "left", "middle", `bold ${18/scale}px 'Consolas', sans-serif`, "#475569");
 
-            // [핵심 복구] 내부 각도 표시선 및 원호
+            // 내부 각도 표시선 및 원호
             ctx.setLineDash([8/scale, 8/scale]);
             ctx.strokeStyle = '#8b5cf6'; 
             ctx.lineWidth = 2 / scale;
@@ -14103,7 +14125,7 @@ function openPrintWindow() {
             // 내부 각도 텍스트 (Y=0 직하단 15px 고정)
             drawTextUpright(ctx, `${angle_deg}°`, textRadius * Math.cos(midAngle), (15 / scale), "center", "middle", `bold ${16 / scale}px 'Consolas', sans-serif`, "#475569");
 
-            // [핵심 복구] 수직 치수선 (70도 이상 시 중앙으로 이동)
+            // 수직 치수선 
             const vLen_m = fmtM(Math.abs(pEndY) / 1000);
             const vOffsetX = pEndX + (60 / scale); 
             
@@ -14119,11 +14141,10 @@ function openPrintWindow() {
             const vTextY = (angleDeg >= 70) ? (pEndY / 2) : pEndY;
             drawTextUpright(ctx, `수직 = ${vLen_m}m`, vOffsetX + (10 / scale), vTextY, "left", "middle", `bold ${20 / scale}px 'Consolas', sans-serif`, "#dc2626");
 
-            // [핵심 복구] 수평 치수선 및 종점 수직 가이드라인
+            // 수평 치수선 및 종점 수직 가이드라인
             const hLen_m = fmtM(Math.abs(pEndX - (-R)) / 1000);
             const hOffsetY = 40 / scale; 
             
-            // 수평선 종점 가이드 (연한 초록색 점선)
             ctx.setLineDash([6/scale, 4/scale]);
             ctx.strokeStyle = '#34d399'; 
             ctx.lineWidth = 1.5 / scale;
@@ -14145,7 +14166,7 @@ function openPrintWindow() {
 
             ctx.restore();
 
-            // [핵심 복구] 절대좌표 안내문구 및 곡률반경 경고 고정 출력
+            // 절대좌표 안내문구 및 곡률반경 경고 고정 출력
             ctx.font = "bold 15px 'Consolas', sans-serif";
             ctx.fillStyle = "#334155";
             ctx.textAlign = "left";
@@ -14176,10 +14197,788 @@ function openPrintWindow() {
     </script>
 </body>
 </html></xmp>
-</body>
-</html>
 
-</textarea>
+    <!-- [4] 월사용예정량 계산(검증) 소스코드 삽입 공간 -->
+    <xmp id="sub-source-4" class="source-code-storage"><!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>월사용예정량 계산 및 정리 (KGS FU551)</title>
+    <!-- [개선] 렌더링 오류를 일으키는 pdf 라이브러리 전면 삭제 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { -webkit-tap-highlight-color: transparent; }
+        
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        
+        /* 테이블 기본 속성 */
+        .k-table-result { border-collapse: collapse; width: 100%; text-align: center; color: #1e293b; }
+        .k-table-result th, .k-table-result td { border: 1px solid #94a3b8; padding: 0.15rem 0.1rem; vertical-align: middle; word-break: keep-all; }
+        @media (min-width: 768px) {
+            .k-table-result th, .k-table-result td { padding: 0.35rem 0.4rem; }
+        }
+        
+        .bg-light-gray { background-color: #f1f5f9 !important; }
+        .bg-white { background-color: #ffffff !important; }
+        
+        .btn-dense {
+            padding: 0; 
+            font-size: 0.9rem;
+            font-weight: 800;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes pulse-orange {
+            0% { text-shadow: 0 0 0 rgba(249, 115, 22, 0.4); }
+            70% { text-shadow: 0 0 10px rgba(249, 115, 22, 0); }
+            100% { text-shadow: 0 0 0 rgba(249, 115, 22, 0); }
+        }
+        .result-highlight {
+            animation: pulse-orange 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans pb-10">
+
+    <div class="w-full sm:w-[98%] max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-3 lg:gap-6 py-2 sm:py-6 items-start px-1 sm:px-0">
+
+        <!-- ==========================================
+             [좌측 구역] 사용처 및 연소기 입력창
+             ========================================== -->
+        <div class="w-full lg:w-1/2 flex flex-col gap-3 z-20 overflow-hidden">
+            
+            <div class="bg-white p-2 sm:p-4 rounded-xl shadow-md border border-slate-200">
+                <div class="flex justify-between items-center border-b-2 border-slate-300 pb-2 mb-3">
+                    <h1 class="text-base sm:text-xl font-bold text-slate-800 border-l-[5px] border-blue-600 pl-2 sm:pl-3 m-0 tracking-tight">
+                        월사용예정량 계산 및 정리
+                    </h1>
+                    <button onclick="resetAll()" class="px-2 sm:px-3 py-1.5 text-[10px] sm:text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded hover:bg-red-100 transition whitespace-nowrap">
+                        🔄 전체 초기화
+                    </button>
+                </div>
+                
+                <div class="flex gap-2 sm:gap-3 mb-4">
+                    <div class="flex-1">
+                        <label class="block text-[17px] md:text-[14px] font-bold text-slate-500 mb-0.5 ml-1">시설명</label>
+                        <input type="text" id="facility-name" placeholder="필요 시 시설명 입력" class="w-full bg-slate-50 border border-slate-300 px-2 py-1 text-[17px] md:text-[16px] font-bold text-slate-800 rounded focus:outline-none focus:bg-white focus:border-blue-400 h-10 md:h-9 shadow-inner placeholder:text-[13px] md:placeholder:text-[14px]">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-[17px] md:text-[14px] font-bold text-slate-500 mb-0.5 ml-1">업소번호</label>
+                        <input type="text" id="business-number" placeholder="필요 시 업소번호 입력" class="w-full bg-slate-50 border border-slate-300 px-2 py-1 text-[17px] md:text-[16px] font-bold text-slate-800 rounded focus:outline-none focus:bg-white focus:border-blue-400 h-10 md:h-9 shadow-inner placeholder:text-[13px] md:placeholder:text-[14px]">
+                    </div>
+                </div>
+
+                <!-- 비산업용 사용처 섹션 -->
+                <div class="mb-3">
+                    <div class="flex justify-between items-center bg-blue-50 p-1.5 rounded-t border-b border-blue-200">
+                        <h2 class="text-[15px] sm:text-base font-bold text-blue-800 flex items-center gap-1 sm:gap-1.5 pl-1 tracking-tighter">
+                            <span class="bg-blue-600 text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center text-[10px] sm:text-[11px]">B</span>
+                            <span class="md:hidden">비산업용</span>
+                            <span class="hidden md:inline">비산업용 (90시간 적용)</span>
+                        </h2>
+                        <div class="flex gap-1 shrink-0">
+                            <button onclick="addLocation('nonInd')" class="bg-blue-600 text-white px-1.5 py-1 rounded text-[11px] sm:text-xs font-bold shadow hover:bg-blue-700 active:transform active:scale-95 transition whitespace-nowrap">
+                                사용처 추가
+                            </button>
+                            <button onclick="removeLastLocation('nonInd')" class="bg-white border border-black text-black px-1.5 py-1 rounded text-[11px] sm:text-xs font-bold hover:bg-gray-100 active:transform active:scale-95 transition whitespace-nowrap">
+                                사용처 삭제
+                            </button>
+                        </div>
+                    </div>
+                    <div id="nonInd-container" class="border border-blue-100 border-t-0 rounded-b bg-white p-1 sm:p-2 space-y-1.5">
+                    </div>
+                </div>
+
+                <!-- 산업용 사용처 섹션 -->
+                <div>
+                    <div class="flex justify-between items-center bg-orange-50 p-1.5 rounded-t border-b border-orange-200">
+                        <h2 class="text-[15px] sm:text-base font-bold text-orange-800 flex items-center gap-1 sm:gap-1.5 pl-1 tracking-tighter">
+                            <span class="bg-orange-500 text-white w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center text-[10px] sm:text-[11px]">A</span>
+                            <span class="md:hidden">산업용</span>
+                            <span class="hidden md:inline">산업용 (240시간 적용)</span>
+                        </h2>
+                        <div class="flex gap-1 shrink-0">
+                            <button onclick="addLocation('ind')" class="bg-orange-500 text-white px-1.5 py-1 rounded text-[11px] sm:text-xs font-bold shadow hover:bg-orange-600 active:transform active:scale-95 transition whitespace-nowrap">
+                                사용처 추가
+                            </button>
+                            <button onclick="removeLastLocation('ind')" class="bg-white border border-black text-black px-1.5 py-1 rounded text-[11px] sm:text-xs font-bold hover:bg-gray-100 active:transform active:scale-95 transition whitespace-nowrap">
+                                사용처 삭제
+                            </button>
+                        </div>
+                    </div>
+                    <div id="ind-container" class="border border-orange-100 border-t-0 rounded-b bg-white p-1 sm:p-2 space-y-1.5">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-blue-50 p-2 sm:p-3 rounded-lg border border-blue-200 text-xs text-blue-800 leading-relaxed shadow-sm">
+                <strong class="text-blue-900">[참고] 월사용예정량 산정 공식 (KGS FU551)</strong><br>
+                Q = { (산업용 소비량합계 × 240) + (비산업용 소비량합계 × 90) } / 11,000<br>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             [우측 구역] 산출 결과 표
+             ========================================== -->
+        <div class="w-full lg:w-1/2 flex flex-col gap-4 lg:gap-6 sticky top-2 sm:top-6">
+
+            <div id="capture-area" class="bg-slate-200 flex flex-col p-1.5 sm:p-4 md:p-5 rounded-xl shadow-lg border border-slate-300">
+                
+                <div class="flex justify-between items-center mb-2 sm:mb-3 border-b-2 border-slate-400 pb-2">
+                    <h2 class="text-base sm:text-xl font-extrabold text-slate-900 flex items-center m-0 whitespace-nowrap">
+                        📊 계산 결과표
+                    </h2>
+                    <div id="action-buttons" class="flex shrink-0">
+                        <button onclick="exportToExcel()" class="border-2 border-green-600 rounded-full text-green-700 font-extrabold bg-white tracking-tighter transition-all hover:bg-green-50 active:scale-95" style="padding: 4px 12px; font-size: 16px; line-height: 1.2; box-shadow: none;">엑셀 저장</button>
+                    </div>
+                </div>
+
+                <!-- Table 2: 요약 및 최종 결과 표 -->
+                <div class="mb-4 sm:mb-5 w-full">
+                    <h3 class="text-sm font-bold text-slate-800 mb-1 border-l-[3px] border-orange-600 pl-2">최종 월사용예정량</h3>
+                    <div class="rounded-lg shadow-sm border border-slate-400 overflow-hidden bg-white w-full">
+                        <table class="k-table-result w-full table-fixed">
+                            <thead>
+                                <tr class="bg-light-gray font-bold">
+                                    <th width="26%" class="md:w-[25%] text-[18px] md:text-[23px] py-1 border border-slate-400 tracking-tighter">구분</th>
+                                    <th width="36%" class="md:w-[35%] text-[18px] md:text-[23px] py-1 leading-tight border border-slate-400 tracking-tighter">총 소비량<br><span class="md:hidden font-normal text-[14px]">(Kcal/hr)</span></th>
+                                    <th width="38%" class="md:w-[40%] text-[18px] md:text-[23px] py-1 leading-tight border border-slate-400 tracking-tighter">월사용예정량<br><span class="md:hidden font-normal text-[14px]">(m³/月)</span></th>
+                                </tr>
+                            </thead>
+                            <tbody id="summary-tbody">
+                                <!-- JS 동적 렌더링 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Table 1: 세부 내역 표 -->
+                <div class="w-full">
+                    <h3 class="text-sm font-bold text-slate-800 mb-1 border-l-[3px] border-blue-600 pl-2">연소기별 세부 내역</h3>
+                    <div class="rounded-lg shadow-sm border border-slate-400 overflow-x-auto bg-white w-full">
+                        <table class="k-table-result min-w-[580px] md:min-w-full">
+                            <thead>
+                                <tr class="bg-light-gray font-bold text-[14px] md:text-[18px] tracking-tighter">
+                                    <th width="14%" class="py-1.5">사용처</th>
+                                    <th width="24%" class="py-1.5">연소기</th>
+                                    <th width="20%" class="py-1.5 leading-tight">단위소비량<br><span class="font-normal text-[11px] md:text-[14px]">(Kcal/hr)</span></th>
+                                    <th width="8%" class="py-1.5">수량</th>
+                                    <th width="22%" class="py-1.5 leading-tight">총소비량<br><span class="font-normal text-[11px] md:text-[14px]">(Kcal/hr)</span></th>
+                                    <th width="12%" class="py-1.5">비고</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detail-tbody" class="bg-white">
+                                <tr><td colspan="6" class="p-4 text-center text-slate-500 text-[14px] md:text-sm">좌측에서 사용처와 연소기를 추가해주세요.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let state = { nonInd: [], ind: [] };
+
+        window.calcData = {
+            mode: 'empty', 
+            totalKcal: 0, totalM3: 0,
+            nonIndKcal: 0, nonIndM3: 0,
+            indKcal: 0, indM3: 0
+        };
+
+        function generateId() { return Math.random().toString(36).substr(2, 9); }
+
+        window.onload = () => {
+            addLocation('nonInd');
+            renderAll();
+        };
+
+        function resetAll() {
+            if(confirm("입력된 모든 데이터가 삭제됩니다. 초기화하시겠습니까?")) {
+                state.nonInd = []; state.ind = [];
+                document.getElementById('facility-name').value = '';
+                document.getElementById('business-number').value = '';
+                addLocation('nonInd');
+                renderAll();
+            }
+        }
+
+        function addLocation(type) {
+            state[type].push({
+                id: generateId(), name: '',
+                appliances: [ { id: generateId(), name: '', consumption: '', quantity: 1 } ]
+            });
+            renderAll();
+        }
+
+        function removeLocation(type, locId) {
+            state[type] = state[type].filter(loc => loc.id !== locId);
+            renderAll();
+        }
+
+        function removeLastLocation(type) {
+            if (state[type].length > 0) {
+                state[type].pop();
+                renderAll();
+            } else {
+                alert("삭제할 사용처가 없습니다.");
+            }
+        }
+
+        function addAppliance(type, locId) {
+            const loc = state[type].find(l => l.id === locId);
+            if(loc) {
+                loc.appliances.push({ id: generateId(), name: '', consumption: '', quantity: 1 });
+                renderAll();
+            }
+        }
+
+        function removeAppliance(type, locId, appId) {
+            const loc = state[type].find(l => l.id === locId);
+            if(loc) {
+                loc.appliances = loc.appliances.filter(app => app.id !== appId);
+                renderAll();
+            }
+        }
+
+        function updateLocationInfo(type, locId, value) {
+            const loc = state[type].find(l => l.id === locId);
+            if(loc) { loc.name = value; renderResults(); }
+        }
+
+        function updateApplianceInfo(type, locId, appId, field, value) {
+            const loc = state[type].find(l => l.id === locId);
+            if(loc) {
+                const app = loc.appliances.find(a => a.id === appId);
+                if(app) {
+                    app[field] = (field === 'consumption' || field === 'quantity') ? Number(value) : value;
+                    renderResults();
+                }
+            }
+        }
+
+        // ==========================================
+        // UI 렌더링
+        // ==========================================
+        function renderAll() {
+            renderInputs('nonInd', 'nonInd-container');
+            renderInputs('ind', 'ind-container');
+            renderResults();
+        }
+
+        function renderInputs(type, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            if (state[type].length === 0) {
+                container.innerHTML = `<div class="text-center py-2 text-slate-400 text-xs">등록된 사용처가 없습니다.</div>`;
+                return;
+            }
+            state[type].forEach((loc, locIndex) => {
+                const defaultLocName = `사용처 ${locIndex + 1}`;
+                const textTheme = 'text-slate-800'; 
+                const addBtnTheme = type === 'nonInd' ? 'bg-blue-500 border-blue-600 hover:bg-blue-600' : 'bg-orange-400 border-orange-500 hover:bg-orange-500';
+
+                let html = `
+                    <div class="bg-slate-50 border border-slate-200 rounded p-1 sm:p-1.5 relative shadow-sm w-full">
+                        
+                        <div class="flex items-center gap-1 mb-1 pb-1 border-b border-slate-200 px-0.5 w-full">
+                            <div class="w-[35%]">
+                                <input type="text" placeholder="${defaultLocName}" value="${loc.name}" oninput="updateLocationInfo('${type}', '${loc.id}', this.value)"
+                                    class="w-full bg-white border border-slate-300 px-1.5 py-0 text-[17px] md:text-[16px] font-bold text-slate-800 placeholder:text-[13px] md:placeholder:text-[14px] rounded h-10 md:h-9 focus:outline-none focus:ring-1 focus:ring-slate-400">
+                            </div>
+                            <button onclick="removeLocation('${type}', '${loc.id}')" class="w-auto px-2 text-[11px] font-bold bg-white border border-black text-black h-10 md:h-9 rounded hover:bg-gray-100 transition whitespace-nowrap">🗑️ 삭제</button>
+                        </div>
+                        
+                        <div class="flex gap-0.5 mb-0.5 px-0.5 items-center text-center w-full">
+                            <div class="w-[35%] text-[13px] md:text-[17px] font-bold text-slate-700 tracking-tighter">연소기 명칭</div>
+                            <div class="w-[28%] text-[13px] md:text-[17px] font-bold text-slate-700 tracking-tighter">단위소비량<span class="text-[11px] md:text-[13px] font-normal ml-0.5">(Kcal)</span></div>
+                            <div class="w-[12%] text-[13px] md:text-[17px] font-bold text-slate-700 tracking-tighter">수량</div>
+                            <div class="w-[25%] text-[13px] md:text-[17px] font-bold text-slate-700 tracking-tighter">연소기 추가</div>
+                        </div>
+                        <div class="space-y-0.5 w-full">
+                `;
+                loc.appliances.forEach((app, appIndex) => {
+                    html += `
+                            <div class="flex items-center gap-0.5 px-0.5 w-full">
+                                <div class="w-[35%]"><input type="text" placeholder="명칭입력" value="${app.name}" oninput="updateApplianceInfo('${type}', '${loc.id}', '${app.id}', 'name', this.value)" class="w-full h-10 md:h-9 px-1 text-[17px] md:text-[16px] border border-slate-300 rounded shadow-inner placeholder:text-[13px] md:placeholder:text-[14px] focus:outline-none focus:ring-1 focus:ring-slate-400"></div>
+                                <div class="w-[28%]"><input type="number" placeholder="0" value="${app.consumption}" oninput="updateApplianceInfo('${type}', '${loc.id}', '${app.id}', 'consumption', this.value)" class="w-full h-10 md:h-9 px-1 text-[17px] md:text-[16px] font-bold text-right border-black border-2 ${textTheme} rounded shadow-inner focus:outline-none focus:ring-1 focus:ring-black focus:border-black"></div>
+                                <div class="w-[12%]"><input type="number" value="${app.quantity}" oninput="updateApplianceInfo('${type}', '${loc.id}', '${app.id}', 'quantity', this.value)" class="w-full h-10 md:h-9 px-0.5 text-[17px] md:text-[16px] font-bold text-center border-black border-2 text-slate-800 rounded shadow-inner focus:outline-none focus:ring-1 focus:ring-black focus:border-black"></div>
+                                
+                                <div class="w-[25%] flex gap-0.5 items-center justify-center h-10 md:h-[24px]">
+                                    <button onclick="addAppliance('${type}', '${loc.id}')" class="w-full h-full ${addBtnTheme} text-white border rounded btn-dense transition text-[16px] md:text-[14.4px]">+</button>
+                                    <button onclick="removeAppliance('${type}', '${loc.id}', '${app.id}')" class="w-full h-full bg-white border border-red-300 text-red-500 rounded btn-dense hover:bg-red-50 transition text-[16px] md:text-[14.4px]" ${loc.appliances.length === 1 ? 'disabled style="opacity:0.3"' : ''}>-</button>
+                                </div>
+                            </div>
+                    `;
+                });
+                html += `</div></div>`;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+
+            if (state[type].length >= 2) {
+                const addBtnClass = type === 'nonInd' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-orange-500 hover:bg-orange-600';
+                let footerHtml = `
+                    <div class="flex justify-center gap-2 mt-2 pt-2 border-t border-slate-200 border-dashed">
+                        <button onclick="addLocation('${type}')" class="${addBtnClass} text-white px-2 py-1 rounded text-[11px] sm:text-xs font-bold shadow active:transform active:scale-95 transition whitespace-nowrap">사용처 추가</button>
+                        <button onclick="removeLastLocation('${type}')" class="bg-white border border-black text-black px-2 py-1 rounded text-[11px] sm:text-xs font-bold hover:bg-gray-100 active:transform active:scale-95 transition whitespace-nowrap">사용처 삭제</button>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', footerHtml);
+            }
+        }
+
+        // ==========================================
+        // 계산 로직 
+        // ==========================================
+        function calculateCategoryTotals(dataList) {
+            let totalKcal = 0;
+            let totalQty = 0;
+            dataList.forEach(loc => {
+                let locKcal = 0; let locQty = 0;
+                loc.appliances.forEach(app => { 
+                    locKcal += (Number(app.consumption) || 0) * (Number(app.quantity) || 1); 
+                    locQty += (Number(app.quantity) || 1);
+                });
+                loc.totalKcal = locKcal; loc.totalQty = locQty;
+                totalKcal += locKcal; totalQty += locQty;
+            });
+            return { kcal: totalKcal, qty: totalQty };
+        }
+
+        function renderResults() {
+            const detailTbody = document.getElementById('detail-tbody');
+            const summaryTbody = document.getElementById('summary-tbody');
+            
+            const nonIndTotals = calculateCategoryTotals(state.nonInd);
+            const indTotals = calculateCategoryTotals(state.ind);
+            
+            const isNonIndActive = nonIndTotals.kcal > 0;
+            const isIndActive = indTotals.kcal > 0;
+            const showSubtotals = isNonIndActive && isIndActive; 
+
+            const buildCategoryRows = (dataList, typeLabel, totals, showCatSubtotal) => {
+                let categoryHtml = '';
+                let totalAppsInCategory = dataList.reduce((sum, loc) => sum + loc.appliances.length, 0);
+                if (totalAppsInCategory === 0) return '';
+
+                const totalRowsInCategory = (showCatSubtotal ? 1 : 0) + dataList.length + totalAppsInCategory;
+                let isFirstCategoryRow = true; 
+                
+                const displayLabel = typeLabel;
+                const labelClass = "text-[14px] md:text-[15px] leading-tight text-center align-middle bg-white font-bold whitespace-nowrap border-b border-slate-300";
+
+                if (showCatSubtotal) {
+                    categoryHtml += `<tr class="bg-light-gray font-bold text-slate-800 border-b border-slate-300">
+                        <td colspan="3" class="text-center px-1 text-[14px] md:text-[15px] py-1">소계</td>
+                        <td class="text-center px-1 text-[14px] md:text-[15px]">${totals.qty}</td>
+                        <td class="text-right pr-3 md:pr-4 whitespace-nowrap tracking-tighter text-[18px] md:text-[20px]">${totals.kcal.toLocaleString('ko-KR')}</td>
+                        <td rowspan="${totalRowsInCategory}" class="${labelClass}">
+                            <span style="position:relative; z-index:10; display:inline-block;">${displayLabel}</span>
+                        </td></tr>`;
+                    isFirstCategoryRow = false;
+                }
+
+                dataList.forEach((loc, locIndex) => {
+                    const locName = loc.name.trim() || `사용처 ${locIndex + 1}`;
+                    const locRowspan = loc.appliances.length + 1;
+                    
+                    categoryHtml += `<tr class="bg-light-gray font-bold text-slate-800 border-b border-slate-300">
+                        <td rowspan="${locRowspan}" class="bg-white align-middle px-1 md:px-2 text-[14px] md:text-[15px] break-keep leading-tight border-b border-slate-300">
+                            <span style="position:relative; z-index:10; display:inline-block;">${locName}</span>
+                        </td>
+                        <td colspan="2" class="text-center text-slate-600 px-1 text-[14px] md:text-[15px] py-1">사용처 소계</td>
+                        <td class="text-center text-slate-800 px-1 text-[14px] md:text-[15px]">${loc.totalQty}</td>
+                        <td class="text-right pr-3 md:pr-4 whitespace-nowrap tracking-tighter text-[18px] md:text-[20px]">${loc.totalKcal.toLocaleString('ko-KR')}</td>`;
+                    
+                    if (isFirstCategoryRow) {
+                        categoryHtml += `<td rowspan="${totalRowsInCategory}" class="${labelClass}">
+                            <span style="position:relative; z-index:10; display:inline-block;">${displayLabel}</span>
+                        </td>`;
+                        isFirstCategoryRow = false;
+                    }
+                    categoryHtml += `</tr>`;
+                    
+                    loc.appliances.forEach((app, appIndex) => {
+                        const appName = app.name.trim() || `연소기 ${appIndex + 1}`;
+                        const rowTotal = (Number(app.consumption) || 0) * (Number(app.quantity) || 1);
+                        
+                        categoryHtml += `<tr class="bg-white text-slate-800 border-b border-slate-300">
+                            <td class="text-left pl-1 md:pl-2 text-[14px] md:text-[15px] break-keep leading-tight py-1">${appName}</td>
+                            <!-- UI 화면 단위소비량, 총소비량 콤마 적용, 우측 여백 확보 -->
+                            <td class="text-right pr-3 md:pr-4 whitespace-nowrap tracking-tighter text-[18px] md:text-[20px]">${(Number(app.consumption)||0).toLocaleString('ko-KR')}</td>
+                            <td class="px-1 text-[14px] md:text-[15px]">${app.quantity}</td>
+                            <td class="text-right pr-3 md:pr-4 font-bold whitespace-nowrap tracking-tighter text-[18px] md:text-[20px]">${rowTotal.toLocaleString('ko-KR')}</td>
+                        </tr>`;
+                    });
+                });
+                return categoryHtml;
+            };
+
+            let detailHtml = '';
+            const grandTotalKcal = nonIndTotals.kcal + indTotals.kcal;
+            const grandTotalQty = nonIndTotals.qty + indTotals.qty;
+
+            if (grandTotalKcal > 0 || grandTotalQty > 0) {
+                detailHtml += `<tr class="bg-light-gray border-b-2 border-slate-400 font-extrabold text-slate-900">
+                    <td colspan="3" class="text-center px-1 text-[14px] md:text-[15px] py-1">총 계</td>
+                    <td class="text-center px-1 text-[14px] md:text-[15px]">${grandTotalQty}</td>
+                    <td class="text-right pr-3 md:pr-4 whitespace-nowrap tracking-tighter text-[18px] md:text-[20px]">${grandTotalKcal.toLocaleString('ko-KR')}</td>
+                    <td class="bg-light-gray border-b border-slate-400"></td>
+                </tr>`;
+            }
+
+            detailHtml += buildCategoryRows(state.nonInd, '비산업용', nonIndTotals, showSubtotals) + 
+                          buildCategoryRows(state.ind, '산업용', indTotals, showSubtotals);
+            
+            detailTbody.innerHTML = detailHtml || `<tr><td colspan="6" class="p-4 text-center text-slate-400 bg-white text-[14px] md:text-sm">데이터가 없습니다.</td></tr>`;
+
+            const m3Ind = (indTotals.kcal * 240) / 11000;
+            const m3NonInd = (nonIndTotals.kcal * 90) / 11000;
+            const m3Total = m3Ind + m3NonInd;
+
+            window.calcData = {
+                totalKcal: grandTotalKcal, totalM3: m3Total,
+                nonIndKcal: nonIndTotals.kcal, nonIndM3: m3NonInd,
+                indKcal: indTotals.kcal, indM3: m3Ind,
+                mode: (isNonIndActive && isIndActive) ? 'both' : (isNonIndActive ? 'nonInd' : (isIndActive ? 'ind' : 'empty'))
+            };
+
+            let summaryHtml = '';
+            const mode = window.calcData.mode;
+            
+            const buildSummaryRow = (label, kcal, m3, isTotal) => {
+                const labelClass = isTotal ? "font-extrabold text-slate-900 text-[15px] md:text-lg" : "font-bold text-slate-700 text-[14px] md:text-base tracking-tighter";
+                const rowClass = isTotal ? "bg-light-gray border-b-2 border-slate-400" : "bg-white border-b border-slate-400";
+                
+                // 총소비량 텍스트 가운데 정렬
+                const kcalStyle = isTotal ? "text-center text-[22px] md:text-[15px] font-bold text-slate-800" : "text-center text-[21px] md:text-[14px] font-bold text-slate-700";
+                
+                // 월사용예정량 텍스트 가운데 정렬
+                const m3Color = isTotal ? "text-center text-orange-600 font-black result-highlight" : "text-center text-slate-700 font-bold";
+                const m3SizeMob = isTotal ? "text-[27px]" : "text-[21px]"; 
+                const m3SizePC = isTotal ? "29px" : "14px"; 
+
+                // [웹 UI] 요청대로 총계(isTotal)인 경우에만 단위를 표시하여 시인성 향상 (소계는 단위 생략)
+                const kcalText = isTotal ? `${kcal.toLocaleString('ko-KR')} <span style="font-size:0.65em; font-weight:normal;">Kcal/hr</span>` : `${kcal.toLocaleString('ko-KR')}`;
+                const m3Text = isTotal ? `${m3.toFixed(1)} <span style="font-size:0.65em; font-weight:normal;">m³/月</span>` : `${m3.toFixed(1)}`;
+
+                return `
+                    <tr class="${rowClass}">
+                        <td class="text-center ${labelClass} px-1 py-1.5 md:py-2 border border-slate-400">${label}</td>
+                        <td class="${kcalStyle} whitespace-nowrap tracking-tighter border border-slate-400">
+                            <!-- 모바일/PC 분리 없이 하나의 텍스트로 처리 -->
+                            <span style="${isTotal ? '' : 'font-size:inherit !important;'}">
+                                ${kcalText}
+                            </span>
+                        </td>
+                        <td class="${isTotal ? 'bg-light-gray' : 'bg-white'} border border-slate-400 ${m3Color} whitespace-nowrap tracking-tighter">
+                            <span class="md:hidden ${m3SizeMob}">${isTotal ? `${m3.toFixed(1)} <span style="font-size:0.5em; font-weight:normal;">m³/月</span>` : m3.toFixed(1)}</span>
+                            <span class="hidden md:inline" style="font-size:${m3SizePC} !important;">
+                                ${m3Text}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            if (mode === 'both') {
+                summaryHtml += buildSummaryRow('계', window.calcData.totalKcal, window.calcData.totalM3, true);
+                summaryHtml += buildSummaryRow('비산업용', window.calcData.nonIndKcal, window.calcData.nonIndM3, false);
+                summaryHtml += buildSummaryRow('산업용', window.calcData.indKcal, window.calcData.indM3, false);
+            } else if (mode !== 'empty') {
+                const label = mode === 'nonInd' ? '비산업용' : '산업용';
+                const kcal = mode === 'nonInd' ? window.calcData.nonIndKcal : window.calcData.indKcal;
+                const m3 = mode === 'nonInd' ? window.calcData.nonIndM3 : window.calcData.indM3;
+                summaryHtml += buildSummaryRow(label, kcal, m3, true);
+            } else {
+                summaryHtml = `<tr><td colspan="3" class="p-4 text-center text-slate-400 bg-white text-[14px] md:text-sm border-b border-slate-200">데이터 없음</td></tr>`;
+            }
+            summaryTbody.innerHTML = summaryHtml;
+        }
+
+        // ==========================================
+        // 💾 [최종 진화형] 엑셀(.xls) 저장 (수식 내장 및 서식 완벽 통제 알고리즘 적용)
+        // ==========================================
+        function exportToExcel() {
+            if(window.calcData.totalM3 === 0 && window.calcData.mode === 'empty') {
+                alert("출력할 데이터가 없습니다."); return;
+            }
+
+            const facilityName = document.getElementById('facility-name').value.trim();
+            const businessNumber = document.getElementById('business-number').value.trim();
+            const dateStr = new Date().toLocaleDateString('ko-KR');
+
+            // --- 1. 엑셀에 내장시킬 수식(Formula)을 위해 각 데이터의 행(Row) 번호 사전 계산 ---
+            let r = 0;
+            r++; // 1 Title
+            r++; // 2 Date
+            
+            let infoStr = '';
+            if (facilityName) infoStr += `시설명: ${facilityName}`;
+            if (facilityName && businessNumber) infoStr += ` / `;
+            if (businessNumber) infoStr += `업소번호: ${businessNumber}`;
+            if (infoStr) r++; // 3 Info
+            
+            r++; // Empty
+            r++; // Summary Title
+            r++; // Summary Header
+
+            let mode = window.calcData.mode;
+            let sumTotalRow = 0, sumNonIndRow = 0, sumIndRow = 0;
+            
+            // 요약표 행(Row) 번호 맵핑
+            if (mode === 'both') {
+                sumTotalRow = ++r;
+                sumNonIndRow = ++r;
+                sumIndRow = ++r;
+            } else if (mode === 'nonInd') {
+                sumTotalRow = ++r;
+                sumNonIndRow = sumTotalRow;
+            } else if (mode === 'ind') {
+                sumTotalRow = ++r;
+                sumIndRow = sumTotalRow;
+            }
+
+            r++; // Empty
+            r++; // Detail Title
+            r++; // Detail Header
+
+            const nonIndTotals = calculateCategoryTotals(state.nonInd);
+            const indTotals = calculateCategoryTotals(state.ind);
+            const showSubtotals = nonIndTotals.kcal > 0 && indTotals.kcal > 0;
+
+            let detTotalRow = 0;
+            if (window.calcData.totalKcal > 0) detTotalRow = ++r;
+
+            // 세부내역표(사용처, 연소기) 행(Row) 번호 맵핑 함수
+            const mapDetailRows = (dataList) => {
+                let locsInfo = [];
+                let catR = 0;
+                if (showSubtotals && dataList.length > 0) catR = ++r;
+                dataList.forEach(loc => {
+                    let locR = ++r;
+                    let apps = [];
+                    loc.appliances.forEach(() => apps.push(++r));
+                    locsInfo.push({ subtotalR: locR, appR: apps });
+                });
+                return { catR, locsInfo };
+            };
+
+            const nonIndData = mapDetailRows(state.nonInd);
+            const indData = mapDetailRows(state.ind);
+
+            // --- 2. 동적 수식(Formula) 생성 ---
+            const getQtyFormula = (locsInfo) => locsInfo.length > 0 ? "=" + locsInfo.map(l => "D"+l.subtotalR).join("+") : "0";
+            const getKcalFormula = (locsInfo) => locsInfo.length > 0 ? "=" + locsInfo.map(l => "E"+l.subtotalR).join("+") : "0";
+
+            let nonIndQtyRef = nonIndData.catR ? `D${nonIndData.catR}` : getQtyFormula(nonIndData.locsInfo).replace("=","");
+            let indQtyRef = indData.catR ? `D${indData.catR}` : getQtyFormula(indData.locsInfo).replace("=","");
+            let totalQtyFormula = "=" + [nonIndQtyRef, indQtyRef].filter(x=>x && x!=="0").join("+") || "0";
+
+            let nonIndKcalRef = nonIndData.catR ? `E${nonIndData.catR}` : getKcalFormula(nonIndData.locsInfo).replace("=","");
+            let indKcalRef = indData.catR ? `E${indData.catR}` : getKcalFormula(indData.locsInfo).replace("=","");
+            let totalKcalFormula = "=" + [nonIndKcalRef, indKcalRef].filter(x=>x && x!=="0").join("+") || "0";
+
+            let nonIndSummaryKcal = nonIndKcalRef && nonIndKcalRef!=="0" ? "=" + nonIndKcalRef : "0";
+            let indSummaryKcal = indKcalRef && indKcalRef!=="0" ? "=" + indKcalRef : "0";
+            
+            // 월사용예정량 산출 수식 (비산업용 90, 산업용 240 계수 반영 및 엑셀 ROUND 함수로 소수점 첫째자리 반올림 적용)
+            let nonIndSummaryM3 = sumNonIndRow ? `=ROUND(C${sumNonIndRow}*90/11000, 1)` : "0";
+            let indSummaryM3 = sumIndRow ? `=ROUND(C${sumIndRow}*240/11000, 1)` : "0";
+            let totalSummaryParts = [sumNonIndRow ? `E${sumNonIndRow}` : "", sumIndRow ? `E${sumIndRow}` : ""].filter(x=>x);
+            let totalSummaryM3 = totalSummaryParts.length > 0 ? `=ROUND(${totalSummaryParts.join("+")}, 1)` : "0";
+
+            // --- 3. 엑셀 강제 인라인 스타일 정의 (호환성 버그 원천 차단) ---
+            const border = "border: 1pt solid #000;";
+            const bgHeader = "background-color: #f1f5f9; font-weight: bold;";
+            
+            const centerAlign = `${border} text-align: center;`;
+            const leftAlign = `${border} text-align: left; padding-left: 5px;`;
+            
+            // [해결포인트] 엑셀 내장 포맷 기능을 우회하여, 자바스크립트가 문자열 형태의 숫자(콤마 포함, 우측 패딩)로 엑셀 셀에 강제 주입함
+            const rightAlignNum = `${border} text-align: right; padding-right: 15px; mso-number-format: "\\#\\,\\#\\#0";`;
+            const centerAlignNum = `${border} text-align: center; mso-number-format: "\\#\\,\\#\\#0";`;
+            const centerAlignFloat = `${border} text-align: center; mso-number-format: "\\#\\,\\#\\#0\\.0";`;
+            
+            const headerCenter = `${border} ${bgHeader} text-align: center;`;
+            const headerRightNum = `${border} ${bgHeader} text-align: right; padding-right: 15px; mso-number-format: "\\#\\,\\#\\#0";`;
+            const headerCenterNum = `${border} ${bgHeader} text-align: center; mso-number-format: "\\#\\,\\#\\#0";`;
+
+            // --- 4. 엑셀용 순수 HTML 조립 ---
+            let excelHtml = `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charset="utf-8">
+                    <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>계산결과</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+                    <style>
+                        table { border-collapse: collapse; width: 100%; font-family: 'Malgun Gothic', sans-serif; font-size: 11pt; }
+                    </style>
+                </head>
+                <body>
+                    <table>
+                        <tr><td colspan="6" style="border: none; text-align: center; font-size: 18pt; font-weight: bold; height: 50px;">월사용예정량 계산 및 정리 보고서</td></tr>
+                        <tr><td colspan="6" style="border: none; text-align: right; font-size: 10pt; padding-bottom: 5px;">출력일자: ${dateStr}</td></tr>
+            `;
+            
+            if (infoStr) {
+                excelHtml += `<tr><td colspan="6" style="border: none; text-align: left; font-size: 11pt; padding-bottom: 10px;"><strong>${infoStr}</strong></td></tr>`;
+            }
+
+            excelHtml += `
+                        <tr><td colspan="6" style="border: none;"></td></tr>
+                        <tr><td colspan="6" style="border: none; text-align: left; font-size: 13pt; font-weight: bold; padding-top: 15px; padding-bottom: 5px;">■ 최종 산출 요약</td></tr>
+                        <tr>
+                            <th colspan="2" style="${headerCenter}">구분</th>
+                            <th colspan="2" style="${headerCenter}">총 소비량 (Kcal/hr)</th>
+                            <th colspan="2" style="${headerCenter}">월사용예정량 (m³/月)</th>
+                        </tr>
+            `;
+
+            const addSummaryRowHtml = (label, kcalFormula, m3Formula, isTotal) => {
+                const fontStyle = isTotal ? "font-weight: bold;" : "font-weight: normal;";
+                const colorStyle = isTotal ? "color: #ea580c; font-weight: bold;" : "font-weight: normal; color: #000;";
+                const bgStyle = isTotal ? bgHeader : "background-color: #ffffff;";
+                
+                // 요청하신 대로 엑셀 결과표에서는 단위를 생략하고 순수 숫자(수식)만 표시합니다.
+                excelHtml += `<tr>
+                    <td colspan="2" style="${centerAlign} ${bgStyle} ${fontStyle}">${label}</td>
+                    <!-- 엑셀 데이터 가운데 정렬, 천단위 콤마 포맷 -->
+                    <td colspan="2" style="${centerAlignNum} ${bgStyle} ${fontStyle}">${kcalFormula}</td>
+                    <td colspan="2" style="${centerAlignFloat} ${bgStyle} ${colorStyle}">${m3Formula}</td>
+                </tr>`;
+            };
+
+            if (mode === 'both') {
+                addSummaryRowHtml('계', totalKcalFormula, totalSummaryM3, true);
+                addSummaryRowHtml('비산업용', nonIndSummaryKcal, nonIndSummaryM3, false);
+                addSummaryRowHtml('산업용', indSummaryKcal, indSummaryM3, false);
+            } else if (mode === 'nonInd') {
+                addSummaryRowHtml('비산업용', totalKcalFormula, nonIndSummaryM3, true);
+            } else if (mode === 'ind') {
+                addSummaryRowHtml('산업용', totalKcalFormula, indSummaryM3, true);
+            }
+
+            excelHtml += `
+                        <tr><td colspan="6" style="border: none;"></td></tr>
+                        <tr><td colspan="6" style="border: none; text-align: left; font-size: 13pt; font-weight: bold; padding-top: 15px; padding-bottom: 5px;">■ 연소기별 세부 내역</td></tr>
+                        <tr>
+                            <th style="${headerCenter}">사용처</th>
+                            <th style="${headerCenter}">연소기</th>
+                            <th style="${headerCenter}">단위소비량 (Kcal/hr)</th>
+                            <th style="${headerCenter}">수량</th>
+                            <th style="${headerCenter}">총소비량 (Kcal/hr)</th>
+                            <th style="${headerCenter}">비고</th>
+                        </tr>
+            `;
+
+            if (detTotalRow) {
+                excelHtml += `<tr>
+                    <td colspan="3" style="${headerCenter}">총 계</td>
+                    <td style="${headerCenterNum}">${totalQtyFormula}</td>
+                    <!-- 총소비량 우측 정렬 유지 (여백 15px 적용됨) -->
+                    <td style="${headerRightNum}">${totalKcalFormula}</td>
+                    <td style="${headerCenter}"></td>
+                </tr>`;
+            }
+
+            const buildDetailHtml = (dataList, typeLabel, dataMeta) => {
+                if (dataList.length === 0) return '';
+                let html = '';
+                let isFirstRow = true;
+                let totalRows = (dataMeta.catR ? 1 : 0) + dataList.length + dataList.reduce((sum, loc) => sum + loc.appliances.length, 0);
+
+                if (dataMeta.catR) {
+                    let catQty = getQtyFormula(dataMeta.locsInfo);
+                    let catKcal = getKcalFormula(dataMeta.locsInfo);
+                    html += `<tr>
+                        <td colspan="3" style="${headerCenter}">소계</td>
+                        <td style="${headerCenterNum}">${catQty}</td>
+                        <td style="${headerRightNum}">${catKcal}</td>
+                        <td rowspan="${totalRows}" style="${headerCenter}">${typeLabel}</td>
+                    </tr>`;
+                    isFirstRow = false;
+                }
+
+                dataList.forEach((loc, i) => {
+                    const info = dataMeta.locsInfo[i];
+                    const locName = loc.name.trim() || `사용처 ${i + 1}`;
+                    const locRowspan = loc.appliances.length + 1;
+                    
+                    let locQty = `=SUM(D${info.appR[0]}:D${info.appR[info.appR.length-1]})`;
+                    let locKcal = `=SUM(E${info.appR[0]}:E${info.appR[info.appR.length-1]})`;
+
+                    html += `<tr>
+                        <td rowspan="${locRowspan}" style="${centerAlign}">${locName}</td>
+                        <td colspan="2" style="${centerAlign}">사용처 소계</td>
+                        <td style="${centerAlignNum}">${locQty}</td>
+                        <td style="${headerRightNum}">${locKcal}</td>
+                        ${isFirstRow ? `<td rowspan="${totalRows}" style="${centerAlign}">${typeLabel}</td>` : ''}
+                    </tr>`;
+                    isFirstRow = false;
+                    
+                    loc.appliances.forEach((app, j) => {
+                        const appName = app.name.trim() || `연소기 ${j + 1}`;
+                        const appR = info.appR[j];
+                        const unitKcal = Number(app.consumption) || 0;
+                        const qty = Number(app.quantity) || 1;
+                        
+                        html += `<tr>
+                            <td style="${leftAlign}">${appName}</td>
+                            <!-- 우측 정렬 및 수식 연산 부여 -->
+                            <td style="${rightAlignNum}">${unitKcal}</td>
+                            <td style="${centerAlignNum}">${qty}</td>
+                            <td style="${rightAlignNum}">=C${appR}*D${appR}</td>
+                        </tr>`;
+                    });
+                });
+                return html;
+            };
+
+            excelHtml += buildDetailHtml(state.nonInd, '비산업용', nonIndData);
+            excelHtml += buildDetailHtml(state.ind, '산업용', indData);
+
+            excelHtml += `
+                        <tr>
+                            <td colspan="6" style="border: none; text-align: left; font-size: 9pt; color: #555; padding-top: 10px;">
+                                * 본 산출결과는 KGS FU551 기준 공식 [ Q = {(산업용×240) + (비산업용×90)} / 11,000 ] 에 의거 작성되었습니다.
+                            </td>
+                        </tr>
+                    </table>
+                </body>
+                </html>
+            `;
+
+            // 5. 브라우저 로컬 저장 기능 실행
+            const blob = new Blob([excelHtml], { type: 'application/vnd.ms-excel' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = '월사용예정량_계산결과.xls';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html></xmp>
+
+</body>
+</html></textarea>
+    
     <!-- 9. 기술검토 -->
     <textarea id="source-9" class="source-code-storage"><!DOCTYPE html>
 <html lang="ko">
