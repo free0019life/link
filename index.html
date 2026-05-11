@@ -14205,7 +14205,6 @@ function openPrintWindow() {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>월사용예정량 계산 및 정리 (KGS FU551)</title>
-    <!-- [개선] 렌더링 오류를 일으키는 pdf 라이브러리 전면 삭제 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         * { -webkit-tap-highlight-color: transparent; }
@@ -14253,9 +14252,6 @@ function openPrintWindow() {
 
     <div class="w-full sm:w-[98%] max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-3 lg:gap-6 py-2 sm:py-6 items-start px-1 sm:px-0">
 
-        <!-- ==========================================
-             [좌측 구역] 사용처 및 연소기 입력창
-             ========================================== -->
         <div class="w-full lg:w-1/2 flex flex-col gap-3 z-20 overflow-hidden">
             
             <div class="bg-white p-2 sm:p-4 rounded-xl shadow-md border border-slate-200">
@@ -14279,7 +14275,6 @@ function openPrintWindow() {
                     </div>
                 </div>
 
-                <!-- 비산업용 사용처 섹션 -->
                 <div class="mb-3">
                     <div class="flex justify-between items-center bg-blue-50 p-1.5 rounded-t border-b border-blue-200">
                         <h2 class="text-[15px] sm:text-base font-bold text-blue-800 flex items-center gap-1 sm:gap-1.5 pl-1 tracking-tighter">
@@ -14300,7 +14295,6 @@ function openPrintWindow() {
                     </div>
                 </div>
 
-                <!-- 산업용 사용처 섹션 -->
                 <div>
                     <div class="flex justify-between items-center bg-orange-50 p-1.5 rounded-t border-b border-orange-200">
                         <h2 class="text-[15px] sm:text-base font-bold text-orange-800 flex items-center gap-1 sm:gap-1.5 pl-1 tracking-tighter">
@@ -14328,9 +14322,6 @@ function openPrintWindow() {
             </div>
         </div>
 
-        <!-- ==========================================
-             [우측 구역] 산출 결과 표
-             ========================================== -->
         <div class="w-full lg:w-1/2 flex flex-col gap-4 lg:gap-6 sticky top-2 sm:top-6">
 
             <div id="capture-area" class="bg-slate-200 flex flex-col p-1.5 sm:p-4 md:p-5 rounded-xl shadow-lg border border-slate-300">
@@ -14344,7 +14335,6 @@ function openPrintWindow() {
                     </div>
                 </div>
 
-                <!-- Table 2: 요약 및 최종 결과 표 -->
                 <div class="mb-4 sm:mb-5 w-full">
                     <h3 class="text-sm font-bold text-slate-800 mb-1 border-l-[3px] border-orange-600 pl-2">최종 월사용예정량</h3>
                     <div class="rounded-lg shadow-sm border border-slate-400 overflow-hidden bg-white w-full">
@@ -14357,13 +14347,11 @@ function openPrintWindow() {
                                 </tr>
                             </thead>
                             <tbody id="summary-tbody">
-                                <!-- JS 동적 렌더링 -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Table 1: 세부 내역 표 -->
                 <div class="w-full">
                     <h3 class="text-sm font-bold text-slate-800 mb-1 border-l-[3px] border-blue-600 pl-2">연소기별 세부 내역</h3>
                     <div class="rounded-lg shadow-sm border border-slate-400 overflow-x-auto bg-white w-full">
@@ -14398,6 +14386,10 @@ function openPrintWindow() {
             nonIndKcal: 0, nonIndM3: 0,
             indKcal: 0, indM3: 0
         };
+
+        // [핵심 해결] 브라우저 환경에 구애받지 않고 1000단위 콤마 및 소수점 첫째 자리를 무조건 보장하는 포맷터
+        const formatInt = (val) => Number(val).toLocaleString('en-US');
+        const formatFloat = (val) => Number(val).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
         function generateId() { return Math.random().toString(36).substr(2, 9); }
 
@@ -14583,8 +14575,8 @@ function openPrintWindow() {
                 if (showCatSubtotal) {
                     categoryHtml += `<tr class="bg-light-gray font-bold text-slate-800 border-b border-slate-300">
                         <td colspan="3" class="text-center px-1 text-[14px] md:text-[15px] py-1">소계</td>
-                        <td class="text-center px-1 text-[14px] md:text-[15px]">${totals.qty}</td>
-                        <td class="text-right pr-3 md:pr-4 whitespace-nowrap tracking-tighter text-[18px] md:text-[20px]">${totals.kcal.toLocaleString('ko-KR')}</td>
+                        <td class="text-center px-1 text-[14px] md:text-[15px]">${formatInt(totals.qty)}</td>
+                        <td class="text-right pr-3 md:pr-4 whitespace-nowrap tracking-tighter text-[18px] md:text-[20px]">${formatInt(totals.kcal)}</td>
                         <td rowspan="${totalRowsInCategory}" class="${labelClass}">
                             <span style="position:relative; z-index:10; display:inline-block;">${displayLabel}</span>
                         </td></tr>`;
@@ -14600,8 +14592,8 @@ function openPrintWindow() {
                             <span style="position:relative; z-index:10; display:inline-block;">${locName}</span>
                         </td>
                         <td colspan="2" class="text-center text-slate-600 px-1 text-[14px] md:text-[15px] py-1">사용처 소계</td>
-                        <td class="text-center text-slate-800 px-1 text-[14px] md:text-[15px]">${loc.totalQty}</td>
-                        <td class="text-right pr-3 md:pr-4 whitespace-nowrap tracking-tighter text-[18px] md:text-[20px]">${loc.totalKcal.toLocaleString('ko-KR')}</td>`;
+                        <td class="text-center text-slate-800 px-1 text-[14px] md:text-[15px]">${formatInt(loc.totalQty)}</td>
+                        <td class="text-right pr-3 md:pr-4 whitespace-nowrap tracking-tighter text-[18px] md:text-[20px]">${formatInt(loc.totalKcal)}</td>`;
                     
                     if (isFirstCategoryRow) {
                         categoryHtml += `<td rowspan="${totalRowsInCategory}" class="${labelClass}">
@@ -14617,10 +14609,9 @@ function openPrintWindow() {
                         
                         categoryHtml += `<tr class="bg-white text-slate-800 border-b border-slate-300">
                             <td class="text-left pl-1 md:pl-2 text-[14px] md:text-[15px] break-keep leading-tight py-1">${appName}</td>
-                            <!-- UI 화면 단위소비량, 총소비량 콤마 적용, 우측 여백 확보 -->
-                            <td class="text-right pr-3 md:pr-4 whitespace-nowrap tracking-tighter text-[18px] md:text-[20px]">${(Number(app.consumption)||0).toLocaleString('ko-KR')}</td>
-                            <td class="px-1 text-[14px] md:text-[15px]">${app.quantity}</td>
-                            <td class="text-right pr-3 md:pr-4 font-bold whitespace-nowrap tracking-tighter text-[18px] md:text-[20px]">${rowTotal.toLocaleString('ko-KR')}</td>
+                            <td class="text-right pr-3 md:pr-4 whitespace-nowrap tracking-tighter text-[18px] md:text-[20px]">${formatInt(Number(app.consumption)||0)}</td>
+                            <td class="px-1 text-[14px] md:text-[15px]">${formatInt(app.quantity)}</td>
+                            <td class="text-right pr-3 md:pr-4 font-bold whitespace-nowrap tracking-tighter text-[18px] md:text-[20px]">${formatInt(rowTotal)}</td>
                         </tr>`;
                     });
                 });
@@ -14634,8 +14625,8 @@ function openPrintWindow() {
             if (grandTotalKcal > 0 || grandTotalQty > 0) {
                 detailHtml += `<tr class="bg-light-gray border-b-2 border-slate-400 font-extrabold text-slate-900">
                     <td colspan="3" class="text-center px-1 text-[14px] md:text-[15px] py-1">총 계</td>
-                    <td class="text-center px-1 text-[14px] md:text-[15px]">${grandTotalQty}</td>
-                    <td class="text-right pr-3 md:pr-4 whitespace-nowrap tracking-tighter text-[18px] md:text-[20px]">${grandTotalKcal.toLocaleString('ko-KR')}</td>
+                    <td class="text-center px-1 text-[14px] md:text-[15px]">${formatInt(grandTotalQty)}</td>
+                    <td class="text-right pr-3 md:pr-4 whitespace-nowrap tracking-tighter text-[18px] md:text-[20px]">${formatInt(grandTotalKcal)}</td>
                     <td class="bg-light-gray border-b border-slate-400"></td>
                 </tr>`;
             }
@@ -14663,29 +14654,23 @@ function openPrintWindow() {
                 const labelClass = isTotal ? "font-extrabold text-slate-900 text-[15px] md:text-lg" : "font-bold text-slate-700 text-[14px] md:text-base tracking-tighter";
                 const rowClass = isTotal ? "bg-light-gray border-b-2 border-slate-400" : "bg-white border-b border-slate-400";
                 
-                // 총소비량 텍스트 가운데 정렬
                 const kcalStyle = isTotal ? "text-center text-[22px] md:text-[15px] font-bold text-slate-800" : "text-center text-[21px] md:text-[14px] font-bold text-slate-700";
-                
-                // 월사용예정량 텍스트 가운데 정렬
                 const m3Color = isTotal ? "text-center text-orange-600 font-black result-highlight" : "text-center text-slate-700 font-bold";
                 const m3SizeMob = isTotal ? "text-[27px]" : "text-[21px]"; 
                 const m3SizePC = isTotal ? "29px" : "14px"; 
 
-                // [웹 UI] 요청대로 총계(isTotal)인 경우에만 단위를 표시하여 시인성 향상 (소계는 단위 생략)
-                const kcalText = isTotal ? `${kcal.toLocaleString('ko-KR')} <span style="font-size:0.65em; font-weight:normal;">Kcal/hr</span>` : `${kcal.toLocaleString('ko-KR')}`;
-                const m3Text = isTotal ? `${m3.toFixed(1)} <span style="font-size:0.65em; font-weight:normal;">m³/月</span>` : `${m3.toFixed(1)}`;
+                // 총계(isTotal)일 경우에만 단위 표시, 화면 출력 시 1,000단위 콤마 완벽 보장 (formatInt, formatFloat 적용)
+                const kcalText = isTotal ? `${formatInt(kcal)} <span style="font-size:0.65em; font-weight:normal;">Kcal/hr</span>` : `${formatInt(kcal)}`;
+                const m3Text = isTotal ? `${formatFloat(m3)} <span style="font-size:0.65em; font-weight:normal;">m³/月</span>` : `${formatFloat(m3)}`;
 
                 return `
                     <tr class="${rowClass}">
                         <td class="text-center ${labelClass} px-1 py-1.5 md:py-2 border border-slate-400">${label}</td>
                         <td class="${kcalStyle} whitespace-nowrap tracking-tighter border border-slate-400">
-                            <!-- 모바일/PC 분리 없이 하나의 텍스트로 처리 -->
-                            <span style="${isTotal ? '' : 'font-size:inherit !important;'}">
-                                ${kcalText}
-                            </span>
+                            <span style="${isTotal ? '' : 'font-size:inherit !important;'}">${kcalText}</span>
                         </td>
                         <td class="${isTotal ? 'bg-light-gray' : 'bg-white'} border border-slate-400 ${m3Color} whitespace-nowrap tracking-tighter">
-                            <span class="md:hidden ${m3SizeMob}">${isTotal ? `${m3.toFixed(1)} <span style="font-size:0.5em; font-weight:normal;">m³/月</span>` : m3.toFixed(1)}</span>
+                            <span class="md:hidden ${m3SizeMob}">${isTotal ? `${formatFloat(m3)} <span style="font-size:0.5em; font-weight:normal;">m³/月</span>` : formatFloat(m3)}</span>
                             <span class="hidden md:inline" style="font-size:${m3SizePC} !important;">
                                 ${m3Text}
                             </span>
@@ -14710,7 +14695,7 @@ function openPrintWindow() {
         }
 
         // ==========================================
-        // 💾 [최종 진화형] 엑셀(.xls) 저장 (수식 내장 및 서식 완벽 통제 알고리즘 적용)
+        // 💾 엑셀(.xls) 저장 (강제 인라인 포맷팅으로 콤마 및 우측정렬 오류 원천 차단)
         // ==========================================
         function exportToExcel() {
             if(window.calcData.totalM3 === 0 && window.calcData.mode === 'empty') {
@@ -14721,16 +14706,15 @@ function openPrintWindow() {
             const businessNumber = document.getElementById('business-number').value.trim();
             const dateStr = new Date().toLocaleDateString('ko-KR');
 
-            // --- 1. 엑셀에 내장시킬 수식(Formula)을 위해 각 데이터의 행(Row) 번호 사전 계산 ---
             let r = 0;
-            r++; // 1 Title
-            r++; // 2 Date
+            r++; // Title
+            r++; // Date
             
             let infoStr = '';
             if (facilityName) infoStr += `시설명: ${facilityName}`;
             if (facilityName && businessNumber) infoStr += ` / `;
             if (businessNumber) infoStr += `업소번호: ${businessNumber}`;
-            if (infoStr) r++; // 3 Info
+            if (infoStr) r++; 
             
             r++; // Empty
             r++; // Summary Title
@@ -14739,7 +14723,6 @@ function openPrintWindow() {
             let mode = window.calcData.mode;
             let sumTotalRow = 0, sumNonIndRow = 0, sumIndRow = 0;
             
-            // 요약표 행(Row) 번호 맵핑
             if (mode === 'both') {
                 sumTotalRow = ++r;
                 sumNonIndRow = ++r;
@@ -14763,7 +14746,6 @@ function openPrintWindow() {
             let detTotalRow = 0;
             if (window.calcData.totalKcal > 0) detTotalRow = ++r;
 
-            // 세부내역표(사용처, 연소기) 행(Row) 번호 맵핑 함수
             const mapDetailRows = (dataList) => {
                 let locsInfo = [];
                 let catR = 0;
@@ -14780,7 +14762,6 @@ function openPrintWindow() {
             const nonIndData = mapDetailRows(state.nonInd);
             const indData = mapDetailRows(state.ind);
 
-            // --- 2. 동적 수식(Formula) 생성 ---
             const getQtyFormula = (locsInfo) => locsInfo.length > 0 ? "=" + locsInfo.map(l => "D"+l.subtotalR).join("+") : "0";
             const getKcalFormula = (locsInfo) => locsInfo.length > 0 ? "=" + locsInfo.map(l => "E"+l.subtotalR).join("+") : "0";
 
@@ -14795,34 +14776,25 @@ function openPrintWindow() {
             let nonIndSummaryKcal = nonIndKcalRef && nonIndKcalRef!=="0" ? "=" + nonIndKcalRef : "0";
             let indSummaryKcal = indKcalRef && indKcalRef!=="0" ? "=" + indKcalRef : "0";
             
-            // 월사용예정량 산출 수식 (비산업용 90, 산업용 240 계수 반영 및 엑셀 ROUND 함수로 소수점 첫째자리 반올림 적용)
             let nonIndSummaryM3 = sumNonIndRow ? `=ROUND(C${sumNonIndRow}*90/11000, 1)` : "0";
             let indSummaryM3 = sumIndRow ? `=ROUND(C${sumIndRow}*240/11000, 1)` : "0";
             let totalSummaryParts = [sumNonIndRow ? `E${sumNonIndRow}` : "", sumIndRow ? `E${sumIndRow}` : ""].filter(x=>x);
             let totalSummaryM3 = totalSummaryParts.length > 0 ? `=ROUND(${totalSummaryParts.join("+")}, 1)` : "0";
 
-            // --- 3. 엑셀 강제 인라인 스타일 정의 (호환성 버그 원천 차단) ---
+            // [해결포인트] 한컴 셀(훈셀) 및 브라우저 호환성을 100% 보장하기 위해 엑셀 HTML 태그에 직접 강제 포맷팅 적용
             const border = "border: 1pt solid #000;";
             const bgHeader = "background-color: #f1f5f9; font-weight: bold;";
             
             const centerAlign = `${border} text-align: center;`;
             const leftAlign = `${border} text-align: left; padding-left: 5px;`;
-            
-            // [해결포인트] 엑셀 내장 포맷 기능을 우회하여, 자바스크립트가 문자열 형태의 숫자(콤마 포함, 우측 패딩)로 엑셀 셀에 강제 주입함
-            const rightAlignNum = `${border} text-align: right; padding-right: 15px; mso-number-format: "\\#\\,\\#\\#0";`;
-            const centerAlignNum = `${border} text-align: center; mso-number-format: "\\#\\,\\#\\#0";`;
-            const centerAlignFloat = `${border} text-align: center; mso-number-format: "\\#\\,\\#\\#0\\.0";`;
-            
+            // [해결] 칼로리 수치가 엑셀 내에서 무조건 우측으로 정렬되고 15px 패딩을 갖도록 하드코딩
+            const rightAlign = `${border} text-align: right; padding-right: 15px;`;
             const headerCenter = `${border} ${bgHeader} text-align: center;`;
-            const headerRightNum = `${border} ${bgHeader} text-align: right; padding-right: 15px; mso-number-format: "\\#\\,\\#\\#0";`;
-            const headerCenterNum = `${border} ${bgHeader} text-align: center; mso-number-format: "\\#\\,\\#\\#0";`;
 
-            // --- 4. 엑셀용 순수 HTML 조립 ---
             let excelHtml = `
                 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
                 <head>
                     <meta charset="utf-8">
-                    <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>계산결과</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
                     <style>
                         table { border-collapse: collapse; width: 100%; font-family: 'Malgun Gothic', sans-serif; font-size: 11pt; }
                     </style>
@@ -14847,28 +14819,30 @@ function openPrintWindow() {
                         </tr>
             `;
 
-            const addSummaryRowHtml = (label, kcalFormula, m3Formula, isTotal) => {
+            const addSummaryRowHtml = (label, kcalVal, kcalFormula, m3Val, m3Formula, isTotal) => {
                 const fontStyle = isTotal ? "font-weight: bold;" : "font-weight: normal;";
-                const colorStyle = isTotal ? "color: #ea580c; font-weight: bold;" : "font-weight: normal; color: #000;";
+                const colorStyle = isTotal ? "color: #ea580c; font-weight: bold;" : "color: #000; font-weight: normal;";
                 const bgStyle = isTotal ? bgHeader : "background-color: #ffffff;";
                 
-                // 요청하신 대로 엑셀 결과표에서는 단위를 생략하고 순수 숫자(수식)만 표시합니다.
+                // [해결] 총계 행에만 단위를 포함시키되, 엑셀 수식이 망가지지 않도록 단위가 포함된 셀은 순수 텍스트(포맷 적용)로 출력
+                const displayKcal = isTotal ? `${formatInt(kcalVal)} Kcal/hr` : formatInt(kcalVal);
+                const displayM3 = isTotal ? `${formatFloat(m3Val)} m³/月` : formatFloat(m3Val);
+                
                 excelHtml += `<tr>
                     <td colspan="2" style="${centerAlign} ${bgStyle} ${fontStyle}">${label}</td>
-                    <!-- 엑셀 데이터 가운데 정렬, 천단위 콤마 포맷 -->
-                    <td colspan="2" style="${centerAlignNum} ${bgStyle} ${fontStyle}">${kcalFormula}</td>
-                    <td colspan="2" style="${centerAlignFloat} ${bgStyle} ${colorStyle}">${m3Formula}</td>
+                    <td colspan="2" style="${centerAlign} ${bgStyle} ${fontStyle}" ${!isTotal ? `x:fmla="${kcalFormula}"` : ''}>${displayKcal}</td>
+                    <td colspan="2" style="${centerAlign} ${bgStyle} ${colorStyle}" ${!isTotal ? `x:fmla="${m3Formula}"` : ''}>${displayM3}</td>
                 </tr>`;
             };
 
             if (mode === 'both') {
-                addSummaryRowHtml('계', totalKcalFormula, totalSummaryM3, true);
-                addSummaryRowHtml('비산업용', nonIndSummaryKcal, nonIndSummaryM3, false);
-                addSummaryRowHtml('산업용', indSummaryKcal, indSummaryM3, false);
+                addSummaryRowHtml('계', window.calcData.totalKcal, totalKcalFormula, window.calcData.totalM3, totalSummaryM3, true);
+                addSummaryRowHtml('비산업용', window.calcData.nonIndKcal, nonIndSummaryKcal, window.calcData.nonIndM3, nonIndSummaryM3, false);
+                addSummaryRowHtml('산업용', window.calcData.indKcal, indSummaryKcal, window.calcData.indM3, indSummaryM3, false);
             } else if (mode === 'nonInd') {
-                addSummaryRowHtml('비산업용', totalKcalFormula, nonIndSummaryM3, true);
+                addSummaryRowHtml('비산업용', window.calcData.nonIndKcal, totalKcalFormula, window.calcData.nonIndM3, nonIndSummaryM3, true);
             } else if (mode === 'ind') {
-                addSummaryRowHtml('산업용', totalKcalFormula, indSummaryM3, true);
+                addSummaryRowHtml('산업용', window.calcData.indKcal, totalKcalFormula, window.calcData.indM3, indSummaryM3, true);
             }
 
             excelHtml += `
@@ -14887,14 +14861,13 @@ function openPrintWindow() {
             if (detTotalRow) {
                 excelHtml += `<tr>
                     <td colspan="3" style="${headerCenter}">총 계</td>
-                    <td style="${headerCenterNum}">${totalQtyFormula}</td>
-                    <!-- 총소비량 우측 정렬 유지 (여백 15px 적용됨) -->
-                    <td style="${headerRightNum}">${totalKcalFormula}</td>
+                    <td style="${headerCenter}">${formatInt(nonIndTotals.qty + indTotals.qty)}</td>
+                    <td style="${headerCenter.replace('center', 'right')} padding-right: 15px;" x:fmla="${totalKcalFormula}">${formatInt(window.calcData.totalKcal)}</td>
                     <td style="${headerCenter}"></td>
                 </tr>`;
             }
 
-            const buildDetailHtml = (dataList, typeLabel, dataMeta) => {
+            const buildDetailHtml = (dataList, typeLabel, dataMeta, totals) => {
                 if (dataList.length === 0) return '';
                 let html = '';
                 let isFirstRow = true;
@@ -14905,8 +14878,8 @@ function openPrintWindow() {
                     let catKcal = getKcalFormula(dataMeta.locsInfo);
                     html += `<tr>
                         <td colspan="3" style="${headerCenter}">소계</td>
-                        <td style="${headerCenterNum}">${catQty}</td>
-                        <td style="${headerRightNum}">${catKcal}</td>
+                        <td style="${headerCenter}" x:fmla="${catQty}">${formatInt(totals.qty)}</td>
+                        <td style="${headerCenter.replace('center', 'right')} padding-right: 15px;" x:fmla="${catKcal}">${formatInt(totals.kcal)}</td>
                         <td rowspan="${totalRows}" style="${headerCenter}">${typeLabel}</td>
                     </tr>`;
                     isFirstRow = false;
@@ -14923,8 +14896,8 @@ function openPrintWindow() {
                     html += `<tr>
                         <td rowspan="${locRowspan}" style="${centerAlign}">${locName}</td>
                         <td colspan="2" style="${centerAlign}">사용처 소계</td>
-                        <td style="${centerAlignNum}">${locQty}</td>
-                        <td style="${headerRightNum}">${locKcal}</td>
+                        <td style="${centerAlign}" x:fmla="${locQty}">${formatInt(loc.totalQty)}</td>
+                        <td style="${rightAlign}" x:fmla="${locKcal}">${formatInt(loc.totalKcal)}</td>
                         ${isFirstRow ? `<td rowspan="${totalRows}" style="${centerAlign}">${typeLabel}</td>` : ''}
                     </tr>`;
                     isFirstRow = false;
@@ -14934,21 +14907,21 @@ function openPrintWindow() {
                         const appR = info.appR[j];
                         const unitKcal = Number(app.consumption) || 0;
                         const qty = Number(app.quantity) || 1;
+                        const rowTotal = unitKcal * qty;
                         
                         html += `<tr>
                             <td style="${leftAlign}">${appName}</td>
-                            <!-- 우측 정렬 및 수식 연산 부여 -->
-                            <td style="${rightAlignNum}">${unitKcal}</td>
-                            <td style="${centerAlignNum}">${qty}</td>
-                            <td style="${rightAlignNum}">=C${appR}*D${appR}</td>
+                            <td style="${rightAlign}">${formatInt(unitKcal)}</td>
+                            <td style="${centerAlign}">${formatInt(qty)}</td>
+                            <td style="${rightAlign} font-weight: bold;" x:fmla="=C${appR}*D${appR}">${formatInt(rowTotal)}</td>
                         </tr>`;
                     });
                 });
                 return html;
             };
 
-            excelHtml += buildDetailHtml(state.nonInd, '비산업용', nonIndData);
-            excelHtml += buildDetailHtml(state.ind, '산업용', indData);
+            excelHtml += buildDetailHtml(state.nonInd, '비산업용', nonIndData, nonIndTotals);
+            excelHtml += buildDetailHtml(state.ind, '산업용', indData, indTotals);
 
             excelHtml += `
                         <tr>
@@ -14961,7 +14934,7 @@ function openPrintWindow() {
                 </html>
             `;
 
-            // 5. 브라우저 로컬 저장 기능 실행
+            // 브라우저 로컬 저장 기능 실행
             const blob = new Blob([excelHtml], { type: 'application/vnd.ms-excel' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
