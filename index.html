@@ -14206,6 +14206,8 @@ function openPrintWindow() {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>월사용예정량 계산 및 정리 (KGS FU551)</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 완벽한 순수 .xlsx 파일 생성을 위한 ExcelJS 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <style>
         * { -webkit-tap-highlight-color: transparent; }
         
@@ -14252,6 +14254,9 @@ function openPrintWindow() {
 
     <div class="w-full sm:w-[98%] max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-3 lg:gap-6 py-2 sm:py-6 items-start px-1 sm:px-0">
 
+        <!-- ==========================================
+             [좌측 구역] 사용처 및 연소기 입력창
+             ========================================== -->
         <div class="w-full lg:w-1/2 flex flex-col gap-3 z-20 overflow-hidden">
             
             <div class="bg-white p-2 sm:p-4 rounded-xl shadow-md border border-slate-200">
@@ -14275,6 +14280,7 @@ function openPrintWindow() {
                     </div>
                 </div>
 
+                <!-- 비산업용 사용처 섹션 -->
                 <div class="mb-3">
                     <div class="flex justify-between items-center bg-blue-50 p-1.5 rounded-t border-b border-blue-200">
                         <h2 class="text-[15px] sm:text-base font-bold text-blue-800 flex items-center gap-1 sm:gap-1.5 pl-1 tracking-tighter">
@@ -14295,6 +14301,7 @@ function openPrintWindow() {
                     </div>
                 </div>
 
+                <!-- 산업용 사용처 섹션 -->
                 <div>
                     <div class="flex justify-between items-center bg-orange-50 p-1.5 rounded-t border-b border-orange-200">
                         <h2 class="text-[15px] sm:text-base font-bold text-orange-800 flex items-center gap-1 sm:gap-1.5 pl-1 tracking-tighter">
@@ -14322,6 +14329,9 @@ function openPrintWindow() {
             </div>
         </div>
 
+        <!-- ==========================================
+             [우측 구역] 산출 결과 표
+             ========================================== -->
         <div class="w-full lg:w-1/2 flex flex-col gap-4 lg:gap-6 sticky top-2 sm:top-6">
 
             <div id="capture-area" class="bg-slate-200 flex flex-col p-1.5 sm:p-4 md:p-5 rounded-xl shadow-lg border border-slate-300">
@@ -14335,6 +14345,7 @@ function openPrintWindow() {
                     </div>
                 </div>
 
+                <!-- Table 2: 요약 및 최종 결과 표 -->
                 <div class="mb-4 sm:mb-5 w-full">
                     <h3 class="text-sm font-bold text-slate-800 mb-1 border-l-[3px] border-orange-600 pl-2">최종 월사용예정량</h3>
                     <div class="rounded-lg shadow-sm border border-slate-400 overflow-hidden bg-white w-full">
@@ -14347,11 +14358,13 @@ function openPrintWindow() {
                                 </tr>
                             </thead>
                             <tbody id="summary-tbody">
-                                </tbody>
+                                <!-- JS 동적 렌더링 -->
+                            </tbody>
                         </table>
                     </div>
                 </div>
 
+                <!-- Table 1: 세부 내역 표 -->
                 <div class="w-full">
                     <h3 class="text-sm font-bold text-slate-800 mb-1 border-l-[3px] border-blue-600 pl-2">연소기별 세부 내역</h3>
                     <div class="rounded-lg shadow-sm border border-slate-400 overflow-x-auto bg-white w-full">
@@ -14387,7 +14400,6 @@ function openPrintWindow() {
             indKcal: 0, indM3: 0
         };
 
-        // [핵심 해결] 브라우저 환경에 구애받지 않고 1000단위 콤마 및 소수점 첫째 자리를 무조건 보장하는 포맷터
         const formatInt = (val) => Number(val).toLocaleString('en-US');
         const formatFloat = (val) => Number(val).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
@@ -14463,7 +14475,7 @@ function openPrintWindow() {
         }
 
         // ==========================================
-        // UI 렌더링
+        // UI 렌더링 영역
         // ==========================================
         function renderAll() {
             renderInputs('nonInd', 'nonInd-container');
@@ -14485,7 +14497,6 @@ function openPrintWindow() {
 
                 let html = `
                     <div class="bg-slate-50 border border-slate-200 rounded p-1 sm:p-1.5 relative shadow-sm w-full">
-                        
                         <div class="flex items-center gap-1 mb-1 pb-1 border-b border-slate-200 px-0.5 w-full">
                             <div class="w-[35%]">
                                 <input type="text" placeholder="${defaultLocName}" value="${loc.name}" oninput="updateLocationInfo('${type}', '${loc.id}', this.value)"
@@ -14532,9 +14543,6 @@ function openPrintWindow() {
             }
         }
 
-        // ==========================================
-        // 계산 로직 
-        // ==========================================
         function calculateCategoryTotals(dataList) {
             let totalKcal = 0;
             let totalQty = 0;
@@ -14659,7 +14667,6 @@ function openPrintWindow() {
                 const m3SizeMob = isTotal ? "text-[27px]" : "text-[21px]"; 
                 const m3SizePC = isTotal ? "29px" : "14px"; 
 
-                // 총계(isTotal)일 경우에만 단위 표시, 화면 출력 시 1,000단위 콤마 완벽 보장 (formatInt, formatFloat 적용)
                 const kcalText = isTotal ? `${formatInt(kcal)} <span style="font-size:0.65em; font-weight:normal;">Kcal/hr</span>` : `${formatInt(kcal)}`;
                 const m3Text = isTotal ? `${formatFloat(m3)} <span style="font-size:0.65em; font-weight:normal;">m³/月</span>` : `${formatFloat(m3)}`;
 
@@ -14695,7 +14702,7 @@ function openPrintWindow() {
         }
 
         // ==========================================
-        // 💾 엑셀(.xls) 저장 (강제 인라인 포맷팅으로 콤마 및 우측정렬 오류 원천 차단)
+        // 💾 엑셀(.xlsx) 저장 [가장 완벽했던 ExcelJS 버전 복구 및 폭 30으로 정밀 축소]
         // ==========================================
         function exportToExcel() {
             if(window.calcData.totalM3 === 0 && window.calcData.mode === 'empty') {
@@ -14706,244 +14713,344 @@ function openPrintWindow() {
             const businessNumber = document.getElementById('business-number').value.trim();
             const dateStr = new Date().toLocaleDateString('ko-KR');
 
-            let r = 0;
-            r++; // Title
-            r++; // Date
+            const workbook = new ExcelJS.Workbook();
+            const sheet = workbook.addWorksheet('계산결과');
+
+            // [핵심 1] 지시하신 대로 E열(총소비량)의 폭을 '30'으로 정확하게 축소 반영했습니다.
+            sheet.columns = [
+                { width: 15 }, // A: 사용처
+                { width: 22 }, // B: 연소기
+                { width: 20 }, // C: 단위소비량
+                { width: 10 }, // D: 수량
+                { width: 30 }, // E: 총소비량 (폭 30으로 지정)
+                { width: 15 }  // F: 비고
+            ];
+
+            const borderAll = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+            const fillHeader = { type: 'pattern', pattern: 'solid', fgColor: {argb:'FFF1F5F9'} };
+            const fontBold = { bold: true, size: 11, name: '맑은 고딕' };
+            const fontNormal = { size: 11, name: '맑은 고딕' };
             
+            let r = 1;
+
+            // 1. 보고서 제목
+            sheet.mergeCells(`A${r}:F${r}`);
+            let titleCell = sheet.getCell(`A${r}`);
+            titleCell.value = '월사용예정량 계산 및 정리 보고서';
+            titleCell.font = { bold: true, size: 18, name: '맑은 고딕' };
+            titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+            sheet.getRow(r).height = 40;
+            r++;
+
+            // [핵심 2] 출력일자 (테두리 없음, 우측 정렬 완벽 적용)
+            sheet.mergeCells(`A${r}:F${r}`);
+            let dateCell = sheet.getCell(`A${r}`);
+            dateCell.value = `출력일자: ${dateStr}`;
+            dateCell.font = fontNormal;
+            dateCell.alignment = { horizontal: 'right', vertical: 'middle' };
+            r++;
+
+            // 시설명 및 업소번호
             let infoStr = '';
             if (facilityName) infoStr += `시설명: ${facilityName}`;
             if (facilityName && businessNumber) infoStr += ` / `;
             if (businessNumber) infoStr += `업소번호: ${businessNumber}`;
-            if (infoStr) r++; 
-            
-            r++; // Empty
-            r++; // Summary Title
-            r++; // Summary Header
-
-            let mode = window.calcData.mode;
-            let sumTotalRow = 0, sumNonIndRow = 0, sumIndRow = 0;
-            
-            if (mode === 'both') {
-                sumTotalRow = ++r;
-                sumNonIndRow = ++r;
-                sumIndRow = ++r;
-            } else if (mode === 'nonInd') {
-                sumTotalRow = ++r;
-                sumNonIndRow = sumTotalRow;
-            } else if (mode === 'ind') {
-                sumTotalRow = ++r;
-                sumIndRow = sumTotalRow;
+            if (infoStr) {
+                sheet.mergeCells(`A${r}:F${r}`);
+                let infoCell = sheet.getCell(`A${r}`);
+                infoCell.value = infoStr;
+                infoCell.font = fontBold;
+                infoCell.alignment = { horizontal: 'left', vertical: 'middle' };
+                r++;
             }
 
-            r++; // Empty
-            r++; // Detail Title
-            r++; // Detail Header
+            r++; // 빈 줄
+
+            // 2. 최종 산출 요약 섹션
+            sheet.mergeCells(`A${r}:F${r}`);
+            let sumTitle = sheet.getCell(`A${r}`);
+            sumTitle.value = '■ 최종 산출 요약';
+            sumTitle.font = { bold: true, size: 13, name: '맑은 고딕' };
+            sumTitle.alignment = { horizontal: 'left', vertical: 'middle' };
+            r++;
+
+            sheet.mergeCells(`A${r}:B${r}`);
+            sheet.mergeCells(`C${r}:D${r}`);
+            sheet.mergeCells(`E${r}:F${r}`);
+            ['A', 'C', 'E'].forEach((col, idx) => {
+                let cell = sheet.getCell(`${col}${r}`);
+                cell.value = ['구분', '총 소비량 (Kcal/hr)', '월사용예정량 (m³/月)'][idx];
+                cell.font = fontBold;
+                cell.fill = fillHeader;
+                cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            });
+            ['A','B','C','D','E','F'].forEach(c => sheet.getCell(`${c}${r}`).border = borderAll);
+            r++;
+
+            let sumTotalR = 0, sumNonIndR = 0, sumIndR = 0;
+            const mode = window.calcData.mode;
+
+            // [핵심 3] 엑셀에서 수식이 안전하게 동작하기 위해 단위 생략 & 1000단위 콤마 서식 적용 유지
+            const addSummaryRow = (label, isTotal) => {
+                sheet.mergeCells(`A${r}:B${r}`);
+                sheet.mergeCells(`C${r}:D${r}`);
+                sheet.mergeCells(`E${r}:F${r}`);
+                
+                let labelCell = sheet.getCell(`A${r}`);
+                labelCell.value = label;
+                labelCell.font = isTotal ? fontBold : fontNormal;
+                labelCell.alignment = { horizontal: 'center', vertical: 'middle' };
+                if(isTotal) labelCell.fill = fillHeader;
+
+                let kcalCell = sheet.getCell(`C${r}`);
+                kcalCell.font = isTotal ? fontBold : fontNormal;
+                kcalCell.alignment = { horizontal: 'center', vertical: 'middle' };
+                kcalCell.numFmt = '#,##0'; // 1000단위 콤마 엑셀 네이티브 서식
+                if(isTotal) kcalCell.fill = fillHeader;
+
+                let m3Cell = sheet.getCell(`E${r}`);
+                m3Cell.font = isTotal ? { bold: true, size: 11, name: '맑은 고딕', color: {argb:'FFEA580C'} } : fontNormal;
+                m3Cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                m3Cell.numFmt = '#,##0.0'; // 소수점 및 1000단위 콤마 엑셀 네이티브 서식
+                if(isTotal) m3Cell.fill = fillHeader;
+
+                ['A','B','C','D','E','F'].forEach(c => sheet.getCell(`${c}${r}`).border = borderAll);
+                
+                let currR = r;
+                r++;
+                return currR;
+            };
+
+            if (mode === 'both') {
+                sumTotalR = addSummaryRow('계', true);
+                sumNonIndR = addSummaryRow('비산업용', false);
+                sumIndR = addSummaryRow('산업용', false);
+            } else if (mode === 'nonInd') {
+                sumTotalR = sumNonIndR = addSummaryRow('비산업용', true);
+            } else if (mode === 'ind') {
+                sumTotalR = sumIndR = addSummaryRow('산업용', true);
+            }
+
+            r++; // 빈 줄
+
+            // 3. 연소기별 세부 내역 섹션
+            sheet.mergeCells(`A${r}:F${r}`);
+            let detTitle = sheet.getCell(`A${r}`);
+            detTitle.value = '■ 연소기별 세부 내역';
+            detTitle.font = { bold: true, size: 13, name: '맑은 고딕' };
+            detTitle.alignment = { horizontal: 'left', vertical: 'middle' };
+            r++;
+
+            const headers = ['사용처', '연소기', '단위소비량 (Kcal/hr)', '수량', '총소비량 (Kcal/hr)', '비고'];
+            ['A','B','C','D','E','F'].forEach((col, i) => {
+                let cell = sheet.getCell(`${col}${r}`);
+                cell.value = headers[i];
+                cell.font = fontBold;
+                cell.fill = fillHeader;
+                cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                cell.border = borderAll;
+            });
+            r++;
 
             const nonIndTotals = calculateCategoryTotals(state.nonInd);
             const indTotals = calculateCategoryTotals(state.ind);
             const showSubtotals = nonIndTotals.kcal > 0 && indTotals.kcal > 0;
 
-            let detTotalRow = 0;
-            if (window.calcData.totalKcal > 0) detTotalRow = ++r;
+            let detTotalR = 0;
+            if (window.calcData.totalKcal > 0) {
+                sheet.mergeCells(`A${r}:C${r}`);
+                let c1 = sheet.getCell(`A${r}`);
+                c1.value = '총 계';
+                c1.font = fontBold; c1.fill = fillHeader; c1.alignment = { horizontal: 'center', vertical: 'middle' };
+                
+                let qtyCell = sheet.getCell(`D${r}`);
+                qtyCell.font = fontBold; qtyCell.fill = fillHeader; qtyCell.alignment = { horizontal: 'center', vertical: 'middle' };
+                qtyCell.numFmt = '#,##0';
 
+                let kcalCell = sheet.getCell(`E${r}`);
+                kcalCell.font = fontBold; kcalCell.fill = fillHeader; kcalCell.alignment = { horizontal: 'right', vertical: 'middle' };
+                kcalCell.numFmt = '#,##0';
+
+                let noteCell = sheet.getCell(`F${r}`);
+                noteCell.fill = fillHeader;
+
+                ['A','B','C','D','E','F'].forEach(c => sheet.getCell(`${c}${r}`).border = borderAll);
+                detTotalR = r;
+                r++;
+            }
+
+            // 각 요소가 들어갈 행(Row) 번호를 사전에 정확히 매핑하여 수식 주소 계산
             const mapDetailRows = (dataList) => {
                 let locsInfo = [];
                 let catR = 0;
-                if (showSubtotals && dataList.length > 0) catR = ++r;
+                if (showSubtotals && dataList.length > 0) { catR = r; r++; }
                 dataList.forEach(loc => {
-                    let locR = ++r;
+                    let locR = r; r++;
                     let apps = [];
-                    loc.appliances.forEach(() => apps.push(++r));
+                    loc.appliances.forEach(() => { apps.push(r); r++; });
                     locsInfo.push({ subtotalR: locR, appR: apps });
                 });
                 return { catR, locsInfo };
             };
 
+            let tempR = r;
             const nonIndData = mapDetailRows(state.nonInd);
             const indData = mapDetailRows(state.ind);
+            r = tempR;
 
-            const getQtyFormula = (locsInfo) => locsInfo.length > 0 ? "=" + locsInfo.map(l => "D"+l.subtotalR).join("+") : "0";
-            const getKcalFormula = (locsInfo) => locsInfo.length > 0 ? "=" + locsInfo.map(l => "E"+l.subtotalR).join("+") : "0";
-
-            let nonIndQtyRef = nonIndData.catR ? `D${nonIndData.catR}` : getQtyFormula(nonIndData.locsInfo).replace("=","");
-            let indQtyRef = indData.catR ? `D${indData.catR}` : getQtyFormula(indData.locsInfo).replace("=","");
-            let totalQtyFormula = "=" + [nonIndQtyRef, indQtyRef].filter(x=>x && x!=="0").join("+") || "0";
-
-            let nonIndKcalRef = nonIndData.catR ? `E${nonIndData.catR}` : getKcalFormula(nonIndData.locsInfo).replace("=","");
-            let indKcalRef = indData.catR ? `E${indData.catR}` : getKcalFormula(indData.locsInfo).replace("=","");
-            let totalKcalFormula = "=" + [nonIndKcalRef, indKcalRef].filter(x=>x && x!=="0").join("+") || "0";
-
-            let nonIndSummaryKcal = nonIndKcalRef && nonIndKcalRef!=="0" ? "=" + nonIndKcalRef : "0";
-            let indSummaryKcal = indKcalRef && indKcalRef!=="0" ? "=" + indKcalRef : "0";
-            
-            let nonIndSummaryM3 = sumNonIndRow ? `=ROUND(C${sumNonIndRow}*90/11000, 1)` : "0";
-            let indSummaryM3 = sumIndRow ? `=ROUND(C${sumIndRow}*240/11000, 1)` : "0";
-            let totalSummaryParts = [sumNonIndRow ? `E${sumNonIndRow}` : "", sumIndRow ? `E${sumIndRow}` : ""].filter(x=>x);
-            let totalSummaryM3 = totalSummaryParts.length > 0 ? `=ROUND(${totalSummaryParts.join("+")}, 1)` : "0";
-
-            // [해결포인트] 한컴 셀(훈셀) 및 브라우저 호환성을 100% 보장하기 위해 엑셀 HTML 태그에 직접 강제 포맷팅 적용
-            const border = "border: 1pt solid #000;";
-            const bgHeader = "background-color: #f1f5f9; font-weight: bold;";
-            
-            const centerAlign = `${border} text-align: center;`;
-            const leftAlign = `${border} text-align: left; padding-left: 5px;`;
-            // [해결] 칼로리 수치가 엑셀 내에서 무조건 우측으로 정렬되고 15px 패딩을 갖도록 하드코딩
-            const rightAlign = `${border} text-align: right; padding-right: 15px;`;
-            const headerCenter = `${border} ${bgHeader} text-align: center;`;
-
-            let excelHtml = `
-                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-                <head>
-                    <meta charset="utf-8">
-                    <style>
-                        table { border-collapse: collapse; width: 100%; font-family: 'Malgun Gothic', sans-serif; font-size: 11pt; }
-                    </style>
-                </head>
-                <body>
-                    <table>
-                        <tr><td colspan="6" style="border: none; text-align: center; font-size: 18pt; font-weight: bold; height: 50px;">월사용예정량 계산 및 정리 보고서</td></tr>
-                        <tr><td colspan="6" style="border: none; text-align: right; font-size: 10pt; padding-bottom: 5px;">출력일자: ${dateStr}</td></tr>
-            `;
-            
-            if (infoStr) {
-                excelHtml += `<tr><td colspan="6" style="border: none; text-align: left; font-size: 11pt; padding-bottom: 10px;"><strong>${infoStr}</strong></td></tr>`;
-            }
-
-            excelHtml += `
-                        <tr><td colspan="6" style="border: none;"></td></tr>
-                        <tr><td colspan="6" style="border: none; text-align: left; font-size: 13pt; font-weight: bold; padding-top: 15px; padding-bottom: 5px;">■ 최종 산출 요약</td></tr>
-                        <tr>
-                            <th colspan="2" style="${headerCenter}">구분</th>
-                            <th colspan="2" style="${headerCenter}">총 소비량 (Kcal/hr)</th>
-                            <th colspan="2" style="${headerCenter}">월사용예정량 (m³/月)</th>
-                        </tr>
-            `;
-
-            const addSummaryRowHtml = (label, kcalVal, kcalFormula, m3Val, m3Formula, isTotal) => {
-                const fontStyle = isTotal ? "font-weight: bold;" : "font-weight: normal;";
-                const colorStyle = isTotal ? "color: #ea580c; font-weight: bold;" : "color: #000; font-weight: normal;";
-                const bgStyle = isTotal ? bgHeader : "background-color: #ffffff;";
+            // [핵심 4] 수식과 숫자가 완벽하게 동작하던 100% 검증된 데이터/수식 동시 주입 방식 복구
+            const buildDetailSection = (dataList, typeLabel, dataMeta, totals) => {
+                if (dataList.length === 0) return null;
                 
-                // [해결] 총계 행에만 단위를 포함시키되, 엑셀 수식이 망가지지 않도록 단위가 포함된 셀은 순수 텍스트(포맷 적용)로 출력
-                const displayKcal = isTotal ? `${formatInt(kcalVal)} Kcal/hr` : formatInt(kcalVal);
-                const displayM3 = isTotal ? `${formatFloat(m3Val)} m³/月` : formatFloat(m3Val);
-                
-                excelHtml += `<tr>
-                    <td colspan="2" style="${centerAlign} ${bgStyle} ${fontStyle}">${label}</td>
-                    <td colspan="2" style="${centerAlign} ${bgStyle} ${fontStyle}" ${!isTotal ? `x:fmla="${kcalFormula}"` : ''}>${displayKcal}</td>
-                    <td colspan="2" style="${centerAlign} ${bgStyle} ${colorStyle}" ${!isTotal ? `x:fmla="${m3Formula}"` : ''}>${displayM3}</td>
-                </tr>`;
-            };
+                let catSubtotalR = 0;
+                let locRefs = [];
+                let startRow = r;
 
-            if (mode === 'both') {
-                addSummaryRowHtml('계', window.calcData.totalKcal, totalKcalFormula, window.calcData.totalM3, totalSummaryM3, true);
-                addSummaryRowHtml('비산업용', window.calcData.nonIndKcal, nonIndSummaryKcal, window.calcData.nonIndM3, nonIndSummaryM3, false);
-                addSummaryRowHtml('산업용', window.calcData.indKcal, indSummaryKcal, window.calcData.indM3, indSummaryM3, false);
-            } else if (mode === 'nonInd') {
-                addSummaryRowHtml('비산업용', window.calcData.nonIndKcal, totalKcalFormula, window.calcData.nonIndM3, nonIndSummaryM3, true);
-            } else if (mode === 'ind') {
-                addSummaryRowHtml('산업용', window.calcData.indKcal, totalKcalFormula, window.calcData.indM3, indSummaryM3, true);
-            }
-
-            excelHtml += `
-                        <tr><td colspan="6" style="border: none;"></td></tr>
-                        <tr><td colspan="6" style="border: none; text-align: left; font-size: 13pt; font-weight: bold; padding-top: 15px; padding-bottom: 5px;">■ 연소기별 세부 내역</td></tr>
-                        <tr>
-                            <th style="${headerCenter}">사용처</th>
-                            <th style="${headerCenter}">연소기</th>
-                            <th style="${headerCenter}">단위소비량 (Kcal/hr)</th>
-                            <th style="${headerCenter}">수량</th>
-                            <th style="${headerCenter}">총소비량 (Kcal/hr)</th>
-                            <th style="${headerCenter}">비고</th>
-                        </tr>
-            `;
-
-            if (detTotalRow) {
-                excelHtml += `<tr>
-                    <td colspan="3" style="${headerCenter}">총 계</td>
-                    <td style="${headerCenter}">${formatInt(nonIndTotals.qty + indTotals.qty)}</td>
-                    <td style="${headerCenter.replace('center', 'right')} padding-right: 15px;" x:fmla="${totalKcalFormula}">${formatInt(window.calcData.totalKcal)}</td>
-                    <td style="${headerCenter}"></td>
-                </tr>`;
-            }
-
-            const buildDetailHtml = (dataList, typeLabel, dataMeta, totals) => {
-                if (dataList.length === 0) return '';
-                let html = '';
-                let isFirstRow = true;
-                let totalRows = (dataMeta.catR ? 1 : 0) + dataList.length + dataList.reduce((sum, loc) => sum + loc.appliances.length, 0);
-
-                if (dataMeta.catR) {
-                    let catQty = getQtyFormula(dataMeta.locsInfo);
-                    let catKcal = getKcalFormula(dataMeta.locsInfo);
-                    html += `<tr>
-                        <td colspan="3" style="${headerCenter}">소계</td>
-                        <td style="${headerCenter}" x:fmla="${catQty}">${formatInt(totals.qty)}</td>
-                        <td style="${headerCenter.replace('center', 'right')} padding-right: 15px;" x:fmla="${catKcal}">${formatInt(totals.kcal)}</td>
-                        <td rowspan="${totalRows}" style="${headerCenter}">${typeLabel}</td>
-                    </tr>`;
-                    isFirstRow = false;
+                if (showSubtotals) {
+                    catSubtotalR = r++;
                 }
 
                 dataList.forEach((loc, i) => {
                     const info = dataMeta.locsInfo[i];
-                    const locName = loc.name.trim() || `사용처 ${i + 1}`;
-                    const locRowspan = loc.appliances.length + 1;
+                    let locSubtotalR = r++;
+                    locRefs.push(locSubtotalR);
                     
-                    let locQty = `=SUM(D${info.appR[0]}:D${info.appR[info.appR.length-1]})`;
-                    let locKcal = `=SUM(E${info.appR[0]}:E${info.appR[info.appR.length-1]})`;
+                    let appRows = [];
 
-                    html += `<tr>
-                        <td rowspan="${locRowspan}" style="${centerAlign}">${locName}</td>
-                        <td colspan="2" style="${centerAlign}">사용처 소계</td>
-                        <td style="${centerAlign}" x:fmla="${locQty}">${formatInt(loc.totalQty)}</td>
-                        <td style="${rightAlign}" x:fmla="${locKcal}">${formatInt(loc.totalKcal)}</td>
-                        ${isFirstRow ? `<td rowspan="${totalRows}" style="${centerAlign}">${typeLabel}</td>` : ''}
-                    </tr>`;
-                    isFirstRow = false;
-                    
-                    loc.appliances.forEach((app, j) => {
-                        const appName = app.name.trim() || `연소기 ${j + 1}`;
-                        const appR = info.appR[j];
-                        const unitKcal = Number(app.consumption) || 0;
-                        const qty = Number(app.quantity) || 1;
-                        const rowTotal = unitKcal * qty;
+                    loc.appliances.forEach(app => {
+                        let appR = r++;
+                        appRows.push(appR);
                         
-                        html += `<tr>
-                            <td style="${leftAlign}">${appName}</td>
-                            <td style="${rightAlign}">${formatInt(unitKcal)}</td>
-                            <td style="${centerAlign}">${formatInt(qty)}</td>
-                            <td style="${rightAlign} font-weight: bold;" x:fmla="=C${appR}*D${appR}">${formatInt(rowTotal)}</td>
-                        </tr>`;
+                        sheet.getCell(`B${appR}`).value = app.name.trim() || `연소기`;
+                        sheet.getCell(`B${appR}`).alignment = { horizontal: 'left', vertical: 'middle', indent: 1 };
+                        
+                        let unitKcal = Number(app.consumption) || 0;
+                        sheet.getCell(`C${appR}`).value = unitKcal;
+                        sheet.getCell(`C${appR}`).alignment = { horizontal: 'right', vertical: 'middle' };
+                        sheet.getCell(`C${appR}`).numFmt = '#,##0';
+
+                        let qty = Number(app.quantity) || 1;
+                        sheet.getCell(`D${appR}`).value = qty;
+                        sheet.getCell(`D${appR}`).alignment = { horizontal: 'center', vertical: 'middle' };
+                        sheet.getCell(`D${appR}`).numFmt = '#,##0';
+
+                        sheet.getCell(`E${appR}`).value = { formula: `C${appR}*D${appR}`, result: unitKcal * qty };
+                        sheet.getCell(`E${appR}`).font = fontBold;
+                        sheet.getCell(`E${appR}`).alignment = { horizontal: 'right', vertical: 'middle' };
+                        sheet.getCell(`E${appR}`).numFmt = '#,##0';
+
+                        ['B','C','D','E','F'].forEach(c => sheet.getCell(`${c}${appR}`).border = borderAll);
                     });
+
+                    sheet.mergeCells(`A${locSubtotalR}:A${r-1}`);
+                    sheet.getCell(`A${locSubtotalR}`).value = loc.name.trim() || `사용처`;
+                    sheet.getCell(`A${locSubtotalR}`).alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+
+                    sheet.mergeCells(`B${locSubtotalR}:C${locSubtotalR}`);
+                    sheet.getCell(`B${locSubtotalR}`).value = '사용처 소계';
+                    sheet.getCell(`B${locSubtotalR}`).alignment = { horizontal: 'center', vertical: 'middle' };
+
+                    let locQtyFmla = appRows.map(x=>`D${x}`).join('+');
+                    sheet.getCell(`D${locSubtotalR}`).value = { formula: locQtyFmla, result: loc.totalQty };
+                    sheet.getCell(`D${locSubtotalR}`).alignment = { horizontal: 'center', vertical: 'middle' };
+                    sheet.getCell(`D${locSubtotalR}`).numFmt = '#,##0';
+
+                    let locKcalFmla = appRows.map(x=>`E${x}`).join('+');
+                    sheet.getCell(`E${locSubtotalR}`).value = { formula: locKcalFmla, result: loc.totalKcal };
+                    sheet.getCell(`E${locSubtotalR}`).alignment = { horizontal: 'right', vertical: 'middle' };
+                    sheet.getCell(`E${locSubtotalR}`).numFmt = '#,##0';
+
+                    ['A','B','C','D','E','F'].forEach(c => sheet.getCell(`${c}${locSubtotalR}`).border = borderAll);
                 });
-                return html;
+
+                if (catSubtotalR) {
+                    sheet.mergeCells(`A${catSubtotalR}:C${catSubtotalR}`);
+                    sheet.getCell(`A${catSubtotalR}`).value = '소계';
+                    sheet.getCell(`A${catSubtotalR}`).font = fontBold;
+                    sheet.getCell(`A${catSubtotalR}`).fill = fillHeader;
+                    sheet.getCell(`A${catSubtotalR}`).alignment = { horizontal: 'center', vertical: 'middle' };
+
+                    let catQtyFmla = locRefs.map(x=>`D${x}`).join('+');
+                    sheet.getCell(`D${catSubtotalR}`).value = { formula: catQtyFmla, result: totals.qty };
+                    sheet.getCell(`D${catSubtotalR}`).font = fontBold;
+                    sheet.getCell(`D${catSubtotalR}`).fill = fillHeader;
+                    sheet.getCell(`D${catSubtotalR}`).alignment = { horizontal: 'center', vertical: 'middle' };
+                    sheet.getCell(`D${catSubtotalR}`).numFmt = '#,##0';
+
+                    let catKcalFmla = locRefs.map(x=>`E${x}`).join('+');
+                    sheet.getCell(`E${catSubtotalR}`).value = { formula: catKcalFmla, result: totals.kcal };
+                    sheet.getCell(`E${catSubtotalR}`).font = fontBold;
+                    sheet.getCell(`E${catSubtotalR}`).fill = fillHeader;
+                    sheet.getCell(`E${catSubtotalR}`).alignment = { horizontal: 'right', vertical: 'middle' };
+                    sheet.getCell(`E${catSubtotalR}`).numFmt = '#,##0';
+
+                    sheet.mergeCells(`F${catSubtotalR}:F${r-1}`);
+                    sheet.getCell(`F${catSubtotalR}`).value = typeLabel;
+                    sheet.getCell(`F${catSubtotalR}`).font = fontBold;
+                    sheet.getCell(`F${catSubtotalR}`).fill = fillHeader;
+                    sheet.getCell(`F${catSubtotalR}`).alignment = { horizontal: 'center', vertical: 'middle' };
+
+                    ['A','B','C','D','E','F'].forEach(c => sheet.getCell(`${c}${catSubtotalR}`).border = borderAll);
+                } else {
+                    sheet.mergeCells(`F${startRow}:F${r-1}`);
+                    sheet.getCell(`F${startRow}`).value = typeLabel;
+                    sheet.getCell(`F${startRow}`).alignment = { horizontal: 'center', vertical: 'middle' };
+                }
+
+                return {
+                    qtyFmla: catSubtotalR ? `D${catSubtotalR}` : locRefs.map(x=>`D${x}`).join('+'),
+                    kcalFmla: catSubtotalR ? `E${catSubtotalR}` : locRefs.map(x=>`E${x}`).join('+')
+                };
             };
 
-            excelHtml += buildDetailHtml(state.nonInd, '비산업용', nonIndData, nonIndTotals);
-            excelHtml += buildDetailHtml(state.ind, '산업용', indData, indTotals);
+            let nonIndRes = buildDetailSection(state.nonInd, '비산업용', nonIndData, nonIndTotals);
+            let indRes = buildDetailSection(state.ind, '산업용', indData, indTotals);
 
-            excelHtml += `
-                        <tr>
-                            <td colspan="6" style="border: none; text-align: left; font-size: 9pt; color: #555; padding-top: 10px;">
-                                * 본 산출결과는 KGS FU551 기준 공식 [ Q = {(산업용×240) + (비산업용×90)} / 11,000 ] 에 의거 작성되었습니다.
-                            </td>
-                        </tr>
-                    </table>
-                </body>
-                </html>
-            `;
+            // 5. 총계 및 요약표 수식 상호 연결 (안전망 result 동시 전달)
+            if (detTotalR) {
+                let totalQtyFmla = [nonIndRes?.qtyFmla, indRes?.qtyFmla].filter(Boolean).join('+');
+                let totalKcalFmla = [nonIndRes?.kcalFmla, indRes?.kcalFmla].filter(Boolean).join('+');
+                
+                sheet.getCell(`D${detTotalR}`).value = { formula: totalQtyFmla, result: (nonIndTotals.qty + indTotals.qty) };
+                sheet.getCell(`E${detTotalR}`).value = { formula: totalKcalFmla, result: window.calcData.totalKcal };
+            }
 
-            // 브라우저 로컬 저장 기능 실행
-            const blob = new Blob([excelHtml], { type: 'application/vnd.ms-excel' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = '월사용예정량_계산결과.xls';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
+            const fillSummaryRow = (row, kcalFmla, kcalRes, m3Fmla, m3Res) => {
+                sheet.getCell(`C${row}`).value = { formula: kcalFmla, result: kcalRes };
+                sheet.getCell(`E${row}`).value = { formula: m3Fmla, result: Number(m3Res.toFixed(1)) };
+            };
+
+            if (sumNonIndR) {
+                fillSummaryRow(sumNonIndR, nonIndRes.kcalFmla, window.calcData.nonIndKcal, `ROUND(C${sumNonIndR}*90/11000, 1)`, window.calcData.nonIndM3);
+            }
+            if (sumIndR && sumIndR !== sumNonIndR) {
+                fillSummaryRow(sumIndR, indRes.kcalFmla, window.calcData.indKcal, `ROUND(C${sumIndR}*240/11000, 1)`, window.calcData.indM3);
+            }
+            if (sumTotalR) {
+                let fmlaK = mode === 'both' ? `C${sumNonIndR}+C${sumIndR}` : (mode === 'nonInd' ? nonIndRes.kcalFmla : indRes.kcalFmla);
+                let fmlaM = mode === 'both' ? `ROUND(E${sumNonIndR}+E${sumIndR}, 1)` : `ROUND(C${sumTotalR}*${mode==='nonInd'?90:240}/11000, 1)`;
+                fillSummaryRow(sumTotalR, fmlaK, window.calcData.totalKcal, fmlaM, window.calcData.totalM3);
+            }
+
+            // 6. 하단 주석
+            sheet.mergeCells(`A${r}:F${r}`);
+            let footerCell = sheet.getCell(`A${r}`);
+            footerCell.value = '* 본 산출결과는 KGS FU551 기준 공식 [ Q = {(산업용×240) + (비산업용×90)} / 11,000 ] 에 의거 작성되었습니다.';
+            footerCell.font = { size: 9, color: {argb:'FF555555'}, name: '맑은 고딕' };
+            footerCell.alignment = { horizontal: 'left', vertical: 'middle' };
+            
+            // 7. 순수 ExcelJS 바이너리 출력 (.xlsx)
+            workbook.xlsx.writeBuffer().then(function(buffer) {
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = '월사용예정량_계산결과.xlsx';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            });
         }
     </script>
 </body>
