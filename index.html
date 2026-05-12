@@ -8832,8 +8832,17 @@ function openPrintWindow() {
             let targetPage = null;
             let key = activeKeys[0]; 
             
-            if (key === 'others_grp') {
-                targetPage = 48;
+            // 페이지 매핑 예외 처리: 하위 항목이 여러 페이지에 걸쳐있는 경우를 위한 하드코딩
+            const pageExceptions = {
+                'burners_large_burners_3': 48,
+                'burners_large_burners_4': 48,
+                'burners_large_burners_5': 48,
+                'burners_large_burners_6': 48,
+                'others_grp': 48
+            };
+            
+            if (pageExceptions[key]) {
+                targetPage = pageExceptions[key];
             } else {
                 const cat = db[mode].find(c => c.id === activeCatId);
                 if(cat) {
