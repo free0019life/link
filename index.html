@@ -744,13 +744,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             .state-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08); }
         }
 
-        /* 반응형 레이아웃 미디어 쿼리 (모바일 레이아웃 오류 수정 영역) */
+        /* 반응형 레이아웃 미디어 쿼리 (모바일 레이아웃 여백 최소화 및 시인성 극대화 최적화) */
         @media (max-width: 1024px) {
-            body { padding: 15px 0; }
-            .main-container { flex-direction: column; width: 95%; gap: 15px; }
-            .input-panel, .side-panel { width: 100%; position: static; }
+            /* 💡 [여백 최소화] 태블릿/모바일 공통: body 패딩 및 컨테이너 너비 확장 */
+            body { padding: 5px 0; }
+            .main-container { flex-direction: column; width: 98%; gap: 10px; }
+            .input-panel, .result-panel { padding: 15px; } /* 기존 25px -> 15px 축소 */
+            .input-panel, .side-panel { width: 100%; position: static; box-sizing: border-box; }
             .reset-link { margin-left: 0; margin-top: 5px; flex: 1 1 auto; justify-content: flex-start; max-width: fit-content; }
-            .category-grid { grid-template-columns: repeat(2, 1fr); }
+            .category-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
             .total-val { font-size: 2.8rem; }
             /* 모바일 및 태블릿 화면에서는 인쇄 기능 차단 */
             .print-btn { display: none !important; }
@@ -759,41 +761,55 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             .type-btn {
                 font-size: 1.15rem !important; 
                 font-weight: 800 !important;
-                flex: 1 1 auto !important; /* 강제 0 할당 제거, 유연한 크기 배분 */
-                min-width: 80px !important; /* 글자가 버튼을 벗어나지 않도록 최소 너비 보장 */
+                flex: 1 1 auto !important; 
+                min-width: 80px !important; 
                 padding-top: 10px !important; 
                 padding-bottom: 10px !important; 
             }
         }
 
         @media (max-width: 480px) {
-            /* 💡 모바일 상단 메인 버튼 줄바꿈 유도 및 텍스트 최적화 */
-            .toggle-group { gap: 8px !important; }
+            /* 💡 [여백 극소화] 스마트폰 전용: 바깥 여백 거의 제거, 내부 패딩 최소화로 공간 낭비 20% 원천 차단 */
+            body { padding: 2px 0; } 
+            .main-container { width: 100%; padding: 0 4px; box-sizing: border-box; gap: 8px; }
+            
+            /* 입력창과 검은색 결과창의 내부 패딩을 25px -> 10px로 대폭 축소하여 내용이 꽉 차게 확장 */
+            .input-panel, .result-panel, .official-notice-box { padding: 10px; border-radius: 8px; } 
+
+            /* 💡 모바일 상단 메인 버튼 줄바꿈 유도 및 여백 최소화 최적화 */
+            .toggle-group { gap: 6px !important; margin-bottom: 10px; }
             
             .type-btn {
-                /* 모바일 환경에서 1줄에 3개 배치 및 비정상 확장(Grow) 방지 고정폭 설정 */
-                flex: 0 0 calc((100% - 16px) / 3) !important; 
-                font-size: 1.05rem !important; 
+                flex: 0 0 calc((100% - 12px) / 3) !important; 
+                font-size: 1.1rem !important; /* 글자를 버튼 안에 꽉 차도록 기존 1.05 -> 1.1 크기 상향 */
+                padding-left: 2px !important; 
+                padding-right: 2px !important;
             }
 
             /* 💡 초기화 버튼 그 아래 좌측으로 정렬 강제 지정 */
             .reset-link { flex: 0 0 auto !important; margin-left: 0 !important; margin-right: auto !important; width: fit-content !important; margin-top: 0px !important; }
 
-            .cat-btn { font-size: 1.05rem; min-height: 50px;}
+            /* 💡 설비 선택 버튼 내부 빈공간(패딩)을 줄이고 글자를 키워 시인성 강화 */
+            .category-grid { gap: 6px; margin-bottom: 15px; }
+            .cat-btn { font-size: 1.1rem; min-height: 48px; padding: 4px 2px; }
+            
             .vertical-style-row { flex-wrap: nowrap !important; gap: 4px; padding: 0 2px; }
-            .vertical-style-row label { width: 45px !important; font-size: 0.9rem; }
-            .vertical-style-row input { width: 60px !important; font-size: 0.95rem; padding: 6px 4px; }
-            .vertical-style-row .unit { width: 25px !important; font-size: 0.8rem; }
-            .btn-action { font-size: 0.9rem !important; padding: 4px 6px !important; }
-            #capInput { width: 80px; }
+            .vertical-style-row label { width: 45px !important; font-size: 0.95rem; }
+            .vertical-style-row input { width: 60px !important; font-size: 1rem; padding: 6px 2px; text-align: center; }
+            .vertical-style-row .unit { width: 25px !important; font-size: 0.85rem; }
+            .btn-action { font-size: 0.95rem !important; padding: 4px 6px !important; }
+            #capInput { width: 80px; padding: 6px 4px; font-size: 1.05rem; }
+
+            /* 💡 결과 테이블 빈공간 삭제 (셀 패딩 감소) */
+            .res-table th, .res-table td { padding: 8px 4px; font-size: 0.95rem; }
+            .total-val { font-size: 2.3rem; }
         }
 
-        /* 지시사항 반영: 초소형 모바일 기기 대응 */
+        /* 지시사항 반영: 초소형 모바일 기기 대응 (빈 여백 방어) */
         @media (max-width: 380px) {
             .type-btn {
-                /* 초소형 기기에서는 2개씩 배치되도록 고정폭 유지 (비정상 확장 방어) */
-                flex: 0 0 calc((100% - 8px) / 2) !important;
-                font-size: 0.95rem !important; /* 초소형 화면 폭 대응 */
+                flex: 0 0 calc((100% - 6px) / 2) !important;
+                font-size: 1.05rem !important; 
                 padding-left: 2px !important;
                 padding-right: 2px !important;
             }
@@ -849,7 +865,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
             
             <div style="border: 2px dashed #ef4444; background-color: #fef2f2; color: #b91c1c; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: bold; word-break: keep-all; line-height: 1.6;">
-                "고압가스시설 등의 검사수수료 및 교육비 기준 6의 나에 따라 지하매설배관의 감리수수료는 산업통상자원부고시 제2025-157호(도시가스시설 등의 검사수수료 및 교육비 기준) [별표] 제5호에 의한 1일 단가에 감리 소요일수를 곱한 금액으로 한다. 다만, 1일 감리 시간이 4시간을 초과하면 1일, 4시간 이하이면 1일 단가의 1/2로 한다."
+                "고압가스시설 등의 검사수수료 및 교육비 기준 6의 나에 따라 지하매설배관의 감리수수료는 산업통상자원부고시 제2025-157호(도시가스시설 등의 검사수수료 및 교육비 기준) [별표] 제5호에 의한 1일 단가에 감리 소요일수를 곱한 금액으로 한다. 다만, 1일 감리 시간이 4시간을 초과하면 1일, 4시간 이하이면 1일 단가의 1/2로 단한다."
             </div>
         </div>
 
@@ -2470,6 +2486,33 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             showSystemMsg("인쇄 화면을 생성하는 중 오류가 발생했습니다. 시스템 상태를 확인해주세요.", true);
         }
     }
+
+    // =====================================================================
+    // [모바일 UX 개선] 스마트 키보드 숨김 제어 로직
+    // =====================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. 화면 빈 공간(입력창, 버튼 외) 터치 시 키보드 내리기
+        document.body.addEventListener('click', function(e) {
+            const tagName = e.target.tagName;
+            if (tagName !== 'INPUT' && tagName !== 'BUTTON') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                }
+            }
+        });
+
+        // 2. 키보드에서 '엔터(이동/완료)' 키를 눌렀을 때 키보드 내리기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                    e.preventDefault();   
+                }
+            }
+        });
+    });
 </script>
 </body>
 </html></textarea>
@@ -2511,7 +2554,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         .top-bar { display: flex; justify-content: space-between; margin-bottom: 20px; background: #f1f5f9; padding: 10px; border-radius: 10px; align-items: center; flex-wrap: wrap; gap: 10px;}
         
-        .type-toggle { display: flex; gap: 10px; flex-wrap: wrap; }
+        /* 상단 메인 버튼 그룹 영역 확장: 빈 공간을 100% 흡수하도록 flex: 1 부여 */
+        .type-toggle { display: flex; gap: 10px; flex-wrap: wrap; flex: 1; }
         
         /* 터치 방해 요소 차단 및 줄바꿈 방지 공통 속성 부여 */
         .type-btn, .cat-btn, .btn-reset, .sub-tab-btn, .add-inline-btn, .btn-del-inline, .btn-add-dyn-inline, .btn-del {
@@ -2549,8 +2593,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             box-sizing: border-box !important; 
             text-align: center !important;
             
-            /* 좌우 빈 여백을 없애고 버튼이 영역을 꽉 채우도록 강제 */
-            flex: 1 1 auto !important; 
+            /* 좌우 빈 여백을 없애고 버튼이 영역을 꽉 채우도록 강제 (1:1 동일 비율) */
+            flex: 1 1 0 !important; 
         }
         
         .type-btn.active { 
@@ -3563,6 +3607,33 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             alert("🚫 [시스템 오류] 인쇄 화면을 생성하는 중 오류가 발생했습니다. 시스템 상태를 확인해주세요.");
         }
     }
+
+    // =====================================================================
+    // [모바일 UX 개선] 스마트 키보드 숨김 제어 로직
+    // =====================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. 화면 빈 공간(입력창, 버튼 외) 터치 시 키보드 내리기
+        document.body.addEventListener('click', function(e) {
+            const tagName = e.target.tagName;
+            if (tagName !== 'INPUT' && tagName !== 'BUTTON') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                }
+            }
+        });
+
+        // 2. 키보드에서 '엔터(이동/완료)' 키를 눌렀을 때 키보드 내리기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                    e.preventDefault();   
+                }
+            }
+        });
+    });
 </script>
 </body>
 </html></textarea>
@@ -3639,8 +3710,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             box-sizing: border-box !important; 
             text-align: center !important;
             
-            /* 좌우 빈 여백을 없애고 버튼이 영역을 꽉 채우도록 강제 */
-            flex: 1 1 auto !important; 
+            /* 버튼의 너비가 텍스트 길이에 영향 받지 않고 정확히 1:1로 분할되도록 강제 */
+            flex: 1 1 0% !important; 
         }
         .toggle-btn.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue) !important; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.4); transform: translateY(0); }
         
@@ -3867,10 +3938,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         }
 
-        /* 스마트폰용 모바일 스타일 - 텍스트 겹침 문제 완벽 해결을 위해 정밀 조정 */
+        /* 스마트폰용 모바일 스타일 - 여백 최소화 및 텍스트 꽉참 레이아웃 정밀 조정 */
         @media (max-width: 480px) {
-            .cat-btn { font-size: 1.05rem; min-height: 50px; }
-            .sub-btn { font-size: 0.95rem; padding: 4px 2px; }
+            /* [추가/수정] 화면 전체 및 패널의 좌우 여백 극도로 최소화 */
+            body { padding: 5px 0; }
+            .main-container { width: 100%; padding: 0 5px; gap: 10px; }
+            .input-panel, .result-panel, .form-section { padding: 10px 8px; border-radius: 8px; }
+            .book-page { padding: 10px 8px; }
+            
+            /* [추가/수정] 결과 표의 셀 여백을 최소화하여 공간 확보 */
+            .res-table th, .res-table td { padding: 6px 2px; }
+
+            /* [수정] 고연령층 시인성을 위해 버튼 내 텍스트가 꽉 차도록 패딩 최소화 */
+            .cat-btn { font-size: 1.05rem; min-height: 44px; padding: 2px; }
+            .toggle-btn { padding-top: 6px !important; padding-bottom: 6px !important; padding-left: 2px !important; padding-right: 2px !important; }
+            .sub-btn { font-size: 0.95rem; padding: 4px 0px; }
+
             .sub-btn-group { grid-template-columns: repeat(4, 1fr); gap: 3px; }
             
             /* 다중 행 간격 및 정렬 조절 */
@@ -4848,6 +4931,33 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             alert("인쇄 화면을 생성하는 중 오류가 발생했습니다. 시스템 상태를 확인해주세요.");
         }
     }
+
+    // =====================================================================
+    // [모바일 UX 개선] 스마트 키보드 숨김 제어 로직
+    // =====================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. 화면 빈 공간(입력창, 버튼 외) 터치 시 키보드 내리기
+        document.body.addEventListener('click', function(e) {
+            const tagName = e.target.tagName;
+            if (tagName !== 'INPUT' && tagName !== 'BUTTON') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                }
+            }
+        });
+
+        // 2. 키보드에서 '엔터(이동/완료)' 키를 눌렀을 때 키보드 내리기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                    e.preventDefault();   
+                }
+            }
+        });
+    });
 </script>
 
 </body>
@@ -5156,12 +5266,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         }
 
-        /* 반응형 레이아웃 */
+        /* 💡 반응형 레이아웃 (태블릿 등 중간 사이즈 화면 최적화) */
         @media (max-width: 1024px) {
             .print-btn { display: none !important; }
-            body { padding: 15px 0; }
-            .main-container { flex-direction: column; width: 95%; gap: 15px; }
+            body { padding: 10px 0; } /* 기존 15px에서 축소 */
+            .main-container { flex-direction: column; width: 98%; gap: 10px; } /* 폭 넓히고 간격 축소 */
             .input-panel, .side-panel { width: 100%; position: static; }
+            .input-panel { padding: 15px; } /* 기존 PC 패딩 25px에서 축소 */
+            .result-panel { padding: 15px; } /* 기존 PC 패딩 25px에서 축소 */
             .reset-link { margin-left: auto; margin-top: 0; flex: none; justify-content: center; max-width: none; align-self: center; }
             .category-grid { grid-template-columns: repeat(2, 1fr); }
             .grid-design { grid-template-columns: repeat(2, 1fr) !important; }
@@ -5170,19 +5282,49 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             .toggle-btn { font-size: 1.15rem !important; font-weight: 800 !important; flex: 1 1 30% !important; padding-top: 10px !important; padding-bottom: 10px !important; }
         }
 
+        /* 💡 반응형 레이아웃 (스마트폰 등 작은 화면 공간 낭비 극단적 최소화) */
         @media (max-width: 480px) {
-            .toggle-group { flex-wrap: nowrap !important; gap: 4px; }
+            /* 컨테이너 및 패널의 낭비 공간 완전 제거 */
+            body { padding: 4px 0; }
+            .main-container { width: 100%; padding: 0 4px; gap: 8px; }
+            .input-panel { padding: 12px 6px; border-radius: 8px; }
+            .result-panel { padding: 12px 6px; border-radius: 8px; }
+
+            /* 버튼 그룹 여백 및 간격 밀착 (버튼이 화면 꽉 차게 팽창함) */
+            .toggle-group { flex-wrap: nowrap !important; gap: 3px !important; margin-bottom: 10px; }
+            .category-grid { gap: 3px; margin-bottom: 10px; }
+            .type-toggle-group { gap: 3px; margin-bottom: 10px; width: 100%; max-width: none; }
+            
+            /* 개별 버튼 최소 여백 설정 */
             .reset-link { font-size: 0.8rem; padding: 4px 6px; margin-left: auto; flex-shrink: 0; }
-            .cat-btn { font-size: 1.05rem; min-height: 50px; }
-            .input-row { flex-wrap: nowrap !important; gap: 4px !important; padding: 6px 4px !important; }
+            .cat-btn { font-size: 1.05rem; min-height: 46px; padding: 2px; }
+            .type-btn { padding: 4px; font-size: 1.1rem; }
+            
+            /* 입력 폼 영역 타이트하게 조이기 */
+            .form-section { padding: 8px 4px; margin-top: 0; }
+            .input-row { flex-wrap: nowrap !important; gap: 2px !important; padding: 6px 2px !important; margin-bottom: 6px; }
             .input-row label { font-size: 0.8rem !important; letter-spacing: -0.5px; }
             .input-row span.unit-label { font-size: 0.75rem !important; width: auto !important; letter-spacing: -0.5px; margin-left: 0 !important; }
             .input-row span.divider { margin: 0 2px !important; }
             .input-row input[type="number"] { width: 45px !important; font-size: 0.9rem !important; padding: 4px 2px !important; }
             #specInput { width: 60px !important; }
             .action-btn { font-size: 0.75rem !important; padding: 4px 5px !important; margin-left: 2px !important; letter-spacing: -0.5px; }
+
+            /* 💡 결과 표(검은 박스) 내부 여백 최소화 */
+            .result-header { padding-bottom: 8px; margin-bottom: 8px; }
+            .result-panel h3 { padding-bottom: 8px; margin-bottom: 8px; }
+            .res-table { margin-bottom: 10px; }
+            .res-table th, .res-table td { padding: 6px 2px !important; font-size: 0.85rem; letter-spacing: -0.5px; } /* 셀 내부 패딩 대폭 축소 */
+            .res-table .total-highlight-row th, .res-table .total-highlight-row td { padding-top: 8px; padding-bottom: 8px; }
+            .res-total { margin-top: 10px; padding-top: 10px; }
+
+            /* 하단 책자 화면 여백 축소 */
+            .book-page { padding: 15px 10px 40px 10px; min-width: 100%; } 
         }
-        @media (max-width: 380px) { .toggle-btn { font-size: 1.05rem !important; } }
+        @media (max-width: 380px) { 
+            .toggle-btn { font-size: 1.05rem !important; } 
+            .total-val { font-size: 2.4rem; } /* 아주 작은 화면에서는 결과 금액 폰트 약간 축소 */
+        }
     </style>
 </head>
 <body>
@@ -6059,6 +6201,33 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             alert("인쇄 화면을 생성하는 중 오류가 발생했습니다. 시스템 상태를 확인해주세요.");
         }
     }
+
+    // =====================================================================
+    // [모바일 UX 개선] 스마트 키보드 숨김 제어 로직
+    // =====================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. 화면 빈 공간(입력창, 버튼 외) 터치 시 키보드 내리기
+        document.body.addEventListener('click', function(e) {
+            const tagName = e.target.tagName;
+            if (tagName !== 'INPUT' && tagName !== 'BUTTON') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                }
+            }
+        });
+
+        // 2. 키보드에서 '엔터(이동/완료)' 키를 눌렀을 때 키보드 내리기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                    e.preventDefault();   
+                }
+            }
+        });
+    });
 </script>
 
 </body>
@@ -6113,7 +6282,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         .copyright { font-size: 0.75rem; color: #94a3b8; font-weight: bold; white-space: nowrap;}
 
         .nav-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; flex-wrap: wrap;}
-        .main-cats { display: flex; gap: 10px; flex-wrap: wrap;}
+        
+        /* 변경 1: 메인 버튼 그룹이 남는 여백을 모두 차지하도록 flex: 1 추가 및 한줄 고정(nowrap) */
+        .main-cats { display: flex; gap: 10px; flex-wrap: nowrap; flex: 1;}
         
         /* 버튼 터치 최적화 및 줄바꿈 방지 */
         .nav-btn, .reset-link, .cat-btn, .type-btn {
@@ -6151,8 +6322,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             box-sizing: border-box !important; 
             text-align: center !important;
             
-            /* 좌우 빈 여백을 없애고 버튼이 영역을 꽉 채우도록 강제 */
-            flex: 1 1 auto !important; 
+            /* 변경 2: 글자 수와 무관하게 3개의 버튼이 완벽히 1:1:1로 동일한 크기를 갖도록 강제 (auto -> 0) */
+            flex: 1 1 0 !important; 
         }
         .nav-btn.active { 
             background-color: var(--primary-blue); 
@@ -6161,7 +6332,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.4), 0 2px 4px -1px rgba(37, 99, 235, 0.3); 
         }
 
-        .reset-link { color: var(--primary-blue); text-decoration: none; font-size: 1rem; font-weight: bold; display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 6px 12px; border: 2px solid var(--border-color); border-radius: 8px; background: white; white-space: nowrap; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .reset-link { color: var(--primary-blue); text-decoration: none; font-size: 1rem; font-weight: bold; display: flex; align-items: center; gap: 5px; cursor: padding: 6px 12px; border: 2px solid var(--border-color); border-radius: 8px; background: white; white-space: nowrap; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
         .category-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
         .cat-btn { 
@@ -6347,16 +6518,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         /* ==========================================================
-           스마트폰/태블릿 완벽 반응형 구현 (가로 모드 포함)
+           스마트폰/태블릿 완벽 반응형 구현 (가로 모드 포함) - 모바일 여백 최소화 및 시인성 극대화 반영
            ========================================================== */
         @media (max-width: 1024px) {
             .print-btn { display: none !important; }
-            body { padding: 15px 0; }
-            .main-container { flex-direction: column; width: 95%; gap: 15px; }
-            .input-panel, .side-panel { width: 100%; position: static; }
+            body { padding: 5px 0; } /* 상하 여백 대폭 축소 */
+            .main-container { flex-direction: column; width: 100%; padding: 0 5px; gap: 10px; } /* 화면 꽉 채우도록 설정 */
+            .input-panel, .side-panel { width: 100%; position: static; box-sizing: border-box; }
+            .input-panel { padding: 15px 10px; } /* 모바일에서 입력 패널 내부 여백 축소 */
+            .result-panel { padding: 15px 10px; } /* 모바일에서 결과(검은박스) 패널 내부 여백 축소 */
+            
             .reset-link { margin-left: 0; align-self: flex-start; max-width: fit-content; margin-top: 5px;}
-            .category-grid { grid-template-columns: repeat(2, 1fr); }
-            .total-val { font-size: 2.8rem; }
+            .category-grid { grid-template-columns: repeat(2, 1fr); gap: 5px; } /* 그리드 버튼 간격 축소 */
+            .total-val { font-size: 2.5rem; } /* 금액 글자 크기 화면에 맞게 약간 조정 */
+            
             /* 개선: 모바일 환경에서 표가 찌그러지지 않도록 최소폭 700px 고정 (가로 스크롤 유도) */
             .book-page { min-width: 700px; padding: 20px 15px; }
             
@@ -6367,42 +6542,50 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 width: 100%;
             }
             .nav-btn {
-                /* 모바일 환경에서도 글자가 얇아지지 않도록 크기만 약간 조정 */
-                font-size: 1.15rem !important; 
+                font-size: 1.2rem !important; 
                 font-weight: 800 !important;
-                
-                /* 모바일에서 버튼들이 균일하게 1줄을 꽉 채우도록 분배 */
                 flex: 1 1 30% !important; 
-                
-                /* 터치하기 편하도록 모바일 환경 상하 폭 미세 확대 */
                 padding-top: 10px !important; 
                 padding-bottom: 10px !important; 
-                
-                /* 좌우 여백을 최소화하여 좁은 공간에 대비 */
-                padding-left: 4px !important; 
-                padding-right: 4px !important;
+                padding-left: 2px !important; /* 버튼 텍스트 꽉 차게 좌우 여백 최소화 */
+                padding-right: 2px !important;
                 letter-spacing: -0.5px !important; 
             }
         }
 
         @media (max-width: 480px) {
-            /* 스마트폰 화면에서 확실하게 3개 버튼을 1줄로 구겨넣기 위한 설정 */
+            body { padding: 2px 0; }
+            .main-container { padding: 0 2px; gap: 8px; }
+            .input-panel { padding: 10px 5px; border-radius: 8px; } /* 스마트폰 환경에서 빈 공간 극소화 */
+            .result-panel { padding: 10px 5px; border-radius: 8px; }
+            
+            /* 확실하게 버튼을 1줄로 구겨넣기 위한 설정 */
             .main-cats { gap: 3px !important; }
             
-            /* 기존 하위 속성 유지 */
-            .cat-btn { font-size: 1.05rem; min-height: 50px; }
-            .type-toggle { gap: 4px !important; }
-            .type-btn { font-size: 0.95rem !important; padding: 4px 8px !important; letter-spacing: -0.5px; }
+            /* 버튼 텍스트 꽉 차도록 패딩 최소화 */
+            .cat-btn { font-size: 1.15rem; min-height: 45px; padding: 5px 2px; letter-spacing: -0.5px; }
+            .type-toggle { gap: 3px !important; }
+            .type-btn { font-size: 1.05rem !important; padding: 5px 4px !important; letter-spacing: -0.5px; }
             
-            .input-row label { font-size: 1.05rem; }
-            input[type="number"] { width: 80px; font-size: 1.1rem;}
+            .input-row { gap: 5px; margin-bottom: 10px; }
+            .input-row label { font-size: 1.1rem; }
+            input[type="number"] { width: 90px; font-size: 1.1rem; padding: 4px 6px; }
+            
+            /* 검은 박스 안의 계산결과 표 여백 공간 낭비 제거 */
+            .res-table th, .res-table td { padding: 6px 2px; font-size: 0.95rem; }
+            .res-total { margin-top: 10px; padding-top: 10px; }
+            .total-val { font-size: 2.2rem; }
         }
 
         @media (max-width: 380px) {
-            /* 초소형 모바일 기기에서의 줄바꿈 방지 극대화 */
+            /* 초소형 모바일 기기에서의 줄바꿈 방지 및 시인성 극대화 */
             .nav-btn {
-                font-size: 1.05rem !important; /* 초소형 화면 줄바꿈 방지용 */
+                font-size: 1.05rem !important; 
+                letter-spacing: -1px !important; /* 초소형 화면 텍스트 꽉 차게 */
             }
+            .cat-btn { font-size: 1.05rem; }
+            .type-btn { font-size: 0.95rem !important; }
+            .total-val { font-size: 2rem; }
         }
 
         /* 인쇄(Ctrl+P) 및 PDF 저장 시 워터마크 강제 출력 (보안 속성 적용) */
@@ -7640,6 +7823,33 @@ function openPrintWindow() {
         alert("인쇄 화면을 생성하는 중 예외가 발생했습니다. 잠시 후 다시 시도해 주십시오.");
     }
 }
+
+// =====================================================================
+// [모바일 UX 개선] 스마트 키보드 숨김 제어 로직
+// =====================================================================
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. 화면 빈 공간(입력창, 버튼 외) 터치 시 키보드 내리기
+    document.body.addEventListener('click', function(e) {
+        const tagName = e.target.tagName;
+        if (tagName !== 'INPUT' && tagName !== 'BUTTON') {
+            const activeElement = document.activeElement;
+            if (activeElement && activeElement.tagName === 'INPUT') {
+                activeElement.blur(); 
+            }
+        }
+    });
+
+    // 2. 키보드에서 '엔터(이동/완료)' 키를 눌렀을 때 키보드 내리기
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const activeElement = document.activeElement;
+            if (activeElement && activeElement.tagName === 'INPUT') {
+                activeElement.blur(); 
+                e.preventDefault();   
+            }
+        }
+    });
+});
 </script>
 
 </body>
@@ -7853,14 +8063,38 @@ function openPrintWindow() {
         }
 
         @media (max-width: 480px) {
+            body { padding: 5px 0 !important; }
+            .main-container { width: 98% !important; gap: 8px !important; }
+            
+            /* 패널 여백 최소화 */
+            .input-panel, .result-box, .official-notice-box { padding: 10px !important; }
+            .official-notice-box { padding-bottom: 40px !important; }
+            .title-area { margin-bottom: 10px !important; padding-bottom: 10px !important; }
+            .top-bar { margin-bottom: 10px !important; padding: 6px !important; gap: 4px !important; }
+            
             .title-area h1 { font-size: 1.15rem; }
-            .cat-btn { font-size: 1.05rem; min-height: 50px; }
+            
+            /* 주 사용층 고려: 버튼 내부 여백 최소화, 글자 꽉 차게 */
+            .category-grid { gap: 4px !important; }
+            .cat-btn { font-size: 1.1rem !important; min-height: 45px !important; padding: 4px 2px !important; line-height: 1.1 !important; letter-spacing: -0.5px; }
+            .cat-btn.small-title { font-size: 0.9rem !important; }
+            
+            .sub-category-grid { gap: 4px !important; margin-bottom: 10px !important; }
+            .sub-btn { font-size: 0.95rem !important; padding: 6px 10px !important; letter-spacing: -0.5px; }
+            
+            /* 결과 표 여백 최소화 */
+            .detail-table { margin-bottom: 10px !important; }
+            .detail-table th, .detail-table td { padding: 6px 4px !important; font-size: 0.85rem !important; letter-spacing: -0.5px; }
+            .total-row { padding: 12px 10px !important; margin-top: 10px !important; gap: 4px !important; }
+            .summary-box { padding-top: 10px !important; }
+            
+            .type-btn { padding-left: 10px !important; padding-right: 10px !important; }
             
             .multi-item, .extra-row {
                 flex-wrap: wrap !important;
                 justify-content: flex-end !important;
                 gap: 6px 4px !important;
-                padding: 10px !important;
+                padding: 8px 6px !important;
             }
             .item-label, .other-name {
                 width: 100% !important; 
@@ -7876,8 +8110,8 @@ function openPrintWindow() {
             .item-label.empty-label { display: none !important; }
             
             .multi-item.is-added {
-                padding-top: 6px !important;
-                padding-bottom: 8px !important;
+                padding-top: 4px !important;
+                padding-bottom: 6px !important;
             }
 
             input[type="number"] { width: 70px !important; padding: 6px 4px !important; font-size: 16px !important; }
@@ -7889,7 +8123,7 @@ function openPrintWindow() {
             
             .action-btns { margin-left: 4px !important; gap: 4px !important; }
             .btn-sm { padding: 6px 8px !important; font-size: 0.8rem !important; }
-            .input-box { padding: 12px 10px; }
+            .input-box { padding: 10px 8px !important; min-height: auto !important;}
             .total-val { font-size: 2.3rem; }
         }
 
@@ -9363,6 +9597,33 @@ function openPrintWindow() {
             showSystemWarning("[시스템 오류] 인쇄 화면을 생성하는 중 오류가 발생했습니다. 시스템 상태를 확인해주세요.");
         }
     }
+
+    // =====================================================================
+    // [모바일 UX 개선] 스마트 키보드 숨김 제어 로직
+    // =====================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. 화면 빈 공간(입력창, 버튼 외) 터치 시 키보드 내리기
+        document.body.addEventListener('click', function(e) {
+            const tagName = e.target.tagName;
+            if (tagName !== 'INPUT' && tagName !== 'BUTTON') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                }
+            }
+        });
+
+        // 2. 키보드에서 '엔터(이동/완료)' 키를 눌렀을 때 키보드 내리기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                    e.preventDefault();   
+                }
+            }
+        });
+    });
 </script>
 </body>
 </html></textarea>
@@ -9543,6 +9804,14 @@ function openPrintWindow() {
         }
 
         .wide-pill { min-width: 0 !important; width: fit-content !important; }
+        
+        /* [개선] 신규, 변경 버튼 폭 대폭 확장 (데스크탑/모바일 공통) */
+        .btn-new-mod { 
+            min-width: 140px !important; 
+            padding-left: 30px !important; 
+            padding-right: 30px !important; 
+            font-size: 1.2rem !important;
+        }
 
         .category-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; }
         
@@ -9718,31 +9987,155 @@ function openPrintWindow() {
             }
         }
 
+        /* =========================================================
+         * [모바일 전용 레이아웃 극대화 (480px 이하)] 
+         * ========================================================= */
         @media (max-width: 480px) {
-            .type-toggle { display: flex !important; flex-wrap: wrap !important; gap: 6px !important; width: 100% !important; justify-content: flex-start !important; }
-            .type-btn { flex: 0 0 calc((100% - 12px) / 3) !important; }
+            body { padding: 5px 0; }
+            .wrapper { width: 98%; gap: 8px; margin: 0 auto; }
+            .main-panel { padding: 10px !important; border-radius: 10px; }
+            .side-wrapper { padding-right: 0 !important; gap: 8px; }
+            .side-panel { padding: 15px 8px !important; border-radius: 10px; }
+            
+            .title-area { margin-bottom: 12px; padding-bottom: 8px; }
+            h1 { font-size: 1.15rem; padding-left: 8px; }
+
+            /* [수정 1] 메인 버튼 3열 그리드 적용 (시공감리 옆 초기화 버튼 배치) */
+            .type-toggle { 
+                display: grid !important; 
+                grid-template-columns: repeat(3, 1fr) !important; 
+                gap: 6px !important; 
+                width: 100% !important; 
+            }
+            #btn_mode_wan { grid-column: 1; grid-row: 1; }
+            #btn_mode_jung { grid-column: 2; grid-row: 1; }
+            #btn_mode_mid { grid-column: 3; grid-row: 1; }
+            #btn_mode_gamri { grid-column: 1; grid-row: 2; }
+            .btn-reset { grid-column: 2; grid-row: 2; }
+
+            /* 계층 1 폰트 사이즈 통일 */
+            .type-btn { 
+                width: 100% !important; 
+                flex: none !important;
+                padding: 8px 0 !important; 
+                letter-spacing: -1px !important; 
+                font-size: 1.25rem !important; 
+            }
+
+            /* [수정 2] 초기화 버튼 높이 최소화 */
             .btn-reset { 
-                font-size: 0.95rem !important; 
-                width: auto !important; 
-                flex: 0 0 calc((100% - 12px) / 3) !important; 
+                width: 100% !important; 
+                flex: none !important;
+                font-size: 1rem !important; 
+                padding: 4px 8px !important; 
+                height: auto !important; 
+                min-height: 32px !important; 
+                align-self: center !important; 
                 justify-content: center !important; 
                 margin: 0 !important; 
-                white-space: nowrap !important; 
-                box-sizing: border-box !important;
-                padding-top: 10px !important; 
-                padding-bottom: 10px !important; 
-                padding-left: 2px !important; 
-                padding-right: 2px !important;
             }
-            div#grid2.grid-2col-layout .cat-btn { font-size: 0.95rem !important; padding: 6px 4px !important; }
-            #grid3:not(.hidden) { flex-wrap: nowrap !important; gap: 4px !important; padding: 10px 5px !important; }
-            .cat-btn.terminal-btn { font-size: 0.85rem !important; padding: 6px 2px !important; flex: 1 1 50% !important; white-space: nowrap !important; }
-            .input-row, .dyn-row { flex-wrap: nowrap !important; gap: 4px !important; padding: 8px 2px !important; }
-            .input-label { flex: 1 1 auto !important; width: auto !important; font-size: 0.75rem !important; letter-spacing: -0.5px; word-break: keep-all; }
-            input[type="number"], select, .dyn-inp, #inp-v, #inp-v-sisul, #inp-v-sys, #inp-overtime { width: 50px !important; flex: 0 0 auto !important; font-size: 0.8rem !important; padding: 4px 2px !important; }
-            .unit-label { flex: 0 0 auto !important; font-size: 0.75rem !important; letter-spacing: -0.5px; }
-            .btn-ctrl { font-size: 0.9rem !important; width: 26px !important; height: 26px !important; padding: 0 !important; flex-shrink: 0 !important; }
-            .checkbox-label { font-size: 0.8rem; padding: 6px 8px; }
+
+            /* [수정 3] 하위 카테고리(grid1) 플렉스 기반 2열 바둑판 유지 */
+            #grid1:not(.hidden) { 
+                display: flex !important; 
+                flex-wrap: wrap !important;
+                gap: 6px !important; 
+                padding: 8px 6px !important; 
+                margin-bottom: 8px !important; 
+            }
+            #grid1:not(.hidden) .cat-btn:not(.wide-pill) { 
+                flex: 0 0 calc(50% - 3px) !important; /* [추가수정] flex-grow: 0 강제 적용으로 홀수버튼 전체 폭 차지 방지 */
+                width: calc(50% - 3px) !important;    /* 정확히 여백을 제외한 50% 폭만 차지하게 제한 */
+                font-size: 1.15rem !important;
+                padding: 8px 4px !important; 
+                white-space: normal !important; 
+                word-break: keep-all; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+            }
+            
+            /* [수정 4] 중간검사 "압축/액화"와 시공감리 "신규/변경" 크기 완벽 동기화 */
+            .wide-pill, .btn-new-mod { 
+                flex: 0 0 auto !important;
+                width: auto !important;
+                min-width: 100px !important; 
+                padding: 8px 20px !important; 
+                font-size: 1.15rem !important; 
+                border-radius: 50px !important;
+            }
+            
+            #grid2:not(.hidden), #grid3:not(.hidden) { padding: 8px 6px !important; margin-bottom: 8px !important; }
+            .input-box { padding: 10px 8px !important; margin-bottom: 8px !important; }
+
+            .result-header { padding-bottom: 8px; margin-bottom: 8px; }
+            .detail-table th, .detail-table td { padding: 8px 2px !important; letter-spacing: -0.5px; font-size: 0.8rem; }
+            .summary-box { padding-top: 10px; }
+            .sum-row { margin-bottom: 5px; font-size: 0.85rem; }
+            .total-row { padding-top: 10px; margin-top: 10px; }
+
+            /* 계층 2/3 폰트 사이즈 통일 */
+            .cat-btn, .sub-type-btn, .green-pill-btn, .slim-green-btn, .pipe-type-btn, .cat-btn.terminal-btn {
+                padding: 6px 8px !important;
+                font-size: 1.15rem !important;
+                letter-spacing: -0.5px;
+            }
+            
+            div#grid2.grid-2col-layout .cat-btn { font-size: 1.15rem !important; padding: 8px 4px !important; }
+            #grid3:not(.hidden) { display: flex !important; flex-wrap: wrap !important; gap: 6px !important; padding: 8px 4px !important; }
+            .cat-btn.terminal-btn { flex: 1 1 calc(50% - 6px) !important; white-space: nowrap !important; }
+            
+            /* [수정 5] 시간외 감리/배관길이 등 입력창 상하 줄맞춤 및 폭 대폭 확대 */
+            .input-row, .dyn-row { 
+                display: flex !important;
+                flex-wrap: wrap !important; 
+                gap: 8px 4px !important; 
+                padding: 8px 2px !important; 
+                align-items: center !important;
+                justify-content: flex-start !important;
+            }
+            
+            .input-label { 
+                flex: 0 0 120px !important; /* 텍스트 시작 지점을 고정하여 상하 줄맞춤 */
+                width: 120px !important; 
+                min-width: 120px !important;
+                font-size: 0.95rem !important; 
+                letter-spacing: -0.5px; 
+                white-space: nowrap !important;
+                text-align: left;
+            }
+            
+            input[type="number"], select, .dyn-inp, #inp-v, #inp-v-sisul, #inp-v-sys, #inp-overtime { 
+                flex: 1 1 0 !important; /* 남는 빈 공간을 입력창이 꽉 채우도록 허용 */
+                width: 100% !important; 
+                height: 38px !important;
+                font-size: 1.05rem !important; 
+                padding: 4px 6px !important; 
+                box-sizing: border-box !important;
+            }
+            
+            .unit-label { 
+                flex: 0 0 auto !important; 
+                font-size: 0.95rem !important; 
+                letter-spacing: -0.5px; 
+            }
+            
+            .btn-ctrl { 
+                font-size: 1.1rem !important; 
+                width: 38px !important; 
+                height: 38px !important; 
+                padding: 0 !important; 
+                flex-shrink: 0 !important; 
+            }
+
+            .overtime-notice { 
+                flex-basis: 100% !important; 
+                width: 100% !important; 
+                margin-top: 4px !important; 
+                font-size: 0.85rem !important;
+            }
+
+            .checkbox-label { font-size: 0.9rem; padding: 8px 10px; flex-basis: 100%;}
         }
 
         @media (max-width: 380px) {
@@ -10216,10 +10609,11 @@ function openPrintWindow() {
 
             if (currentMode === 'gamri') {
                 if (currentMain === 'g_gov_station' || currentMain === 'g_gov') {
+                    // [개선] 신규, 변경 버튼 폭 확장을 위해 btn-new-mod 클래스 추가
                     html += `
                     <div class="sub-type-toggle flex-start">
-                        <button class="sub-type-btn slim-green-btn wide-pill ${currentSub==='new'?'active':''}" onclick="changeSub('new')">신규</button>
-                        <button class="sub-type-btn slim-green-btn wide-pill ${currentSub==='mod'?'active':''}" onclick="changeSub('mod')">변경</button>
+                        <button class="sub-type-btn slim-green-btn wide-pill btn-new-mod ${currentSub==='new'?'active':''}" onclick="changeSub('new')">신규</button>
+                        <button class="sub-type-btn slim-green-btn wide-pill btn-new-mod ${currentSub==='mod'?'active':''}" onclick="changeSub('mod')">변경</button>
                     </div>`;
                     html += makeRow('설치/변경 건수', '<input type="number" id="inp-v" min="0" placeholder="0" class="int-only" step="1" pattern="\\d*" oninput="validateInt(this); calc()">', '건');
                 } else if (currentMain === 'g_manu') {
@@ -10234,13 +10628,13 @@ function openPrintWindow() {
                     html += makeDynInitRow('배관 총 길이', 'm'); 
                 }
                 
-                // 시공감리 하위메뉴 공통: 시간외 감리 입력 항목 추가
+                // [개선] 시공감리 하위메뉴 공통: 시간외 감리 입력 항목에 overtime-row 및 overtime-notice 클래스 적용
                 html += `
-                <div class="input-row" style="border-bottom:none;">
+                <div class="input-row overtime-row" style="border-bottom:none;">
                     <div class="input-label" style="color:#ef4444;">시간외 감리 시간</div>
                     <input type="number" id="inp-overtime" min="0" placeholder="0" class="int-only" step="1" pattern="\\d*" oninput="validateInt(this); calc()">
                     <div class="unit-label">시간</div>
-                    <div style="width: 100%; font-size: 0.8rem; color: #ef4444; margin-top: 6px; font-weight: bold; word-break: keep-all;">※ 시간외 검사 수수료는 1시간당 39,000원으로 산정</div>
+                    <div class="overtime-notice" style="width: 100%; font-size: 0.8rem; color: #ef4444; margin-top: 6px; font-weight: bold; word-break: keep-all;">※ 시간외 검사 수수료는 1시간당 39,000원으로 산정</div>
                 </div>
                 `;
             }
@@ -11137,6 +11531,33 @@ function openPrintWindow() {
             showError("[시스템 오류] 인쇄 팝업을 생성하는 중 오류가 발생했습니다.");
         }
     }
+
+    // =====================================================================
+    // [모바일 UX 개선] 스마트 키보드 숨김 제어 로직
+    // =====================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. 화면 빈 공간(입력창, 버튼 외) 터치 시 키보드 내리기
+        document.body.addEventListener('click', function(e) {
+            const tagName = e.target.tagName;
+            if (tagName !== 'INPUT' && tagName !== 'BUTTON') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                }
+            }
+        });
+
+        // 2. 키보드에서 '엔터(이동/완료)' 키를 눌렀을 때 키보드 내리기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                    e.preventDefault();   
+                }
+            }
+        });
+    });
 </script>
 </body>
 </html></textarea>
@@ -11667,14 +12088,47 @@ function openPrintWindow() {
             .btn-fac {
                 font-size: 1.15rem !important; 
                 font-weight: 800 !important;
-                
-                /* [조치] 모든 버튼이 2개씩 2줄로 완벽히 짝을 이루도록 폭을 45%로 강제 할당 */
-                /* 이로 인해 4번째 버튼(공동주택) 혼자 남은 공간을 100% 덮는 현상이 완벽히 차단됩니다. */
                 flex: 1 1 45% !important; 
-                
                 padding-top: 10px !important; 
                 padding-bottom: 10px !important; 
             }
+        }
+
+        /* ============================================================================
+           [신규 추가] 40~70대 주 고객층 배려, 모바일 여백 극단적 최소화 및 시인성 향상
+           ============================================================================ */
+        @media (max-width: 768px) {
+            /* 1. 화면 및 컨테이너 여백을 극도로 줄여 좁은 화면 활용도 극대화 */
+            body { padding: 5px 0 !important; }
+            .main-container { width: 98% !important; padding: 0 !important; gap: 10px !important; }
+            
+            /* 2. 카드 내부 패딩을 최소화하여 데이터가 들어갈 공간 확보 */
+            .card-white { padding: 0.75rem !important; }
+            .card-dark { padding: 0.75rem !important; margin-bottom: 0.5rem !important; }
+
+            /* 3. 기기선택 버튼 화면 이탈 방지 (1열로 꽉 차게 세로 배치) */
+            .step-row .grid-2 { 
+                display: flex !important; 
+                flex-direction: column !important; 
+                gap: 0.5rem !important; 
+            }
+            .btn-step { 
+                padding: 0.75rem 0.5rem !important; 
+                font-size: 1.25rem !important; /* 폰트 확대 (시인성 증가) */
+                font-weight: 900 !important; 
+                width: 100% !important; 
+            }
+
+            /* 4. 다닥다닥 붙어 낭비되던 표(table) 공간을 확 펴고 여백 축소 */
+            .table-dark-wrap { border-radius: 0.25rem !important; }
+            .table-dark th, .table-dark td { 
+                padding: 0.5rem 0.2rem !important; /* 좌우 여백 최소화 */
+                font-size: 1.05rem !important; /* 폰트 약 15% 확대 */
+                letter-spacing: -0.05em; 
+            }
+            
+            .vol-box { padding: 0.75rem !important; margin-bottom: 0.75rem !important; }
+            .result-time-box { padding: 0.75rem !important; margin-bottom: 0.75rem !important; }
         }
 
         @media (max-width: 380px) {
@@ -11948,7 +12402,7 @@ function openPrintWindow() {
                     
                     <div class="ref-note">
                         [비고] 1. V는 피시험부분의 용적(단위 : m³)이다.<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. 전기식 다이어프램형 압력계는 공인기관으로부터 성능인증을 받아 합격한 것이어야 한다.
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2. 전기식 다이어프램형 압력계는 공인기관으로부터 성능인증을 받아 합격한 것이어야 단다.
                     </div>
 
                     <div style="font-weight: bold; text-align: center; padding: 0.75rem; background: #fff; border-top: 1px solid #d1d5db; border-bottom: 1px solid #d1d5db; font-size: 0.95rem;">장거리 구간의 기밀유지시간</div>
@@ -12012,7 +12466,7 @@ function openPrintWindow() {
         </div> <!-- 우측 구역 끝 -->
     </div> <!-- 메인 컨테이너 끝 -->
 
-    <!-- 기존 자바스크립트 산출 로직 100% 동일 적용 -->
+    <!-- 기존 자바스크립트 산출 로직 100% 동일 적용 (디지털 마노메터 방어 로직만 추가) -->
     <script>
         let currentFacility = ''; 
         let currentPressure = '저압';
@@ -12163,11 +12617,18 @@ function openPrintWindow() {
                 const btnDigi = document.getElementById('btn-dev-digital');
                 const btnRec = document.getElementById('btn-dev-record');
                 
-                if (isCharge) {
+                /* [신규 로직 적용] 
+                   충전시설이거나, 압력이 '중압' 또는 '고압'일 경우 
+                   디지털 마노메터 버튼을 강제로 비활성화(disabled)하여 사용자 오작동 원천 차단 
+                */
+                const isManoDisabled = isCharge || (currentPressure === '중압' || currentPressure === '고압');
+                
+                if (isManoDisabled) {
                     btnDigi.disabled = true;
                     btnDigi.className = "btn btn-step btn-device-disabled";
                     btnRec.disabled = false;
                     btnRec.className = "btn btn-step btn-device-active";
+                    currentDevice = '기록계'; // 강제 동기화 보장
                 } else {
                     btnDigi.disabled = false;
                     btnRec.disabled = false;
@@ -12195,6 +12656,13 @@ function openPrintWindow() {
                     return;
                 }
 
+                // [신규 로직 적용] 
+                // 사용자가 중압 또는 고압을 선택했는데, 현재 기기가 마노메터라면
+                // 자연스럽게 '기록계'로 강제 전환하여 논리적 오류를 방지함
+                if ((p === '중압' || p === '고압') && currentDevice === '마노메터') {
+                    currentDevice = '기록계';
+                }
+
                 if (p === '고압' && currentPressure !== '고압') {
                     const hasPeData = items.some(item => item.type === 'pe' && item.length.trim() !== '' && parseFloat(item.length) > 0);
                     
@@ -12220,6 +12688,12 @@ function openPrintWindow() {
             try {
                 if (currentFacility === '충전시설' && d !== '기록계') {
                     alert("충전시설 기밀시험은 자기압력기록계만 사용 가능합니다.");
+                    return;
+                }
+
+                // [신규 로직 적용] 버튼이 disabled라 눌리진 않겠지만 만약을 대비한 방어 코드
+                if (d === '마노메터' && (currentPressure === '중압' || currentPressure === '고압')) {
+                    // 중압/고압에서는 마노메터를 선택할 수 없으므로 무시
                     return;
                 }
 
@@ -12801,6 +13275,33 @@ function openPrintWindow() {
                 alert("인쇄 화면을 생성하는 중 오류가 발생했습니다.");
             }
         }
+
+        // =====================================================================
+        // [모바일 UX 개선] 스마트 키보드 숨김 제어 로직
+        // =====================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. 화면 빈 공간(입력창, 버튼 외) 터치 시 키보드 내리기
+            document.body.addEventListener('click', function(e) {
+                const tagName = e.target.tagName;
+                if (tagName !== 'INPUT' && tagName !== 'BUTTON') {
+                    const activeElement = document.activeElement;
+                    if (activeElement && activeElement.tagName === 'INPUT') {
+                        activeElement.blur(); 
+                    }
+                }
+            });
+
+            // 2. 키보드에서 '엔터(이동/완료)' 키를 눌렀을 때 키보드 내리기
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const activeElement = document.activeElement;
+                    if (activeElement && activeElement.tagName === 'INPUT') {
+                        activeElement.blur(); 
+                        e.preventDefault();   
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html></xmp>
@@ -12989,11 +13490,7 @@ function openPrintWindow() {
         .result-table th { background-color: #374151; font-weight: bold; color: #f3f4f6; padding: 0.25rem 0.5rem; }
         .result-table td { padding: 0.2rem 0.5rem; }
         .val-high { color: #f87171; } .val-low { color: #60a5fa; } .val-mid { color: #fbbf24; }
-        @media (max-width: 640px) {
-            .result-table th { padding: 0; letter-spacing: -0.5px; }
-            .result-table td { padding: 0; letter-spacing: -0.5px; }
-        }
-
+        
         /* 하단 KGS Reference Table CSS */
         .empty-ref-box { background: white; border: 2px dashed #cbd5e1; border-radius: 12px; padding: 60px 20px; text-align: center; color: #94a3b8; font-size: 1.05rem; line-height: 1.6; display: flex; align-items: center; justify-content: center; min-height: 200px; word-break: keep-all; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); }
         .ref-card { background: #ffffff; display: flex; flex-direction: column; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; position: relative; z-index: 10; margin-bottom: 1rem; }
@@ -13013,6 +13510,35 @@ function openPrintWindow() {
         @media (max-width: 1024px) { .print-btn { display: none !important; } }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* ============================================================================
+           [신규 추가] 모바일 환경(가로 640px 이하) 전용 여백 최소화 최적화 (시인성 극대화)
+           ============================================================================ */
+        @media (max-width: 640px) {
+            /* 1. 바디 및 전체 컨테이너 여백 축소 */
+            body { padding: 10px 0 !important; }
+            .main-container { width: 98% !important; max-width: 100% !important; gap: 10px !important; }
+            
+            /* 2. 외곽 카드 패딩 대폭 축소 (화면 가장자리로 밀착) */
+            .card-white, .card-dark, .ref-card { padding: 0.5rem !important; border-radius: 0.5rem !important; }
+            .right-panel-wrap { gap: 10px !important; }
+
+            /* 3. 세부 계산 결과 박스 및 테이블 내부 공간 확보 */
+            .out-gen-card, .out-whole-card { margin-bottom: 0.5rem !important; border-radius: 0.5rem !important; }
+            .out-gen-header, .out-whole-header { padding: 0.25rem !important; }
+            .out-whole-body { padding: 0.5rem !important; }
+            
+            /* 테이블 패딩 극소화로 글씨 공간 확보 */
+            .result-table th, .result-table td { padding: 1px 0 !important; letter-spacing: -0.5px !important; }
+            .result-table th { font-size: 0.8rem !important; }
+            
+            /* 4. 입력창 카드 및 내부 박스 여백 축소 */
+            .reg-row { padding: 0.5rem !important; }
+            .whole-card { padding: 0.5rem !important; }
+            .whole-grid { gap: 0.5rem !important; }
+            .alarm-box { padding: 0.5rem !important; }
+            .empty-ref-box { padding: 30px 10px !important; }
+        }
     </style>
 </head>
 <body>
@@ -13028,7 +13554,7 @@ function openPrintWindow() {
                 <h1 class="section-title">정압기 압력조정기 셋팅압력 계산기</h1>
             </div>
             
-            <!-- 0. 시설 선택 (Grid 배열을 통한 완벽한 모바일 2x2 사이즈 고정) -->
+            <!-- 0. 시설 선택 -->
             <div class="fac-btn-wrap">
                 <button id="btn-fac-gen" onclick="setFacility('일반사업 정압기')" class="btn-fac btn-inactive">일반사업 정압기</button>
                 <button id="btn-fac-spec" onclick="setFacility('특정사용 정압기')" class="btn-fac btn-inactive">특정사용 정압기</button>
@@ -13198,7 +13724,7 @@ function openPrintWindow() {
         </div> <!-- 우측 구역 끝 -->
     </div> <!-- 메인 컨테이너 끝 -->
 
-    <!-- 기존 자바스크립트 로직 원본 100% 동일 보존 -->
+    <!-- JS 로직 -->
     <script>
         // 전역 상태 변수
         let currentFacility = ''; 
@@ -13551,7 +14077,7 @@ function openPrintWindow() {
             }
         }
 
-        // 4. 출력 로직 (문제 해결: 기호 제거 및 지침 추가 적용)
+        // 4. 출력 로직
         function openPrintWindow() {
             const isGenSpec = (currentFacility === '일반사업 정압기' || currentFacility === '특정사용 정압기');
             const dataArr = isGenSpec ? generalRegulators : wholesaleRegulators;
@@ -13650,7 +14176,6 @@ function openPrintWindow() {
                     }
                     if(!isNaN(maop) && maop > 0) { sv1 = formatNumber(maop * 1.0, 2); sv2 = formatNumber(maop * 1.05, 2); }
 
-                    // [조치 1] 도매사업 인쇄물 기호(화살표 등) 삭제 및 텍스트 교체 (법적 용어 적용)
                     const str_aH = aH !== '-' ? aH + ' 초과' : '-';
                     const str_aL = aL !== '-' ? aL + ' 이하' : '-';
                     const str_ssvH = ssvH !== '-' ? ssvH + ' 초과' : '-';
@@ -13677,7 +14202,6 @@ function openPrintWindow() {
                 });
             }
 
-            // [조치 2] KGS 관련 근거 표의 HTML을 추출하여 인쇄물에 결합
             const refContainerId = isGenSpec ? 'ref-general-container' : 'ref-wholesale-container';
             const refHtml = document.getElementById(refContainerId).innerHTML;
 
@@ -13708,7 +14232,7 @@ function openPrintWindow() {
                     .bg-red { background: #fee2e2 !important; -webkit-print-color-adjust: exact; }
                     .bg-blue { background: #dbeafe !important; -webkit-print-color-adjust: exact; }
                     
-                    /* 하단 KGS 지침 표 인쇄용 스타일 재정의 (한 페이지 출력을 위한 글자/여백 축소) */
+                    /* 하단 KGS 지침 표 인쇄용 스타일 재정의 */
                     .ref-title { font-size: 13px; font-weight: bold; margin-bottom: 6px; text-align: left; }
                     .k-table { border-collapse: collapse; width: 100%; text-align: center; font-size: 11px; color: #000; border: 1px solid #000; margin-bottom: 10px; }
                     .k-table th, .k-table td { border: 1px solid #000; padding: 4px; vertical-align: middle; word-break: keep-all; }
@@ -14236,7 +14760,8 @@ function openPrintWindow() {
         </section>
 
         <!-- 우측: 시각화 캔버스 영역 (데스크탑 여백 및 둥글기 적용) -->
-        <section class="bg-white rounded-lg shadow-md border border-gray-400 lg:w-2/3 flex flex-col relative desktop-canvas-panel" style="min-height: 500px;">
+        <!-- 💡 [핵심 조치] 모바일에서 캔버스가 화면을 뚫고 나가는(Overflow) 현상을 막기 위해 section에 overflow: hidden 추가 -->
+        <section class="bg-white rounded-lg shadow-md border border-gray-400 lg:w-2/3 flex flex-col desktop-canvas-panel" style="overflow: hidden;">
             <div class="p-1.5 px-3 bg-slate-700 text-slate-100 font-bold text-sm sm:text-base rounded-t-lg flex justify-between items-center border-b-4 border-slate-900 whitespace-nowrap gap-2 relative desktop-canvas-header">
                 <div class="flex items-center gap-1 sm:gap-2">
                     <span>도식화 뷰어</span>
@@ -14246,9 +14771,11 @@ function openPrintWindow() {
                 </div>
                 <span class="text-xs text-slate-300 font-normal">격자간격: 10cm</span>
             </div>
-            <div id="canvas-scroll-wrapper" class="flex-grow relative w-full h-full overflow-auto bg-[#f8fafc] rounded-b-lg">
-                <div id="canvas-container" class="min-w-[700px] w-full h-full" style="min-height: 500px;">
-                    <canvas id="pipeCanvas" class="w-full h-full block"></canvas>
+            <!-- 💡 [핵심 조치] 터치 스크롤(-webkit-overflow-scrolling)을 활성화하고 모바일 환경에서 가로 스와이프를 허용 -->
+            <div id="canvas-scroll-wrapper" class="w-full bg-[#f8fafc] rounded-b-lg" style="overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;">
+                <!-- 💡 [핵심 조치] 캔버스의 최소 폭(700px)과 높이(500px)를 강제 고정하여 모바일에서도 찌그러지지 않고 스와이프 탐색 가능하도록 설정 -->
+                <div id="canvas-container" style="min-width: 700px; height: 500px; position: relative;">
+                    <canvas id="pipeCanvas" style="width: 100%; height: 100%; display: block;"></canvas>
                 </div>
             </div>
         </section>
@@ -16174,27 +16701,28 @@ function openPrintWindow() {
         /* 모바일 및 태블릿 환경 최적화 (1024px 이하)                                */
         /* ========================================================================= */
         @media (max-width: 1024px) {
-            body { padding: 10px 0; }
+            body { padding: 5px 0; } /* 상하 여백 10px -> 5px로 축소 */
             .wrapper {
                 grid-template-columns: 1fr; /* 상하 배치로 전환 */
                 width: 100%;
-                padding: 0 10px;
-                gap: 15px;
+                padding: 0 5px; /* 좌우 여백 10px -> 5px로 축소 */
+                gap: 10px; /* 패널 간 간격 15px -> 10px로 축소 */
             }
 
             .main-panel, .side-panel, .official-notice-box {
-                padding: 15px;
+                padding: 10px; /* 패널 내부 여백 15px -> 10px로 축소하여 공간 극대화 */
             }
 
-            /* 법률 버튼 & 초기화 버튼 3열 2행 구조로 강제 배열 */
+            /* 법률 버튼 & 초기화 버튼 3열 2행 구조로 강제 배열 및 여백 극소화 */
             .top-bar { 
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
-                padding: 10px;
-                background: #f1f5f9;
-                border-radius: 10px;
-                margin-bottom: 20px;
+                gap: 6px;
+                padding: 0 0 12px 0; /* 하단 패딩만 부여하여 버튼과 구분선 사이의 간격 확보 */
+                background: transparent; /* 회색 배경 상자를 제거하여 일체감 조성 */
+                border-radius: 0;
+                margin-bottom: 12px; /* 구분선과 하단 종속 버튼군 사이의 간격 */
+                border-bottom: 1px solid #cbd5e1; /* 얇은 회색 구분선 추가 (위계 구조 형성) */
             }
             .law-toggle { 
                 display: contents; /* grid 자식들을 상위 grid에 직접 편입 */
@@ -16203,8 +16731,8 @@ function openPrintWindow() {
                 margin: 0;
                 width: 100%;
                 max-width: none;
-                font-size: 1.15rem;
-                padding: 8px 4px;
+                font-size: 1.25rem; /* 글씨를 키워 버튼 안에 꽉 차게 (시인성 유지) */
+                padding: 8px 4px; /* 원본 패딩으로 복구하여 높이 확보 */
                 height: 100%;
                 box-sizing: border-box;
             }
@@ -16212,19 +16740,26 @@ function openPrintWindow() {
                 margin: 0;
                 width: 100%;
                 max-width: none;
-                font-size: 1.05rem;
-                padding: 8px 4px;
-                height: 100%;
+                font-size: 1rem;
+                padding: 4px 2px; /* 패딩 축소 */
+                min-height: 36px; /* 버튼 높이를 콤팩트하게 고정 */
+                height: auto;
                 box-sizing: border-box;
-                align-self: stretch;
+                align-self: center; /* stretch 대신 center를 사용하여 다른 버튼과 높이 동기화 방지 */
+                line-height: 1.1;
             }
 
-            /* 카테고리 2열 강제 */
-            .category-grid, .category-grid.city-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
-            .cat-btn { font-size: 1.1rem; min-height: 55px; padding: 8px 4px; }
+            /* 카테고리 2열 강제 및 텍스트 꽉 차게 설정 */
+            .category-grid, .category-grid.city-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 6px; }
+            .cat-btn { 
+                font-size: 1.2rem; /* 폰트 확대 */
+                min-height: 45px; /* 불필요한 높이 축소 (55->45) */
+                padding: 4px 2px; /* 내부 여백 극소화 */
+                line-height: 1.2;
+            }
             
             /* 입력 행 극한의 한 줄 압축 (가로 스크롤 완전 차단) */
-            .input-box { padding: 12px 10px; }
+            .input-box { padding: 10px 8px; }
             .input-row {
                 flex-wrap: nowrap;
                 gap: 4px;
@@ -16253,6 +16788,11 @@ function openPrintWindow() {
             /* 스티키 속성 해제 (모바일 레이아웃 깨짐 방지) */
             .side-wrapper { position: static; max-height: none; padding-right: 0; }
             
+            /* 결과 상세 테이블 여백 대폭 압축 (모바일 한정) */
+            .detail-table th, .detail-table td { padding: 6px 4px; font-size: 0.8rem; }
+            .res-title { padding-bottom: 8px; margin-bottom: 10px; font-size: 1rem; }
+            .summary-box { padding-top: 10px; margin-top: 5px; }
+
             /* 합계 폰트 크기 조정 */
             .total-val { font-size: 2.2rem; }
             .total-val small { font-size: 1.4rem !important; }
@@ -16262,11 +16802,14 @@ function openPrintWindow() {
         
         /* 초소형 스마트폰 화면 추가 압축 */
         @media (max-width: 380px) {
-            .cat-btn { font-size: 1rem; }
+            .wrapper { padding: 0 2px; }
+            .main-panel, .side-panel, .official-notice-box { padding: 8px; }
+            .cat-btn { font-size: 1.1rem; }
             input[type="number"] { width: 50px; }
             .input-label { font-size: 0.75rem; }
-            .law-btn { font-size: 1rem; }
+            .law-btn { font-size: 1.1rem; }
             .btn-reset { font-size: 0.95rem; }
+            .detail-table th, .detail-table td { padding: 4px 2px; font-size: 0.75rem; }
         }
 
         /* ========================================================================= */
@@ -17608,6 +18151,33 @@ function openPrintWindow() {
             alert("[시스템 오류] 인쇄 화면을 생성하는 중 오류가 발생했습니다. 시스템 상태를 확인해주세요.");
         }
     }
+
+    // =====================================================================
+    // [모바일 UX 개선] 스마트 키보드 숨김 제어 로직
+    // =====================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. 화면 빈 공간(입력창, 버튼 외) 터치 시 키보드 내리기
+        document.body.addEventListener('click', function(e) {
+            const tagName = e.target.tagName;
+            if (tagName !== 'INPUT' && tagName !== 'BUTTON') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                }
+            }
+        });
+
+        // 2. 키보드에서 '엔터(이동/완료)' 키를 눌렀을 때 키보드 내리기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                    e.preventDefault();   
+                }
+            }
+        });
+    });
 </script>
 </body>
 </html></textarea>
@@ -17634,7 +18204,8 @@ function openPrintWindow() {
         .copyright-tag { font-size: 0.75rem; color: var(--secondary-text); font-weight: 500; }
 
         .top-bar { display: flex; justify-content: space-between; margin-bottom: 6px; background: #f1f5f9; padding: 10px; border-radius: 10px; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .type-toggle { display: flex; gap: 5px; flex-wrap: wrap; }
+        /* [수정] 데스크탑 환경에서 남는 여백을 흡수하여 메인 버튼들이 꽉 차게 늘어나도록 flex: 1 추가 */
+        .type-toggle { display: flex; gap: 5px; flex-wrap: wrap; flex: 1; }
         
         /* [버튼 공통] 터치 최적화 및 줄바꿈 방지 */
         .type-btn, .btn-reset, .action-btn, .sub-btn, .cat-btn {
@@ -17859,33 +18430,35 @@ function openPrintWindow() {
         .print-btn:hover {background: #10b981;color: white;transform: translateY(-2px);box-shadow: 0 6px 10px rgba(0, 0, 0, 0.12);}
         .print-btn:active {transform: translateY(1px);box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);}
 
-        /* [모바일 & 태블릿 최적화] */
+        /* =========================================================
+           [모바일 & 태블릿 최적화] 공간 낭비 제거 및 시인성 극대화 
+           ========================================================= */
         @media (max-width: 1024px) {
-            body { padding: 15px 0; }
-            .wrapper { width: 95%; grid-template-columns: minmax(0, 1fr); gap: 20px; } 
+            body { padding: 10px 0; } 
+            .wrapper { width: 98%; grid-template-columns: minmax(0, 1fr); gap: 15px; } 
             
-            .top-bar { flex-direction: row; flex-wrap: nowrap; padding: 10px; gap: 8px; align-items: stretch; }
+            .top-bar { flex-direction: row; flex-wrap: nowrap; padding: 6px; gap: 4px; align-items: stretch; }
             .type-toggle { flex: 1; display: flex; gap: 4px; flex-wrap: nowrap; }
             
             .type-btn {
-                font-size: 1.15rem !important; 
-                font-weight: 800 !important;
+                font-size: 1.25rem !important; /* 폰트 확대 */
+                font-weight: 900 !important;   /* 폰트 굵기 최대 */
                 flex: 1 1 30% !important; 
-                padding-top: 10px !important; 
-                padding-bottom: 10px !important; 
+                padding-top: 6px !important;   /* 여백 최소화 */
+                padding-bottom: 6px !important; 
             }
 
-            .btn-reset { flex: unset; width: auto; padding: 0 12px; font-size: 0.95rem; align-self: stretch; margin-left: 0; white-space: nowrap; max-width: none; }
+            .btn-reset { flex: unset; width: auto; padding: 0 8px; font-size: 0.9rem; align-self: stretch; margin-left: 0; white-space: nowrap; max-width: none; }
 
-            .category-grid { grid-template-columns: repeat(2, 1fr); }
+            .category-grid { grid-template-columns: repeat(2, 1fr); gap: 4px;}
             
             .side-wrapper { position: static; max-height: none; overflow-y: visible; padding-right: 0; }
             
-            .input-box { padding: 12px; }
+            .input-box { padding: 8px; }
             .input-row { flex-wrap: nowrap !important; gap: 4px; padding: 4px 0; margin: 0; }
-            .input-label { font-size: 0.75rem; letter-spacing: -0.5px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-            input[type="number"] { width: 50px !important; padding: 4px 6px; font-size: 0.9rem; }
-            .unit-label { font-size: 0.75rem; width: 15px; }
+            .input-label { font-size: 0.8rem; letter-spacing: -0.5px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            input[type="number"] { width: 60px !important; padding: 4px 6px; font-size: 1rem; }
+            .unit-label { font-size: 0.8rem; width: 15px; }
 
             .total-val { font-size: 2rem; }
             .gosi-placeholder { min-height: 200px; padding: 15px; font-size: 0.9rem; }
@@ -17893,30 +18466,47 @@ function openPrintWindow() {
             .print-btn { display: none !important; }
         }
 
-        /* [소형 모바일 추가 최적화] */
+        /* [소형 모바일 추가 최적화] 가장자리 여백 극한 압축 */
         @media (max-width: 768px) {
-            .wrapper { width: 100%; padding: 0 10px; }
-            .main-panel, .side-panel, .official-notice-box { padding: 15px; border-radius: 12px; }
+            .wrapper { width: 100%; padding: 0 4px; } /* 양옆 여백 4px로 극단적 축소 */
+            .main-panel, .side-panel, .official-notice-box { padding: 8px; border-radius: 8px; } /* 패널 여백 15px -> 8px 축소 */
             
-            h1 { font-size: 1.15rem; }
+            h1 { font-size: 1.15rem; margin-bottom: 4px; border-left-width: 4px; padding-left: 10px;}
+            .title-area { margin-bottom: 6px; padding-bottom: 4px; }
             
-            .top-bar { gap: 4px; padding: 8px; }
-            .type-toggle { gap: 4px; }
-            .type-btn { font-size: 1.15rem; padding: 12px 0; } 
-            .btn-reset { font-size: 0.85rem; padding: 0 8px; }
+            .top-bar { gap: 2px; padding: 4px; }
+            .type-toggle { gap: 2px; }
+            .type-btn { font-size: 1.3rem !important; padding: 4px 0 !important; } /* 버튼 내 텍스트 꽉 차게 */
+            .btn-reset { font-size: 0.85rem; padding: 0 4px; }
 
-            .action-btn { font-size: 1rem; padding: 8px 30px; }
-            .sub-btn, .cat-btn { font-size: 1rem; padding: 8px 10px; }
+            /* 액션버튼(신규/변경) 꽉 차게 */
+            .action-area { gap: 4px; margin-left: 0; justify-content: space-between; }
+            .action-btn { font-size: 1.15rem; padding: 6px 0; flex: 1; text-align: center; } 
             
-            .detail-table th, .detail-table td { font-size: 0.7rem; padding: 4px; }
+            .level1-area { gap: 4px; }
+            .sub-btn { font-size: 1.1rem; padding: 6px 2px; flex: 1; text-align: center; }
+            
+            .cat-btn { font-size: 1.05rem; padding: 6px 2px; }
+            
+            /* 검은 박스 표 가장자리 여백 최소화 */
+            .detail-table { margin-bottom: 10px; }
+            .detail-table th, .detail-table td { font-size: 0.75rem; padding: 4px 2px; } 
+            
             .gosi-page-content { min-height: auto; padding-bottom: 40px; }
+            
+            .sum-row { font-size: 0.8rem; }
+            .vat-row { font-size: 0.8rem; }
+            .total-label { font-size: 1.05rem; }
+            .total-val { font-size: 1.8rem; }
         }
 
         /* [초소형 기기 미디어 쿼리 신규 추가] */
         @media (max-width: 380px) {
-            .type-btn {
-                font-size: 1.05rem !important; 
-            }
+            .wrapper { padding: 0 2px; }
+            .main-panel, .side-panel, .official-notice-box { padding: 6px; }
+            .type-btn { font-size: 1.15rem !important; padding: 4px 0 !important; }
+            .action-btn, .sub-btn, .cat-btn { font-size: 1rem; padding: 4px 0; }
+            .detail-table th, .detail-table td { font-size: 0.7rem; letter-spacing: -0.5px; }
         }
     </style>
 </head>
@@ -18961,6 +19551,33 @@ function openPrintWindow() {
             alert("[시스템 알림] 인쇄 화면을 생성하는 중 내부 오류가 발생했습니다. 담당자에게 문의하십시오.");
         }
     }
+
+    // =====================================================================
+    // [모바일 UX 개선] 스마트 키보드 숨김 제어 로직
+    // =====================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // 1. 화면 빈 공간(입력창, 버튼 외) 터치 시 키보드 내리기
+        document.body.addEventListener('click', function(e) {
+            const tagName = e.target.tagName;
+            if (tagName !== 'INPUT' && tagName !== 'BUTTON') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                }
+            }
+        });
+
+        // 2. 키보드에서 '엔터(이동/완료)' 키를 눌렀을 때 키보드 내리기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.tagName === 'INPUT') {
+                    activeElement.blur(); 
+                    e.preventDefault();   
+                }
+            }
+        });
+    });
 </script>
 </body>
 </html></textarea>
@@ -19652,7 +20269,7 @@ function openPrintWindow() {
         // =========================================================
         // [신규] 시스템 버전 관리 상수 정의 (YYYYMMDD 형식 등)
         // =========================================================
-        const CURRENT_VERSION = "26.4.27.1"; 
+        const CURRENT_VERSION = "26.5.14.1"; 
 
         // PC 버전에 사용되던 풍부한 이름을 기준으로 통일 (버튼 11개로 재정렬)
         const MODULE_NAMES = Object.freeze({
@@ -19681,6 +20298,27 @@ function openPrintWindow() {
         window.addEventListener('message', function(event) {
             if (event.data === 'markModuleDirty') {
                 isModulePristine = false;
+            }
+        });
+
+        // =========================================================
+        // 단말기 "뒤로가기" 방어 로직 (History API 연동) 추가
+        // =========================================================
+        window.addEventListener('popstate', function(event) {
+            // 브라우저의 뒤로가기가 실행되어 popstate가 발생했을 때, 
+            // 만약 모듈(계산기) 화면이 열려있는 상태라면 앱이 이탈되는 것을 막고 우리만의 로직을 실행합니다.
+            if (currentOpenModuleId !== null) {
+                if (isModulePristine) {
+                    // 데이터 입력 등 조작이 없었다면 화면만 닫아줍니다. 
+                    // (이미 history는 뒤로 갔기 때문에 UI만 숨기면 됩니다)
+                    closeModuleUIOnly();
+                } else {
+                    // 입력하던 내용이 있어 새로고침(초기화)을 해야 하는 경우.
+                    // 원래 로직대로 reloadCurrentModule을 호출해야 하는데,
+                    // 브라우저 방문 기록은 이미 뒤로 빠져버렸기 때문에 화면 상태를 유지하기 위해 다시 방문 기록을 밀어넣어 줍니다.
+                    history.pushState({ moduleId: currentOpenModuleId }, '', '');
+                    reloadCurrentModule();
+                }
             }
         });
 
@@ -19774,8 +20412,12 @@ function openPrintWindow() {
         // [수정] 해상도 구분 없이 조작 여부(isModulePristine)에 따라 뒤로가기 로직 통합
         function handleBackAction() {
             if (isModulePristine) {
-                closeModule();
+                // 조작이 없는 상태에서 화면의 커스텀 뒤로가기 버튼을 누른 경우,
+                // UI만 닫는 것이 아니라 브라우저의 뒤로가기 기능을 강제로 호출합니다.
+                // 이렇게 하면 위에 선언한 popstate 이벤트가 발생하여 결국 closeModuleUIOnly()가 자연스럽게 실행됩니다.
+                history.back();
             } else {
+                // 조작이 있는 상태에서는 화면 내부에서 리로드(초기화)만 수행합니다.
                 reloadCurrentModule();
             }
         }
@@ -19785,6 +20427,12 @@ function openPrintWindow() {
             if (!sourceElement) {
                 alert("해당 계산기 모듈의 소스 코드를 불러올 수 없습니다. 시스템 관리자에게 문의 바랍니다.");
                 return;
+            }
+
+            // 모듈을 열 때 History API를 이용해 방문 기록을 강제로 하나 추가합니다.
+            // 단, 리로드(새로고침) 과정에서 중복으로 쌓이는 것을 막기 위해 현재 상태를 체크합니다.
+            if (!history.state || history.state.moduleId !== sourceId) {
+                history.pushState({ moduleId: sourceId }, '', '');
             }
 
             saveToRecent(sourceId);
@@ -19843,7 +20491,9 @@ function openPrintWindow() {
             }, 50); 
         }
 
-        function closeModule() {
+        // 기존의 closeModule()을 UI 숨김 전용 함수로 명칭을 변경하고 분리합니다.
+        // 이렇게 해야 history back(뒤로가기)에 의한 닫힘과, 함수 직접 호출에 의한 닫힘이 꼬이지 않습니다.
+        function closeModuleUIOnly() {
             currentOpenModuleId = null; 
             document.getElementById('module-view').style.display = 'none';
             
@@ -19860,7 +20510,8 @@ function openPrintWindow() {
             if (event.key === 'Escape' || event.keyCode === 27) {
                 const moduleView = document.getElementById('module-view');
                 if (moduleView && moduleView.style.display === 'block') {
-                    closeModule();
+                    // ESC 키를 눌렀을 때도 커스텀 뒤로가기 버튼을 누른 것과 동일하게 작동하도록 연결합니다.
+                    handleBackAction();
                 }
             }
         });
