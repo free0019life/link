@@ -280,6 +280,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <div class="category-title">공통</div>
                         <button class="calc-btn" onclick="openModule('source-9')">기술검토</button>
                         <button class="calc-btn" onclick="openModule('source-10')"><div style="line-height: 1.1;">안전관리규정<br><span style="font-size: 0.7em; letter-spacing: -0.5px;">등 심사</span></div></button>
+                        <!-- 신규 버튼 추가: 안전관리규정 버튼과 칭찬/신고 포탈 사이 -->
+                        <button class="calc-btn report-btn" onclick="openModule('source-12')">고(액) 필수계산기</button>
                         <button class="calc-btn report-btn" onclick="openModule('source-11')">칭찬/신고 포탈</button>
                     </div>
                 </div>
@@ -344,7 +346,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div style="width: 100%; padding: 0 10px; margin-bottom: 10px; box-sizing: border-box;">
                 <div class="button-grid">
                     <button class="calc-btn report-btn" onclick="openModule('source-11')"><span>칭찬/신고 포탈</span></button>
-                    <div></div>
+                    <!-- 신규 버튼 추가: 맨 아래 우측의 빈칸 위치 -->
+                    <button class="calc-btn report-btn" onclick="openModule('source-12')"><span>고(액) 필수계산기</span></button>
                 </div>
             </div>
             
@@ -370,7 +373,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 
     <!-- =========================================================
-         [공통 소스코드 저장 영역] (총 11개 버튼에 대응)
+         [공통 소스코드 저장 영역] (총 12개 버튼에 대응)
          ========================================================= -->
     <!-- 1. 시설검사(고) -->
     <textarea id="source-1" class="source-code-storage"><!DOCTYPE html>
@@ -20261,6 +20264,531 @@ document.addEventListener('DOMContentLoaded', () => {
 </body>
 </html></textarea>
 
+    <!-- 12. 고(액) 필수계산기 (신규) -->
+    <textarea id="source-12" class="source-code-storage"><!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>고압 및 LP가스 통합 계산기</title>
+    <!-- Tailwind CSS CDN 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 순차 렌더링 애니메이션 전역 스타일 */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-down {
+            animation: fadeInDown 0.3s ease-out forwards;
+        }
+
+        /* 버튼 두 번 떨림(Tremble) 애니메이션 추가 */
+        @keyframes tremble {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            50% { transform: translateX(2px); }
+            75% { transform: translateX(-2px); }
+            100% { transform: translateX(0); }
+        }
+        .active-tremble:active {
+            animation: tremble 0.2s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        /* 1.5mm 간격의 초정밀 점선 격자(Dot Grid) 패턴 */
+        .dot-grid-bg {
+            background-color: #fafafa;
+            /* 매우 연한 회색 점(0.07 투명도)을 1px 크기로 생성 */
+            background-image: radial-gradient(rgba(0, 0, 0, 0.07) 1px, transparent 1px);
+            /* 모니터 기준 1.5mm에 해당하는 약 6px 간격으로 반복 */
+            background-size: 6px 6px;
+        }
+
+        /* 넘침 방지 및 폰트 설정 */
+        body { font-family: "Noto Sans KR", "맑은 고딕", "Malgun Gothic", sans-serif; }
+        
+        /* 맞춤형 스크롤바 스타일링 (콤보박스 내부) */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+    </style>
+</head>
+<body class="bg-[#e8f4fa] min-h-screen p-2 md:p-4 pt-6">
+
+    <div class="w-full max-w-[1800px] mx-auto">
+        <!-- 격자형 레이아웃 컨테이너 -->
+        <div id="grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 w-full h-full gap-0">
+            <!-- JavaScript를 통해 동적으로 타일들이 렌더링 됩니다. -->
+        </div>
+    </div>
+
+    <!-- 1번 타일 계산기 UI 템플릿 -->
+    <template id="calculator-template">
+        <div class="relative flex flex-col h-[400px] w-full bg-white border-2 border-gray-300 rounded-2xl shadow-[8px_8px_8px_rgba(0,0,0,0.18)] p-2 pt-8 mt-3">
+            
+            <!-- 타일 제목 -->
+            <div class="absolute -top-[21px] left-1/2 -translate-x-1/2 w-[90%] max-w-[280px] h-9 bg-[#d1e8ff] border-[2px] border-dashed border-black rounded-full flex items-center justify-center z-20 shadow-sm">
+                <span class="text-black font-extrabold text-base xl:text-lg leading-none whitespace-nowrap tracking-tight">저장능력 산정</span>
+            </div>
+
+            <!-- 상단 입력 필드 컨테이너 (여기에 dot-grid-bg 클래스 적용) -->
+            <div class="flex-grow dot-grid-bg border-[1.6px] border-gray-500 rounded-xl p-2 pt-4 z-10 flex flex-col gap-2 relative mt-1">
+                
+                <!-- 초기화 버튼 -->
+                <button id="btn-reset" style="font-family: 'Noto Sans KR', '맑은 고딕', 'Malgun Gothic', sans-serif"
+                    class="absolute top-1 right-2 px-2 py-1 bg-yellow-300 hover:bg-yellow-400 border-[1.5px] border-black rounded text-[10px] font-extrabold text-gray-900 shadow-md active-tremble transition-colors z-30 cursor-pointer">
+                    초기화
+                </button>
+
+                <!-- 1열: 상태 선택 -->
+                <div class="flex gap-1 lg:gap-1.5 w-full h-9 mt-1">
+                    <button id="btn-state-comp" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
+                        압축
+                    </button>
+                    <button id="btn-state-liq-norm" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
+                        액화<span class="text-[0.6em] align-baseline ml-0.5 mt-1">(상온)</span>
+                    </button>
+                    <button id="btn-state-liq-low" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
+                        액화<span class="text-[0.6em] align-baseline ml-0.5 mt-1">[(초)저온]</span>
+                    </button>
+                </div>
+
+                <!-- 2열: 저장형태 선택 -->
+                <div id="row-storage" class="flex gap-1 lg:gap-1.5 w-full h-9 animate-fade-in-down hidden">
+                    <button id="btn-store-tank" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
+                        저장탱크
+                    </button>
+                    <button id="btn-store-small" class="flex-1 px-0.5 py-1 text-[17.5px] xl:text-[18.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter whitespace-nowrap overflow-hidden active-tremble">
+                        소형저장탱크
+                    </button>
+                    <button id="btn-store-cyl" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
+                        용기
+                    </button>
+                </div>
+
+                <!-- 3열: 가스종류 선택 -->
+                <div id="row-gas" class="animate-fade-in-down w-full relative z-50 hidden">
+                    
+                    <!-- 액화 저온용 맞춤형 콤보박스 -->
+                    <div id="custom-select-gas" class="relative w-full hidden">
+                        <!-- 점 격자가 비치지 않도록 bg-white 강제 적용 -->
+                        <div id="custom-select-trigger" class="w-full border-[1.6px] border-gray-500 px-2 py-1.5 rounded-lg text-[20px] xl:text-[23px] font-extrabold bg-white text-gray-900 leading-none h-9 shadow-inner flex items-center justify-between cursor-pointer select-none hover:bg-gray-50 transition-colors">
+                            <span id="custom-select-text" class="flex items-end tracking-tighter"></span>
+                            <svg class="w-3 h-3 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                        <div id="custom-select-dropdown" class="absolute z-50 w-full mt-1 bg-white border-[1.6px] border-gray-500 rounded-lg shadow-[0_10px_25px_rgba(0,0,0,0.3)] max-h-40 overflow-y-auto hidden custom-scrollbar">
+                            <!-- JS 렌더링 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 액화 상온용 버튼 -->
+                    <div id="group-gas-norm" class="flex gap-1 lg:gap-1.5 w-full h-9 hidden">
+                        <button id="btn-gas-lpg" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
+                            LPG
+                        </button>
+                        <button id="btn-gas-butane" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
+                            부탄
+                        </button>
+                        <button id="btn-gas-other" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
+                            기타가스
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4열: 값 입력창 -->
+                <div id="row-inputs" class="grid grid-cols-3 gap-1 lg:gap-1.5 w-full mt-auto mb-1 h-[56px] animate-fade-in-down hidden">
+                    
+                    <!-- 입력창 1: 내용적 -->
+                    <div class="flex flex-col justify-end h-full">
+                        <label class="text-[14px] xl:text-[15.5px] font-bold text-gray-700 leading-none mb-1 text-center tracking-tighter w-full">내용적</label>
+                        <div class="relative flex items-center w-full flex-grow">
+                            <!-- 점 격자가 비치지 않도록 bg-white 강제 적용 -->
+                            <input id="input-vol" type="number" placeholder="0"
+                                class="w-full h-full bg-white border-[1.6px] border-gray-500 rounded px-1 pr-[16px] text-sm font-black text-right focus:outline-none focus:border-blue-500 shadow-inner" />
+                            <span id="unit-vol" class="absolute right-1 text-[10px] xl:text-[11px] font-bold text-gray-500 pointer-events-none">L</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 입력창 2: 최고충전압력 -->
+                    <div id="col-pressure" class="flex flex-col hidden justify-end h-full">
+                        <label class="text-[13px] xl:text-[14px] font-bold text-gray-700 leading-none mb-1 text-center tracking-tighter truncate w-full">최고충전압력</label>
+                        <div class="relative flex items-center w-full flex-grow">
+                            <input id="input-press" type="number" placeholder="0"
+                                class="w-full h-full bg-white border-[1.6px] border-gray-500 rounded px-1 pr-[22px] text-sm font-black text-right shadow-inner focus:outline-none focus:border-blue-500 disabled:bg-gray-200" />
+                            <span class="absolute right-1 text-[10px] xl:text-[11px] font-bold text-gray-500 pointer-events-none">atm</span>
+                        </div>
+                    </div>
+
+                    <!-- 입력창 3: 비중 -->
+                    <div id="col-sg" class="flex flex-col hidden justify-end h-full">
+                        <label id="label-sg" title="비중" class="text-[14px] xl:text-[15.5px] font-extrabold text-blue-700 leading-none mb-1 text-center tracking-tighter truncate w-full">비중</label>
+                        <div class="relative flex items-center w-full flex-grow">
+                            <input id="input-sg" type="number" placeholder="0.0"
+                                class="w-full h-full bg-white border-[1.6px] border-gray-500 rounded px-1 pr-2.5 text-sm font-black text-right shadow-inner focus:outline-none focus:border-blue-500 disabled:bg-gray-200" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 하단 결과 필드 -->
+            <div class="h-[25%] mt-2 bg-gray-800 border-[3px] border-[#39ff14] rounded-lg p-2 flex flex-col justify-center relative shadow-inner">
+                <div class="flex justify-between items-end w-full">
+                    <span class="text-white text-base xl:text-lg font-bold leading-none mb-0.5">저장능력</span>
+                    <div class="flex items-baseline gap-1.5">
+                        <span id="txt-result" class="text-orange-500 text-3xl xl:text-4xl font-black tracking-tighter leading-none">0</span>
+                        <span id="txt-unit" class="text-white text-lg xl:text-xl font-bold leading-none"></span>
+                    </div>
+                </div>
+                <div class="flex justify-between w-full mt-1 items-end">
+                    <span id="txt-converted" class="text-gray-300 text-[11px] xl:text-xs font-bold tracking-tight"></span>
+                    <span id="txt-charge-rate" class="text-yellow-300 text-[11px] xl:text-xs font-bold"></span>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- 스크립트 로직 시작 -->
+    <script>
+        // 1. 기초 데이터 정의
+        const LIQUEFIED_GASES = [
+            { name: "액화프로판", c: 2.35 }, { name: "액화부탄", c: 2.05 }, { name: "액화에틸렌", c: 3.50 },
+            { name: "액화에탄", c: 2.80 }, { name: "액화프로필렌", c: 2.27 }, { name: "액화부틸렌", c: 2.00 },
+            { name: "액화씨클로프로판", c: 1.87 }, { name: "액화암모니아", c: 1.86 }, { name: "액화부타디엔", c: 1.85 },
+            { name: "액화트리메틸아민", c: 1.76 }, { name: "액화메틸에테르", c: 1.67 }, { name: "액화모노메틸아민", c: 1.67 },
+            { name: "액화염화수소", c: 1.67 }, { name: "액화시안화수소", c: 1.57 }, { name: "액화황화수소", c: 1.47 },
+            { name: "액화질소", c: 1.47 }, { name: "액화탄산가스", c: 1.47 }, { name: "액화아산화질소", c: 1.34 },
+            { name: "액화산화에틸렌", c: 1.30 }, { name: "액화염화메틸", c: 1.25 }, { name: "액화염화비닐", c: 1.22 },
+            { name: "액화4불화에틸렌", c: 1.11 }, { name: "액화프레온 152a", c: 1.08 }, { name: "액화산소", c: 1.04 },
+            { name: "액화프레온 500", c: 1.00 }, { name: "액화프레온 13", c: 1.00 }, { name: "액화프레온 22", c: 0.98 },
+            { name: "액화프레온 502", c: 0.93 }, { name: "액화6불화황", c: 0.91 }, { name: "액화프레온 115", c: 0.90 },
+            { name: "액화아르곤", c: 0.87 }, { name: "액화프레온 12", c: 0.86 }, { name: "액화크세논", c: 0.81 },
+            { name: "액화염소", c: 0.80 }, { name: "액화취화수소", c: 0.80 }, { name: "액화아황산가스", c: 0.80 },
+            { name: "액화프레온 13B1", c: 0.79 }, { name: "액화프레온 114", c: 0.76 }, { name: "액화프레온 C318", c: 0.74 },
+            { name: "기타", c: null }
+        ];
+
+        let state = {
+            type: null,
+            storage: null,
+            gasName: LIQUEFIED_GASES[0].name,
+            rtGasType: null,
+            volume: '',
+            pressure: '',
+            sg: ''
+        };
+
+        function initApp() {
+            const gridContainer = document.getElementById('grid-container');
+            const template = document.getElementById('calculator-template').innerHTML;
+
+            for (let i = 1; i <= 8; i++) {
+                let borderClasses = "border-dashed border-[#cbd5e1] py-4 px-1.5 lg:py-5 lg:px-2 flex justify-center w-full ";
+                const index = i - 1;
+                
+                if (index < 7) { borderClasses += "border-b-[2px] "; }
+                borderClasses += "md:border-b-0 md:border-r-0 lg:border-b-0 lg:border-r-0 ";
+                
+                if (index < 6) borderClasses += "md:border-b-[2px] ";
+                if (index % 2 === 0) borderClasses += "md:border-r-[2px] ";
+                
+                if (index < 4) borderClasses += "lg:border-b-[2px] ";
+                if (index % 4 !== 3) borderClasses += "lg:border-r-[2px] ";
+
+                const wrapper = document.createElement('div');
+                wrapper.className = borderClasses;
+
+                if (i === 1) {
+                    wrapper.innerHTML = template; 
+                } else {
+                    wrapper.innerHTML = `
+                        <div class="relative flex flex-col h-[400px] w-full bg-white border-2 border-gray-300 rounded-2xl shadow-[8px_8px_8px_rgba(0,0,0,0.18)] p-2 pt-8 mt-3 opacity-70 grayscale">
+                            <div class="absolute -top-[21px] left-1/2 -translate-x-1/2 w-[90%] max-w-[280px] h-9 bg-gray-300 border-[2px] border-dashed border-black rounded-full flex items-center justify-center z-20 shadow-sm">
+                                <span class="text-black font-extrabold text-base xl:text-lg leading-none whitespace-nowrap tracking-tight">${i}번 계산기</span>
+                            </div>
+                            <div class="flex-grow dot-grid-bg border-[1.6px] border-gray-500 rounded-xl flex items-center justify-center mt-1 z-10">
+                                <span class="text-gray-500 font-bold text-2xl bg-white px-3 py-1 rounded">준비 중</span>
+                            </div>
+                            <div class="h-[25%] mt-2 bg-gray-600 rounded-lg"></div>
+                        </div>
+                    `;
+                }
+                gridContainer.appendChild(wrapper);
+            }
+
+            initCustomDropdown();
+            bindEvents();
+        }
+
+        function formatGasNameHTML(name) {
+            if (name.startsWith('액화')) {
+                const mainName = name.substring(2);
+                return `<span class="text-[0.6em] text-gray-500 font-bold align-bottom mr-[2px] mb-[2px] leading-none">액화</span><span>${mainName}</span>`;
+            }
+            return `<span>${name}</span>`;
+        }
+
+        function initCustomDropdown() {
+            const dropdown = document.getElementById('custom-select-dropdown');
+            const trigger = document.getElementById('custom-select-trigger');
+            
+            LIQUEFIED_GASES.forEach(gas => {
+                const item = document.createElement('div');
+                item.className = "px-2 py-1.5 text-[20px] xl:text-[23px] font-extrabold cursor-pointer hover:bg-blue-100 border-b border-gray-200 last:border-0 flex items-end tracking-tighter";
+                item.innerHTML = formatGasNameHTML(gas.name);
+                
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation(); 
+                    state.gasName = gas.name;
+                    dropdown.classList.add('hidden'); 
+                    updateUI();
+                });
+                dropdown.appendChild(item);
+            });
+
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', () => {
+                if (!dropdown.classList.contains('hidden')) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        function bindEvents() {
+            document.getElementById('btn-reset').addEventListener('click', () => {
+                state = { type: null, storage: null, gasName: LIQUEFIED_GASES[0].name, rtGasType: null, volume: '', pressure: '', sg: '' };
+                document.getElementById('input-vol').value = '';
+                document.getElementById('input-press').value = '';
+                document.getElementById('input-sg').value = '';
+                updateUI();
+            });
+
+            document.getElementById('btn-state-comp').addEventListener('click', () => handleStateTypeChange('압축'));
+            document.getElementById('btn-state-liq-norm').addEventListener('click', () => handleStateTypeChange('액화_상온'));
+            document.getElementById('btn-state-liq-low').addEventListener('click', () => handleStateTypeChange('액화_저온'));
+
+            document.getElementById('btn-store-tank').addEventListener('click', () => { state.storage = '저장탱크'; updateUI(); });
+            document.getElementById('btn-store-small').addEventListener('click', () => { state.storage = '소형저장탱크'; updateUI(); });
+            document.getElementById('btn-store-cyl').addEventListener('click', () => { state.storage = '용기'; updateUI(); });
+
+            document.getElementById('btn-gas-lpg').addEventListener('click', () => { state.rtGasType = 'LPG'; state.sg = '0.472'; document.getElementById('input-sg').value = '0.472'; updateUI(); });
+            document.getElementById('btn-gas-butane').addEventListener('click', () => { state.rtGasType = '부탄'; state.sg = '0.540'; document.getElementById('input-sg').value = '0.540'; updateUI(); });
+            document.getElementById('btn-gas-other').addEventListener('click', () => { state.rtGasType = '기타가스'; state.sg = ''; document.getElementById('input-sg').value = ''; updateUI(); });
+
+            document.getElementById('input-vol').addEventListener('input', (e) => { state.volume = e.target.value; updateUI(); });
+            document.getElementById('input-press').addEventListener('input', (e) => { state.pressure = e.target.value; updateUI(); });
+            
+            const sgInput = document.getElementById('input-sg');
+            sgInput.addEventListener('input', (e) => { 
+                state.sg = e.target.value; 
+                if (state.type === '액화_상온') {
+                    state.rtGasType = '기타가스';
+                }
+                updateUI(); 
+            });
+
+            updateUI();
+        }
+
+        function handleStateTypeChange(newType) {
+            state.type = newType;
+            if ((newType === '압축' || newType === '액화_저온') && state.storage === '소형저장탱크') {
+                state.storage = null;
+            }
+            if (newType !== '액화_저온') {
+                document.getElementById('custom-select-dropdown').classList.add('hidden');
+            }
+            updateUI();
+        }
+
+        const activeClasses = ['bg-[#0284c7]', 'border-[#0369a1]', 'text-white', 'shadow-inner', 'opacity-100'];
+        const inactiveClasses = ['bg-gray-100', 'border-gray-300', 'text-gray-400', 'shadow-none', 'hover:bg-gray-200', 'hover:text-gray-500', 'opacity-40'];
+        const defaultClasses = ['bg-[#e6f7ff]', 'border-[#0ea5e9]', 'text-gray-900', 'shadow-md', 'hover:shadow-lg', 'hover:bg-[#d0efff]', 'active:shadow-inner', 'opacity-100'];
+
+        function styleButton(btnId, isSelected, hasSelection) {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            
+            btn.classList.remove(...activeClasses, ...inactiveClasses, ...defaultClasses);
+            
+            if (isSelected) {
+                btn.classList.add(...activeClasses);
+            } else if (hasSelection) {
+                btn.classList.add(...inactiveClasses);
+            } else {
+                btn.classList.add(...defaultClasses);
+            }
+        }
+
+        function updateUI() {
+            const hasType = state.type !== null;
+            styleButton('btn-state-comp', state.type === '압축', hasType);
+            styleButton('btn-state-liq-norm', state.type === '액화_상온', hasType);
+            styleButton('btn-state-liq-low', state.type === '액화_저온', hasType);
+
+            const hasStore = state.storage !== null;
+            styleButton('btn-store-tank', state.storage === '저장탱크', hasStore);
+            styleButton('btn-store-small', state.storage === '소형저장탱크', hasStore);
+            styleButton('btn-store-cyl', state.storage === '용기', hasStore);
+
+            const hasRtGas = state.rtGasType !== null;
+            styleButton('btn-gas-lpg', state.rtGasType === 'LPG', hasRtGas);
+            styleButton('btn-gas-butane', state.rtGasType === '부탄', hasRtGas);
+            styleButton('btn-gas-other', state.rtGasType === '기타가스', hasRtGas);
+
+            const rowStorage = document.getElementById('row-storage');
+            const btnSmall = document.getElementById('btn-store-small');
+            const rowGas = document.getElementById('row-gas');
+            const customSelect = document.getElementById('custom-select-gas');
+            const groupNorm = document.getElementById('group-gas-norm');
+            const rowInputs = document.getElementById('row-inputs');
+            const colPressure = document.getElementById('col-pressure');
+            const colSg = document.getElementById('col-sg');
+
+            if (state.type) rowStorage.classList.remove('hidden'); else rowStorage.classList.add('hidden');
+            
+            if (state.type === '압축' || state.type === '액화_저온') btnSmall.classList.add('hidden');
+            else btnSmall.classList.remove('hidden');
+
+            if (state.storage) rowGas.classList.remove('hidden'); else rowGas.classList.add('hidden');
+            
+            document.getElementById('custom-select-text').innerHTML = formatGasNameHTML(state.gasName);
+
+            if (state.type === '액화_저온') {
+                customSelect.classList.remove('hidden');
+                groupNorm.classList.add('hidden');
+            } else if (state.type === '액화_상온') {
+                customSelect.classList.add('hidden');
+                groupNorm.classList.remove('hidden');
+            } else {
+                customSelect.classList.add('hidden');
+                groupNorm.classList.add('hidden');
+            }
+
+            if (state.storage) rowInputs.classList.remove('hidden'); else rowInputs.classList.add('hidden');
+
+            document.getElementById('unit-vol').textContent = state.type === '압축' ? 'm³' : 'L';
+
+            if (state.type === '압축') colPressure.classList.remove('hidden'); else colPressure.classList.add('hidden');
+
+            if (state.type === '액화_상온' || (state.type === '액화_저온' && state.gasName === '기타')) {
+                colSg.classList.remove('hidden');
+                const lbl = state.type === '액화_상온' ? '상용온도 비중' : '48℃ 비중';
+                document.getElementById('label-sg').textContent = lbl;
+                document.getElementById('label-sg').title = lbl;
+            } else {
+                colSg.classList.add('hidden');
+            }
+
+            calculateResult();
+        }
+
+        function calculateResult() {
+            let calcResult = 0;
+            let calcUnit = '';
+            let calcChargeRate = '';
+
+            const volNum = parseFloat(state.volume);
+            const pressNum = parseFloat(state.pressure);
+            const sgNum = parseFloat(state.sg);
+
+            if (state.type === '압축') {
+                calcUnit = 'm³';
+                if (!isNaN(volNum) && !isNaN(pressNum)) {
+                    const pMpa = pressNum * 0.101325; // atm -> MPa 변환
+                    calcResult = (10 * pMpa + 1) * volNum;
+                }
+            } 
+            else if (state.type === '액화_상온') {
+                calcUnit = 'kg';
+                const chargeRate = state.storage === '소형저장탱크' ? 0.85 : 0.90;
+                calcChargeRate = `(충전율: ${chargeRate * 100}%)`;
+
+                if (!isNaN(volNum) && !isNaN(sgNum)) {
+                    calcResult = chargeRate * sgNum * volNum;
+                }
+            }
+            else if (state.type === '액화_저온') {
+                calcUnit = 'kg';
+                const chargeRate = state.storage === '소형저장탱크' ? 0.85 : 0.90;
+                calcChargeRate = `(충전율: ${chargeRate * 100}%)`;
+
+                if (!isNaN(volNum)) {
+                    let cValue = null;
+                    if (state.gasName === '기타') {
+                        if (!isNaN(sgNum) && sgNum > 0) {
+                            cValue = 1.05 / sgNum;
+                        }
+                    } else {
+                        const gasObj = LIQUEFIED_GASES.find(g => g.name === state.gasName);
+                        if (gasObj) cValue = gasObj.c;
+                    }
+
+                    if (cValue !== null && volNum > 0) {
+                        const baseW = volNum / cValue;
+                        calcResult = baseW * (chargeRate / 0.90);
+                    }
+                }
+            }
+
+            const elResult = document.getElementById('txt-result');
+            const elUnit = document.getElementById('txt-unit');
+            const elConverted = document.getElementById('txt-converted');
+            const elCharge = document.getElementById('txt-charge-rate');
+
+            if (calcResult > 0) {
+                elResult.textContent = calcResult.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 0 });
+                if (state.type !== '압축') {
+                    const convM3 = calcResult / 10;
+                    elConverted.textContent = `압축가스로 환산 시 ${convM3.toLocaleString(undefined, { maximumFractionDigits: 2 })}m³`;
+                } else {
+                    elConverted.textContent = '';
+                }
+            } else {
+                elResult.textContent = '0';
+                elConverted.textContent = '';
+            }
+
+            elUnit.textContent = calcUnit;
+            elCharge.textContent = calcChargeRate;
+        }
+
+        window.addEventListener('DOMContentLoaded', initApp);
+
+        // =====================================================================
+        // [모바일 UX 개선] 스마트 키보드 숨김 제어 로직
+        // =====================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. 화면 빈 공간(입력창, 버튼 외) 터치 시 키보드 내리기
+            document.body.addEventListener('click', function(e) {
+                const tagName = e.target.tagName;
+                if (tagName !== 'INPUT' && tagName !== 'BUTTON') {
+                    const activeElement = document.activeElement;
+                    if (activeElement && activeElement.tagName === 'INPUT') {
+                        activeElement.blur(); 
+                    }
+                }
+            });
+
+            // 2. 키보드에서 '엔터(이동/완료)' 키를 눌렀을 때 키보드 내리기
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const activeElement = document.activeElement;
+                    if (activeElement && activeElement.tagName === 'INPUT') {
+                        activeElement.blur(); 
+                        e.preventDefault();   
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html></textarea>
+
 
     <!-- =========================================================
          [통합 시스템 구동 자바스크립트] 
@@ -20271,7 +20799,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // =========================================================
         const CURRENT_VERSION = "26.5.14.1"; 
 
-        // PC 버전에 사용되던 풍부한 이름을 기준으로 통일 (버튼 11개로 재정렬)
+        // PC 버전에 사용되던 풍부한 이름을 기준으로 통일 (버튼 12개로 재정렬)
         const MODULE_NAMES = Object.freeze({
             'source-1': '시설검사(고)',
             'source-2': '용기 등',
@@ -20283,7 +20811,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'source-8': '도법 필수계산기',
             'source-9': '기술검토',
             'source-10': '<div style="line-height: 1.1;">안전관리규정<br><span style="font-size: 0.7em; letter-spacing: -0.5px;">등 심사</span></div>',
-            'source-11': '칭찬/신고 포탈'
+            'source-11': '칭찬/신고 포탈',
+            'source-12': '고(액) 필수계산기'
         });
 
         let currentOpenModuleId = null; 
@@ -20305,17 +20834,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // 단말기 "뒤로가기" 방어 로직 (History API 연동) 추가
         // =========================================================
         window.addEventListener('popstate', function(event) {
-            // 브라우저의 뒤로가기가 실행되어 popstate가 발생했을 때, 
-            // 만약 모듈(계산기) 화면이 열려있는 상태라면 앱이 이탈되는 것을 막고 우리만의 로직을 실행합니다.
             if (currentOpenModuleId !== null) {
                 if (isModulePristine) {
-                    // 데이터 입력 등 조작이 없었다면 화면만 닫아줍니다. 
-                    // (이미 history는 뒤로 갔기 때문에 UI만 숨기면 됩니다)
                     closeModuleUIOnly();
                 } else {
-                    // 입력하던 내용이 있어 새로고침(초기화)을 해야 하는 경우.
-                    // 원래 로직대로 reloadCurrentModule을 호출해야 하는데,
-                    // 브라우저 방문 기록은 이미 뒤로 빠져버렸기 때문에 화면 상태를 유지하기 위해 다시 방문 기록을 밀어넣어 줍니다.
                     history.pushState({ moduleId: currentOpenModuleId }, '', '');
                     reloadCurrentModule();
                 }
@@ -20409,15 +20931,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // [수정] 해상도 구분 없이 조작 여부(isModulePristine)에 따라 뒤로가기 로직 통합
         function handleBackAction() {
             if (isModulePristine) {
-                // 조작이 없는 상태에서 화면의 커스텀 뒤로가기 버튼을 누른 경우,
-                // UI만 닫는 것이 아니라 브라우저의 뒤로가기 기능을 강제로 호출합니다.
-                // 이렇게 하면 위에 선언한 popstate 이벤트가 발생하여 결국 closeModuleUIOnly()가 자연스럽게 실행됩니다.
                 history.back();
             } else {
-                // 조작이 있는 상태에서는 화면 내부에서 리로드(초기화)만 수행합니다.
                 reloadCurrentModule();
             }
         }
@@ -20429,8 +20946,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // 모듈을 열 때 History API를 이용해 방문 기록을 강제로 하나 추가합니다.
-            // 단, 리로드(새로고침) 과정에서 중복으로 쌓이는 것을 막기 위해 현재 상태를 체크합니다.
             if (!history.state || history.state.moduleId !== sourceId) {
                 history.pushState({ moduleId: sourceId }, '', '');
             }
@@ -20469,7 +20984,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             currentOpenModuleId = sourceId; 
-            
             isModulePristine = true;
 
             document.getElementById('main-view-pc').classList.add('hidden-view');
@@ -20482,7 +20996,6 @@ document.addEventListener('DOMContentLoaded', () => {
             backBtn.classList.add('animate-attention');
 
             const iframe = document.getElementById('calculator-frame');
-            
             iframe.removeAttribute('srcdoc'); 
             iframe.srcdoc = ''; 
             
@@ -20491,17 +21004,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 50); 
         }
 
-        // 기존의 closeModule()을 UI 숨김 전용 함수로 명칭을 변경하고 분리합니다.
-        // 이렇게 해야 history back(뒤로가기)에 의한 닫힘과, 함수 직접 호출에 의한 닫힘이 꼬이지 않습니다.
         function closeModuleUIOnly() {
             currentOpenModuleId = null; 
             document.getElementById('module-view').style.display = 'none';
-            
             document.getElementById('main-view-pc').classList.remove('hidden-view');
             document.getElementById('main-view-mobile').classList.remove('hidden-view');
             
             const iframe = document.getElementById('calculator-frame');
-            
             iframe.removeAttribute('srcdoc'); 
             iframe.srcdoc = '';
         }
@@ -20510,7 +21019,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (event.key === 'Escape' || event.keyCode === 27) {
                 const moduleView = document.getElementById('module-view');
                 if (moduleView && moduleView.style.display === 'block') {
-                    // ESC 키를 눌렀을 때도 커스텀 뒤로가기 버튼을 누른 것과 동일하게 작동하도록 연결합니다.
                     handleBackAction();
                 }
             }
