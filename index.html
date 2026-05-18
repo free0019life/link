@@ -20298,23 +20298,127 @@ document.addEventListener('DOMContentLoaded', () => {
         /* 1.5mm 간격의 초정밀 점선 격자(Dot Grid) 패턴 */
         .dot-grid-bg {
             background-color: #fafafa;
-            /* 매우 연한 회색 점(0.07 투명도)을 1px 크기로 생성 */
             background-image: radial-gradient(rgba(0, 0, 0, 0.07) 1px, transparent 1px);
-            /* 모니터 기준 1.5mm에 해당하는 약 6px 간격으로 반복 */
             background-size: 6px 6px;
         }
 
         /* 넘침 방지 및 폰트 설정 */
         body { font-family: "Noto Sans KR", "맑은 고딕", "Malgun Gothic", sans-serif; }
         
-        /* 맞춤형 스크롤바 스타일링 (콤보박스 내부) */
+        /* 맞춤형 스크롤바 스타일링 */
         .custom-scrollbar::-webkit-scrollbar { width: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        
+        /* 기본 셀렉트 박스 화살표 숨김 */
+        .no-arrow-select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+
+        /* 작동원리 페이지(오버레이) 전용 스타일 */
+        :root {
+            --rotary-bg: #0a0e1a;
+            --rotary-surface: #111827;
+            --rotary-accent: #00d4ff;
+            --rotary-accent3: #a8ff3e;
+            --rotary-text: #e8edf5;
+        }
+        .rotary-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: var(--rotary-bg);
+            color: var(--rotary-text);
+            overflow-y: auto;
+        }
+        .piston-group { transform-origin: 160px 160px; animation: rotatePiston 6s linear infinite; }
+        @keyframes rotatePiston { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-up { animation: fadeUp 0.8s ease both; }
+        
+        /* 인풋 넘버 화살표 숨김 처리 */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
 <body class="bg-[#e8f4fa] min-h-screen p-2 md:p-4 pt-6">
+
+    <!-- [회전피스톤 작동원리 오버레이] -->
+    <div id="rotary-overlay-container" class="rotary-overlay custom-scrollbar">
+        <div class="relative p-6 max-w-5xl mx-auto pb-20">
+            <!-- 뒤로가기 버튼 -->
+            <button id="btn-close-overlay" class="fixed top-4 left-4 z-[1100] px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-lg shadow-lg active-tremble transition-colors">
+                ← 뒤로가기
+            </button>
+
+            <header class="text-center mt-12 mb-10 animate-fade-up">
+                <span class="inline-block border border-[#00d4ff] text-[#00d4ff] px-3 py-1 rounded text-xs tracking-widest uppercase mb-4 opacity-80">Rotary Piston Compressor</span>
+                <h2 class="text-3xl md:text-4xl font-black mb-4 leading-tight bg-gradient-to-r from-white via-[#00d4ff] to-[#ff6b35] bg-clip-text text-transparent">회전피스톤 압축기 작동원리</h2>
+                <p class="text-gray-400 text-sm max-w-xl mx-auto">냉동능력 산정에 필요한 3대 핵심 치수(D, d, t)를 시각적으로 확인하십시오.</p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-[#111827] border border-[#2a3a55] rounded-2xl p-6 mb-8 animate-fade-up" style="animation-delay: 0.2s">
+                <!-- SVG 단면도 -->
+                <div class="flex flex-col items-center">
+                    <svg width="300" height="300" viewBox="0 0 320 320" class="bg-[#0a0e1a] rounded-xl border border-gray-800">
+                        <defs>
+                            <radialGradient id="pistGrad" cx="40%" cy="40%" r="60%"><stop offset="0%" stop-color="#e74c3c"/><stop offset="100%" stop-color="#922b21"/></radialGradient>
+                            <marker id="arrowCyl" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4a8aff"/></marker>
+                            <marker id="arrowCylR" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto"><polygon points="8 0, 0 3, 8 6" fill="#4a8aff"/></marker>
+                            <marker id="arrowPist" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#ff6b35"/></marker>
+                            <marker id="arrowPistR" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto"><polygon points="8 0, 0 3, 8 6" fill="#ff6b35"/></marker>
+                            <marker id="arrowThick" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#a8ff3e"/></marker>
+                            <marker id="arrowThickR" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto"><polygon points="8 0, 0 3, 8 6" fill="#a8ff3e"/></marker>
+                        </defs>
+                        <circle cx="160" cy="160" r="116" fill="#0d1525" stroke="#4a8aff" stroke-width="3"/>
+                        <g class="piston-group">
+                            <circle cx="196" cy="160" r="80" fill="url(#pistGrad)" stroke="#ff6b35" stroke-width="2.5"/>
+                            <line x1="116" y1="160" x2="276" y2="160" stroke="#ff6b35" stroke-width="2" marker-start="url(#arrowPistR)" marker-end="url(#arrowPist)"/>
+                        </g>
+                        <line x1="44" y1="25" x2="276" y2="25" stroke="#4a8aff" stroke-width="2" marker-start="url(#arrowCylR)" marker-end="url(#arrowCyl)"/>
+                        <line x1="44" y1="160" x2="116" y2="160" stroke="#a8ff3e" stroke-width="2" marker-start="url(#arrowThickR)" marker-end="url(#arrowThick)"/>
+                        <text x="80" y="152" text-anchor="middle" fill="#a8ff3e" font-weight="900" font-size="14">t</text>
+                        <text x="80" y="174" text-anchor="middle" fill="#a8ff3e" font-weight="700" font-size="10">압축부두께</text>
+                        <circle cx="160" cy="160" r="20" fill="#444" stroke="#888"/>
+                        <text x="160" y="18" text-anchor="middle" fill="#4a8aff" font-weight="900" font-size="12">D (기통 안지름)</text>
+                        <text x="196" y="175" text-anchor="middle" fill="#ff6b35" font-weight="900" font-size="12">d (피스톤 외경)</text>
+                    </svg>
+                    <span class="text-xs text-gray-500 mt-4">[ 기통 내 피스톤의 편심 회전 구조 ]</span>
+                </div>
+                <!-- 설명 텍스트 -->
+                <div class="space-y-6">
+                    <div class="border-l-4 border-[#4a8aff] pl-4">
+                        <h4 class="text-white font-bold mb-1">D (기통 안지름)</h4>
+                        <p class="text-sm text-gray-400">냉매가 채워지는 실린더의 실제 내부 지름입니다.</p>
+                    </div>
+                    <div class="border-l-4 border-[#ff6b35] pl-4">
+                        <h4 class="text-white font-bold mb-1">d (피스톤 외경)</h4>
+                        <p class="text-sm text-gray-400">내부에서 회전하는 롤링 피스톤의 바깥 지름입니다.</p>
+                    </div>
+                    <div class="border-l-4 border-[#a8ff3e] pl-4">
+                        <h4 class="text-white font-bold mb-1">t (압축부 두께)</h4>
+                        <p class="text-sm text-gray-400">지시하신 수식의 t값으로, 기통 내 실제 압축이 일어나는 높이(깊이)를 의미합니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-black/30 border border-dashed border-[#a8ff3e]/30 rounded-xl p-6 animate-fade-up" style="animation-delay: 0.4s">
+                <h4 class="text-[#a8ff3e] font-black mb-3">고시 산출식 (V)</h4>
+                <div class="bg-black/50 p-4 rounded-lg font-mono text-lg text-center text-white border border-gray-700">
+                    V = 60 × 0.785 × t × n × (D² - d²)
+                </div>
+                <p class="mt-4 text-xs text-gray-500 leading-relaxed">
+                    * 위 식에서 D² - d² 은 기통과 피스톤 사이의 단면적 차이를 의미하며, 여기에 두께 t와 회전수 n을 곱하여 시간당 토출되는 냉매의 전체 체적(V)을 산출합니다.
+                </p>
+            </div>
+        </div>
+    </div>
 
     <div class="w-full max-w-[1800px] mx-auto">
         <!-- 격자형 레이아웃 컨테이너 -->
@@ -20323,134 +20427,260 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     </div>
 
-    <!-- 1번 타일 계산기 UI 템플릿 -->
+    <!-- [1번 타일] 저장능력 산정 템플릿 -->
     <template id="calculator-template">
-        <div class="relative flex flex-col h-[400px] w-full bg-white border-2 border-gray-300 rounded-2xl shadow-[8px_8px_8px_rgba(0,0,0,0.18)] p-2 pt-8 mt-3">
-            
-            <!-- 타일 제목 -->
+        <div class="relative flex flex-col h-[400px] w-full bg-white border-2 border-gray-300 rounded-2xl shadow-[8px_8px_8px_rgba(0,0,0,0.18)] px-2 pt-4 pb-1.5 mt-3">
             <div class="absolute -top-[21px] left-1/2 -translate-x-1/2 w-[90%] max-w-[280px] h-9 bg-[#d1e8ff] border-[2px] border-dashed border-black rounded-full flex items-center justify-center z-20 shadow-sm">
-                <span class="text-black font-extrabold text-base xl:text-lg leading-none whitespace-nowrap tracking-tight">저장능력 산정</span>
+                <span class="text-black font-extrabold text-[21px] xl:text-[23.5px] leading-none whitespace-nowrap tracking-tight">저장능력 산정</span>
             </div>
 
-            <!-- 상단 입력 필드 컨테이너 (여기에 dot-grid-bg 클래스 적용) -->
             <div class="flex-grow dot-grid-bg border-[1.6px] border-gray-500 rounded-xl p-2 pt-4 z-10 flex flex-col gap-2 relative mt-1">
-                
-                <!-- 초기화 버튼 -->
-                <button id="btn-reset" style="font-family: 'Noto Sans KR', '맑은 고딕', 'Malgun Gothic', sans-serif"
-                    class="absolute top-1 right-2 px-2 py-1 bg-yellow-300 hover:bg-yellow-400 border-[1.5px] border-black rounded text-[10px] font-extrabold text-gray-900 shadow-md active-tremble transition-colors z-30 cursor-pointer">
+                <button id="btn-reset" class="absolute top-1 right-2 px-2 py-1 bg-yellow-300 hover:bg-yellow-400 border-[1.5px] border-black rounded text-[10px] font-extrabold text-gray-900 shadow-md active-tremble transition-colors z-30 cursor-pointer">
                     초기화
                 </button>
 
                 <!-- 1열: 상태 선택 -->
                 <div class="flex gap-1 lg:gap-1.5 w-full h-9 mt-1">
-                    <button id="btn-state-comp" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
-                        압축
-                    </button>
-                    <button id="btn-state-liq-norm" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
-                        액화<span class="text-[0.6em] align-baseline ml-0.5 mt-1">(상온)</span>
-                    </button>
-                    <button id="btn-state-liq-low" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
-                        액화<span class="text-[0.6em] align-baseline ml-0.5 mt-1">[(초)저온]</span>
-                    </button>
+                    <button id="btn-state-comp" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">압축</button>
+                    <button id="btn-state-liq-norm" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">액화<span class="text-[0.6em] align-baseline ml-0.5 mt-1">(상온)</span></button>
+                    <button id="btn-state-liq-low" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">액화<span class="text-[0.6em] align-baseline ml-0.5 mt-1">[(초)저온]</span></button>
                 </div>
 
                 <!-- 2열: 저장형태 선택 -->
                 <div id="row-storage" class="flex gap-1 lg:gap-1.5 w-full h-9 animate-fade-in-down hidden">
-                    <button id="btn-store-tank" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
-                        저장탱크
-                    </button>
-                    <button id="btn-store-small" class="flex-1 px-0.5 py-1 text-[17.5px] xl:text-[18.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter whitespace-nowrap overflow-hidden active-tremble">
-                        소형저장탱크
-                    </button>
-                    <button id="btn-store-cyl" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
-                        용기
-                    </button>
+                    <button id="btn-store-tank" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">저장탱크</button>
+                    <button id="btn-store-small" class="flex-1 px-0.5 py-1 text-[17.5px] xl:text-[18.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter whitespace-nowrap overflow-hidden active-tremble">소형저장탱크</button>
+                    <button id="btn-store-cyl" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">용기</button>
                 </div>
 
                 <!-- 3열: 가스종류 선택 -->
-                <div id="row-gas" class="animate-fade-in-down w-full relative z-50 hidden">
-                    
-                    <!-- 액화 저온용 맞춤형 콤보박스 -->
+                <div id="row-gas" class="animate-fade-in-down flex gap-1 w-full relative z-50 hidden">
                     <div id="custom-select-gas" class="relative w-full hidden">
-                        <!-- 점 격자가 비치지 않도록 bg-white 강제 적용 -->
                         <div id="custom-select-trigger" class="w-full border-[1.6px] border-gray-500 px-2 py-1.5 rounded-lg text-[20px] xl:text-[23px] font-extrabold bg-white text-gray-900 leading-none h-9 shadow-inner flex items-center justify-between cursor-pointer select-none hover:bg-gray-50 transition-colors">
                             <span id="custom-select-text" class="flex items-end tracking-tighter"></span>
                             <svg class="w-3 h-3 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
                         </div>
-                        <div id="custom-select-dropdown" class="absolute z-50 w-full mt-1 bg-white border-[1.6px] border-gray-500 rounded-lg shadow-[0_10px_25px_rgba(0,0,0,0.3)] max-h-40 overflow-y-auto hidden custom-scrollbar">
-                            <!-- JS 렌더링 -->
-                        </div>
+                        <div id="custom-select-dropdown" class="absolute z-50 w-full mt-1 bg-white border-[1.6px] border-gray-500 rounded-lg shadow-[0_10px_25px_rgba(0,0,0,0.3)] max-h-40 overflow-y-auto hidden custom-scrollbar"></div>
                     </div>
                     
-                    <!-- 액화 상온용 버튼 -->
+                    <div id="wrap-c-value-1" class="flex flex-col w-[30%] h-9 justify-end hidden">
+                        <div class="w-full border-[1.6px] border-gray-500 px-1 py-1 rounded-lg text-[14px] xl:text-[15px] font-black bg-gray-200 text-gray-800 leading-none h-9 shadow-inner flex items-center justify-center truncate tracking-tighter">
+                            <span class="text-[11px] xl:text-[12px] font-bold mr-1 text-gray-600">C값:</span>
+                            <span id="calc1-c" class="text-blue-700">0.00</span>
+                        </div>
+                    </div>
+
                     <div id="group-gas-norm" class="flex gap-1 lg:gap-1.5 w-full h-9 hidden">
-                        <button id="btn-gas-lpg" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
-                            LPG
-                        </button>
-                        <button id="btn-gas-butane" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
-                            부탄
-                        </button>
-                        <button id="btn-gas-other" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">
-                            기타가스
-                        </button>
+                        <button id="btn-gas-lpg" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">LPG</button>
+                        <button id="btn-gas-butane" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">부탄</button>
+                        <button id="btn-gas-other" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20.5px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">기타가스</button>
                     </div>
                 </div>
 
                 <!-- 4열: 값 입력창 -->
                 <div id="row-inputs" class="grid grid-cols-3 gap-1 lg:gap-1.5 w-full mt-auto mb-1 h-[56px] animate-fade-in-down hidden">
-                    
-                    <!-- 입력창 1: 내용적 -->
                     <div class="flex flex-col justify-end h-full">
-                        <label class="text-[14px] xl:text-[15.5px] font-bold text-gray-700 leading-none mb-1 text-center tracking-tighter w-full">내용적</label>
-                        <div class="relative flex items-center w-full flex-grow">
-                            <!-- 점 격자가 비치지 않도록 bg-white 강제 적용 -->
-                            <input id="input-vol" type="number" placeholder="0"
-                                class="w-full h-full bg-white border-[1.6px] border-gray-500 rounded px-1 pr-[16px] text-sm font-black text-right focus:outline-none focus:border-blue-500 shadow-inner" />
-                            <span id="unit-vol" class="absolute right-1 text-[10px] xl:text-[11px] font-bold text-gray-500 pointer-events-none">L</span>
+                        <label id="lbl-vol" class="text-[14px] xl:text-[15.5px] font-bold text-gray-700 leading-none mb-1 text-center tracking-tighter w-full">내용적</label>
+                        <div class="flex items-center w-full flex-grow bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                            <input id="input-vol" type="number" placeholder="0" class="w-full h-full bg-transparent text-[15px] font-black text-right focus:outline-none flex-grow" />
+                            <span id="unit-vol" class="text-[15px] xl:text-[16.5px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">L</span>
                         </div>
                     </div>
-                    
-                    <!-- 입력창 2: 최고충전압력 -->
                     <div id="col-pressure" class="flex flex-col hidden justify-end h-full">
-                        <label class="text-[13px] xl:text-[14px] font-bold text-gray-700 leading-none mb-1 text-center tracking-tighter truncate w-full">최고충전압력</label>
-                        <div class="relative flex items-center w-full flex-grow">
-                            <input id="input-press" type="number" placeholder="0"
-                                class="w-full h-full bg-white border-[1.6px] border-gray-500 rounded px-1 pr-[22px] text-sm font-black text-right shadow-inner focus:outline-none focus:border-blue-500 disabled:bg-gray-200" />
-                            <span class="absolute right-1 text-[10px] xl:text-[11px] font-bold text-gray-500 pointer-events-none">atm</span>
+                        <label id="lbl-press" class="text-[13px] xl:text-[14px] font-bold text-gray-700 leading-none mb-1 text-center tracking-tighter truncate w-full">최고충전압력</label>
+                        <div class="flex items-center w-full flex-grow bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                            <input id="input-press" type="number" placeholder="0" class="w-full h-full bg-transparent text-[15px] font-black text-right focus:outline-none flex-grow" />
+                            <span class="text-[15px] xl:text-[16.5px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">atm</span>
                         </div>
                     </div>
-
-                    <!-- 입력창 3: 비중 -->
                     <div id="col-sg" class="flex flex-col hidden justify-end h-full">
                         <label id="label-sg" title="비중" class="text-[14px] xl:text-[15.5px] font-extrabold text-blue-700 leading-none mb-1 text-center tracking-tighter truncate w-full">비중</label>
-                        <div class="relative flex items-center w-full flex-grow">
-                            <input id="input-sg" type="number" placeholder="0.0"
-                                class="w-full h-full bg-white border-[1.6px] border-gray-500 rounded px-1 pr-2.5 text-sm font-black text-right shadow-inner focus:outline-none focus:border-blue-500 disabled:bg-gray-200" />
+                        <div class="flex items-center w-full flex-grow bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                            <input id="input-sg" type="number" placeholder="0.0" class="w-full h-full bg-transparent text-[15px] font-black text-right focus:outline-none flex-grow" />
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 하단 결과 필드 -->
-            <div class="h-[25%] mt-2 bg-gray-800 border-[3px] border-[#39ff14] rounded-lg p-2 flex flex-col justify-center relative shadow-inner">
-                <div class="flex justify-between items-end w-full">
-                    <span class="text-white text-base xl:text-lg font-bold leading-none mb-0.5">저장능력</span>
-                    <div class="flex items-baseline gap-1.5">
-                        <span id="txt-result" class="text-orange-500 text-3xl xl:text-4xl font-black tracking-tighter leading-none">0</span>
-                        <span id="txt-unit" class="text-white text-lg xl:text-xl font-bold leading-none"></span>
-                    </div>
+            <!-- 2단 분리된 결과 필드 -->
+            <div class="h-[32%] mt-1 flex flex-col gap-1">
+                <!-- 상단 박스 (산출공식 표기) -->
+                <div class="flex-[2] bg-gray-300 rounded-lg px-3 flex items-center justify-between shadow-inner border border-gray-400">
+                    <span class="text-gray-700 text-[13px] font-extrabold tracking-tighter">산출공식</span>
+                    <span id="calc1-formula" class="text-blue-900 text-[19px] xl:text-[21px] font-black italic tracking-widest text-right"></span>
                 </div>
-                <div class="flex justify-between w-full mt-1 items-end">
-                    <span id="txt-converted" class="text-gray-300 text-[11px] xl:text-xs font-bold tracking-tight"></span>
-                    <span id="txt-charge-rate" class="text-yellow-300 text-[11px] xl:text-xs font-bold"></span>
+                <!-- 하단 박스 (결과값 표기) -->
+                <div class="flex-[3] bg-gray-800 border-[3px] border-[#39ff14] rounded-lg p-2 flex flex-col justify-between relative shadow-inner">
+                    <!-- 좌측 상단 절대배치: 저장능력 라벨 & (압축가스로 환산 시) 텍스트를 한 줄에 나란히 배치하여 하단 여백 확보 -->
+                    <div class="absolute top-1.5 left-2.5 flex items-baseline gap-2">
+                        <span class="text-white text-base xl:text-lg font-bold leading-none tracking-tighter">저장능력</span>
+                        <span id="txt-converted" class="text-gray-300 text-[11px] xl:text-xs font-bold tracking-tight leading-none"></span>
+                    </div>
+                    <!-- 메인 결과값: 중앙/우측 정렬 및 위쪽 여백(pt-3)을 주어 큰 숫자가 정가운데 위치하도록 조정 -->
+                    <div class="w-full h-full flex items-center justify-end pr-1 pt-3">
+                        <span id="txt-result" class="text-orange-500 text-[32px] xl:text-[40px] font-black tracking-tighter leading-none">0</span>
+                        <span id="txt-unit" class="text-white text-lg xl:text-xl font-bold leading-none ml-1.5"></span>
+                    </div>
                 </div>
             </div>
         </div>
     </template>
 
-    <!-- 스크립트 로직 시작 -->
+    <!-- [2번 타일] 냉동능력 산출 템플릿 -->
+    <template id="calculator-template-2">
+        <div class="relative flex flex-col h-[400px] w-full bg-white border-2 border-gray-300 rounded-2xl shadow-[8px_8px_8px_rgba(0,0,0,0.18)] px-2 pt-4 pb-1.5 mt-3">
+            
+            <div class="absolute -top-[21px] left-1/2 -translate-x-1/2 w-[90%] max-w-[280px] h-9 bg-[#d1ffeb] border-[2px] border-dashed border-black rounded-full flex items-center justify-center z-20 shadow-sm">
+                <span class="text-black font-extrabold text-[21px] xl:text-[23.5px] leading-none whitespace-nowrap tracking-tighter">냉동능력 산출</span>
+            </div>
+
+            <div class="flex-grow dot-grid-bg border-[1.6px] border-gray-500 rounded-xl p-1.5 z-10 flex flex-col gap-1 relative mt-1">
+                <button id="btn-reset-2" class="absolute top-1 right-1.5 px-2 py-0.5 bg-yellow-300 hover:bg-yellow-400 border-[1.5px] border-black rounded text-[10px] font-extrabold text-gray-900 shadow-md active-tremble transition-colors z-30 cursor-pointer">
+                    초기화
+                </button>
+
+                <!-- 1열: 압축기 종류 -->
+                <div class="flex flex-col w-full mt-1.5">
+                    <span class="text-[15.5px] font-extrabold text-gray-800 leading-none mb-1 ml-0.5 tracking-tighter">압축기 종류 선택</span>
+                    <div class="grid grid-cols-4 gap-0.5 w-full h-[27px]">
+                        <button id="btn-comp-centri" class="p-0 text-[16.5px] xl:text-[18px] font-black leading-none rounded border-[1.5px] flex items-center justify-center active-tremble">원심식</button>
+                        <button id="btn-comp-absorp" class="p-0 text-[16.5px] xl:text-[18px] font-black leading-none rounded border-[1.5px] flex items-center justify-center active-tremble">흡수식</button>
+                        <button id="btn-comp-recip" class="p-0 text-[16.5px] xl:text-[18px] font-black leading-none rounded border-[1.5px] flex items-center justify-center active-tremble">왕복동</button>
+                        <button id="btn-comp-screw" class="p-0 text-[16.5px] xl:text-[18px] font-black leading-none rounded border-[1.5px] flex items-center justify-center active-tremble">스크류</button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-0.5 w-full h-[27px] mt-0.5">
+                        <button id="btn-comp-multi" class="p-0 text-[16.5px] xl:text-[18px] font-black leading-none rounded border-[1.5px] flex items-center justify-center active-tremble">다단/다원</button>
+                        <button id="btn-comp-rotary" class="p-0 text-[16.5px] xl:text-[18px] font-black leading-none rounded border-[1.5px] flex items-center justify-center active-tremble">회전피스톤</button>
+                        <button id="btn-comp-other" class="p-0 text-[16.5px] xl:text-[18px] font-black leading-none rounded border-[1.5px] flex items-center justify-center active-tremble">그밖의형태</button>
+                    </div>
+                </div>
+
+                <!-- 2열: 냉매, C값 및 기통체적 토글 -->
+                <div id="row-gas-2" class="flex gap-1 w-full mt-1 relative z-40 items-end transition-opacity duration-200">
+                    <div id="custom-select-gas-2" class="relative w-[35%]">
+                        <span class="text-[14.5px] font-extrabold text-gray-800 leading-none mb-0.5 ml-0.5 tracking-tighter block">냉매 종류</span>
+                        <div id="custom-select-trigger-2" class="w-full border-[1.6px] border-gray-500 px-1 py-1 rounded text-[15px] font-black bg-white text-gray-900 leading-none h-7 shadow-inner flex items-center justify-between cursor-pointer select-none">
+                            <span id="custom-select-text-2" class="tracking-tighter truncate">프레온 21</span>
+                            <svg class="w-3 h-3 text-gray-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                        <div id="custom-select-dropdown-2" class="absolute z-50 w-full mt-1 bg-white border-[1.6px] border-gray-500 rounded-lg shadow-[0_10px_25px_rgba(0,0,0,0.3)] max-h-60 overflow-y-auto hidden custom-scrollbar"></div>
+                    </div>
+                    
+                    <!-- C값 독립 표시창 -->
+                    <div class="flex flex-col w-[20%] h-full justify-end">
+                        <span class="text-[13px] font-extrabold text-blue-700 leading-none mb-0.5 text-center tracking-tighter block truncate">C값</span>
+                        <div class="w-full border-[1.6px] border-gray-500 px-1 py-1 rounded text-[14px] font-black bg-gray-200 text-gray-800 leading-none h-7 shadow-inner flex items-center justify-center truncate">
+                            <span id="calc2-c">0.0</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col w-[45%] h-full justify-end">
+                        <span id="lbl-vol-title" class="text-[15.5px] xl:text-[16.5px] font-extrabold text-blue-700 leading-none mb-0.5 ml-0.5 tracking-tight block text-center truncate">기통 1개당 체적(cm³)</span>
+                        <div class="flex w-full h-7">
+                            <button id="btn-vol-under" class="flex-1 p-0 text-[15px] xl:text-[16px] font-black leading-none rounded-l border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">5000이하</button>
+                            <button id="btn-vol-over" class="flex-1 p-0 text-[15px] xl:text-[16px] font-black leading-none rounded-r border-y-[1.5px] border-r-[1.5px] border-l-0 transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">5000이상</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3열: 동적 입력창 -->
+                <div class="grid grid-cols-6 gap-x-1 gap-y-1 w-full mt-auto mb-1">
+                    <div id="wrap-in1" class="flex flex-col justify-end h-[38px] relative">
+                        <label id="lbl-in1" class="text-[11px] font-extrabold text-gray-800 leading-none mb-0.5 text-center tracking-tighter w-full truncate">입력1</label>
+                        <div id="div-input-1" class="flex items-center w-full flex-grow bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                            <input id="input-2-1" type="number" class="w-full h-full bg-transparent text-[14px] font-black text-right focus:outline-none flex-grow" />
+                            <span id="unit-in1" class="text-[12px] xl:text-[13px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">-</span>
+                        </div>
+                        <div id="div-select-1" class="relative items-center w-full flex-grow hidden">
+                            <select id="select-2-1" class="no-arrow-select w-full h-full bg-blue-50 border-[1.6px] border-[#0ea5e9] rounded px-1 text-[13px] xl:text-[14px] font-black text-center focus:outline-none focus:border-blue-600 shadow-inner text-blue-900 cursor-pointer tracking-tighter">
+                                <option value="" disabled selected hidden>선택</option>
+                                <option value="대칭">대칭</option>
+                                <option value="비대칭">비대칭</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="wrap-in2" class="flex flex-col justify-end h-[38px] relative">
+                        <label id="lbl-in2" class="text-[11px] font-extrabold text-gray-800 leading-none mb-0.5 text-center tracking-tighter w-full truncate">입력2</label>
+                        <div id="div-input-2" class="flex items-center w-full flex-grow bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                            <input id="input-2-2" type="number" class="w-full h-full bg-transparent text-[14px] font-black text-right focus:outline-none flex-grow" />
+                            <span id="unit-in2" class="text-[12px] xl:text-[13px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">m</span>
+                        </div>
+                        <div id="div-select-2" class="relative items-center w-full flex-grow hidden">
+                            <select id="select-2-2" class="no-arrow-select w-full h-full bg-blue-50 border-[1.6px] border-[#0ea5e9] rounded px-1 text-[13px] xl:text-[14px] font-black text-center shadow-inner text-blue-900 cursor-pointer">
+                                <option value="" disabled selected hidden>선택</option>
+                                <option value="3">3%</option>
+                                <option value="2">2%</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="wrap-in3" class="flex flex-col justify-end h-[38px] relative">
+                        <label id="lbl-in3" class="text-[11px] font-extrabold text-gray-800 leading-none mb-0.5 text-center tracking-tighter w-full truncate">입력3</label>
+                        <div class="flex items-center w-full flex-grow bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                            <input id="input-2-3" type="number" class="w-full h-full bg-transparent text-[14px] font-black text-right focus:outline-none flex-grow" />
+                            <span id="unit-in3" class="text-[12px] xl:text-[13px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">m</span>
+                        </div>
+                    </div>
+
+                    <div id="wrap-in4" class="flex flex-col justify-end h-[38px] relative">
+                        <label id="lbl-in4" class="text-[11px] font-extrabold text-gray-800 leading-none mb-0.5 text-center tracking-tighter w-full truncate">입력4</label>
+                        <div class="flex items-center w-full flex-grow bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                            <input id="input-2-4" type="number" class="w-full h-full bg-transparent text-[14px] font-black text-right focus:outline-none flex-grow" />
+                            <span id="unit-in4" class="text-[12px] xl:text-[13px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">rpm</span>
+                        </div>
+                    </div>
+
+                    <div id="wrap-in5" class="flex flex-col justify-end h-[38px] relative">
+                        <label id="lbl-in5" class="text-[11px] font-extrabold text-gray-800 leading-none mb-0.5 text-center tracking-tighter w-full truncate h-[11px]">입력5</label>
+                        <div class="relative flex items-center w-full flex-grow">
+                            <div id="div-input-5" class="flex items-center w-full h-full bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500 relative">
+                                <input id="input-2-5" type="number" class="w-full h-full bg-transparent text-[14px] font-black text-right focus:outline-none flex-grow" />
+                                <span id="unit-in5" class="text-[12px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">개</span>
+                            </div>
+                            <button id="btn-open-rotary" class="hidden w-full h-full bg-green-100 border-[1.6px] border-green-600 text-green-800 font-black rounded text-[12px] flex items-center justify-center leading-none active-tremble shadow-sm">작동원리 보기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2단 분리된 결과 필드 -->
+            <div class="h-[32%] mt-1 flex flex-col gap-1">
+                <!-- 상단 박스 (산출공식 표기) -->
+                <div class="flex-[2] bg-gray-300 rounded-lg px-3 flex items-center justify-between shadow-inner border border-gray-400">
+                    <span class="text-gray-700 text-[13px] font-extrabold tracking-tighter">산출공식</span>
+                    <span id="calc2-formula" class="text-blue-900 text-[19px] xl:text-[21px] font-black italic tracking-widest text-right"></span>
+                </div>
+                
+                <!-- 하단 박스 (압출량과 냉동능력을 1:3으로 분할) -->
+                <div class="flex-[3] bg-gray-800 border-[3px] border-[#39ff14] rounded-lg p-2 flex relative shadow-inner items-stretch gap-2">
+                    <!-- 1: 압출량(V) 영역 -->
+                    <div class="flex-[1] flex flex-col justify-center h-full border-r border-gray-600 pr-2">
+                        <span class="text-gray-400 text-[13px] xl:text-[14px] font-bold leading-none tracking-tighter mb-1">압출량(V)</span>
+                        <span id="calc2-v" class="text-white text-[18px] xl:text-[20px] font-black leading-none truncate">0.00</span>
+                        <span id="calc2-v-unit" class="text-gray-400 text-[12px] mt-0.5 leading-none">m³/h</span>
+                    </div>
+                    
+                    <!-- 3: 냉동능력(RT) 영역 -->
+                    <div class="flex-[3] relative flex flex-col justify-center h-full pl-2">
+                        <!-- 절대 좌표로 좌측 상단 고정 (결과값과 겹침 원천 차단) -->
+                        <span class="absolute top-0 left-1 text-white text-[15px] xl:text-[16px] font-bold leading-none tracking-tighter">냉동능력</span>
+                        
+                        <!-- 메인 결과값: 중앙/우측 정렬 및 위쪽 여백(pt-3)을 주어 큰 숫자가 정가운데 위치하도록 조정 -->
+                        <div class="w-full flex items-baseline justify-end pt-3 pr-1">
+                            <span id="calc2-r" class="text-orange-500 text-[32px] xl:text-[40px] font-black tracking-tighter leading-none">0.00</span>
+                            <span class="text-white text-base xl:text-lg font-bold leading-none ml-1.5">RT</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
     <script>
-        // 1. 기초 데이터 정의
+        // =====================================================================
+        // 기초 데이터 정의
+        // =====================================================================
         const LIQUEFIED_GASES = [
             { name: "액화프로판", c: 2.35 }, { name: "액화부탄", c: 2.05 }, { name: "액화에틸렌", c: 3.50 },
             { name: "액화에탄", c: 2.80 }, { name: "액화프로필렌", c: 2.27 }, { name: "액화부틸렌", c: 2.00 },
@@ -20468,6 +20698,40 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: "기타", c: null }
         ];
 
+        const REF_GASES = [
+            { name: "프레온 21", c_over: 49.7, c_under: 46.6 },
+            { name: "프레온 114", c_over: 46.4, c_under: 43.5 },
+            { name: "노멀부탄", c_over: 34.9, c_under: 37.2 },
+            { name: "이소부탄", c_over: 25.4, c_under: 27.1 },
+            { name: "아황산가스", c_over: 20.7, c_under: 22.1 },
+            { name: "염화메탄", c_over: 14.5, c_under: 13.6 },
+            { name: "프레온 134a", c_over: 13.5, c_under: 14.4 },
+            { name: "프레온 12", c_over: 13.9, c_under: 13.1 },
+            { name: "프레온 500", c_over: 12.0, c_under: 11.3 },
+            { name: "프로판", c_over: 9.0, c_under: 9.6 },
+            { name: "후레온 22", c_over: 8.5, c_under: 7.9 },
+            { name: "암모니아", c_over: 7.9, c_under: 8.4 },
+            { name: "프레온 502", c_over: 8.4, c_under: 7.9 },
+            { name: "프레온 13B1", c_over: 5.8, c_under: 6.2 },
+            { name: "프레온 13", c_over: 4.2, c_under: 4.4 },
+            { name: "에탄", c_over: 2.9, c_under: 3.1 },
+            { name: "탄산가스", c_over: 1.9, c_under: 1.8 }
+        ];
+
+        const COMP2_CONFIG = {
+            '원심식': { labels: ['정격출력(P)', '', '', '', ''], units: ['kW', '', '', '', ''], show: [true, false, false, false, false], hideGas: true, cols: [6, 0, 0, 0, 0], formula: 'P / 1.2' },
+            '흡수식': { labels: ['입열량(Q)', '', '', '', ''], units: ['kcal/h', '', '', '', ''], show: [true, false, false, false, false], hideGas: true, cols: [6, 0, 0, 0, 0], formula: 'Q / 6640' },
+            '왕복동': { labels: ['', '기통안지름(D)', '기통길이(L)', '회전수(n)', '압축기수량(N)'], units: ['', 'm', 'm', 'rpm', '개'], show: [false, true, true, true, true], hideGas: false, cols: [0, 3, 3, 3, 3], formula: '0.785×D<sup>2</sup>×L×N×n×60' },
+            '스크류': { labels: ['기어형상', '지름대비 기어높이', '로우터지름(D)', '유효길이(L)', '회전수(n)'], units: ['', '', 'm', 'm', 'rpm'], show: [true, true, true, true, true], hideGas: false, isScrewSelect: true, cols: [2, 2, 2, 2, 2], formula: 'K×D<sup>3</sup>×(L/D)×n×60' },
+            '다단': { labels: ['1단 흡입량 : 전단압출량(VL)', '최종 토출량 : 최종단압출량(VH)', '', '', ''], units: ['m³/h', 'm³/h', '', '', ''], show: [true, true, false, false, false], hideGas: false, cols: [3, 3, 0, 0, 0], formula: 'VH+0.08VL' },
+            '회전피스톤': { labels: ['압축부두께(t)', '기통안지름(D)', '피스톤외경(d)', '회전수(n)', ''], units: ['m', 'm', 'm', 'rpm', ''], show: [true, true, true, true, true], hideGas: false, isRotaryButton: true, cols: [2, 2, 2, 2, 2], formula: '60×0.785tn(D<sup>2</sup>-d<sup>2</sup>)' },
+            '기타': { labels: ['피스톤압출량(V)', '', '', '', ''], units: ['m³/h', '', '', '', ''], show: [true, false, false, false, false], hideGas: false, cols: [6, 0, 0, 0, 0], formula: 'V' },
+            '기본': { labels: ['-', '-', '-', '-', '-'], units: ['', '', '', '', ''], show: [false, false, false, false, false], hideGas: false, cols: [0, 0, 0, 0, 0], formula: '' }
+        };
+
+        // =====================================================================
+        // 상태 객체 정의
+        // =====================================================================
         let state = {
             type: null,
             storage: null,
@@ -20478,46 +20742,36 @@ document.addEventListener('DOMContentLoaded', () => {
             sg: ''
         };
 
-        function initApp() {
-            const gridContainer = document.getElementById('grid-container');
-            const template = document.getElementById('calculator-template').innerHTML;
+        let state2 = {
+            compType: null,
+            gasName: REF_GASES[0].name,
+            volType: 'under',
+            manualVol: false,
+            in1: '',
+            in2: '',
+            in3: '',
+            in4: '',
+            in5: ''
+        };
 
-            for (let i = 1; i <= 8; i++) {
-                let borderClasses = "border-dashed border-[#cbd5e1] py-4 px-1.5 lg:py-5 lg:px-2 flex justify-center w-full ";
-                const index = i - 1;
-                
-                if (index < 7) { borderClasses += "border-b-[2px] "; }
-                borderClasses += "md:border-b-0 md:border-r-0 lg:border-b-0 lg:border-r-0 ";
-                
-                if (index < 6) borderClasses += "md:border-b-[2px] ";
-                if (index % 2 === 0) borderClasses += "md:border-r-[2px] ";
-                
-                if (index < 4) borderClasses += "lg:border-b-[2px] ";
-                if (index % 4 !== 3) borderClasses += "lg:border-r-[2px] ";
+        const activeClasses = ['bg-[#0284c7]', 'border-[#0369a1]', 'text-white', 'shadow-inner', 'opacity-100'];
+        const inactiveClasses = ['bg-gray-100', 'border-gray-300', 'text-gray-500', 'shadow-none', 'hover:bg-gray-200', 'hover:text-gray-600', 'opacity-65'];
+        const defaultClasses = ['bg-[#e6f7ff]', 'border-[#0ea5e9]', 'text-gray-900', 'shadow-md', 'hover:shadow-lg', 'hover:bg-[#d0efff]', 'active:shadow-inner', 'opacity-100'];
 
-                const wrapper = document.createElement('div');
-                wrapper.className = borderClasses;
-
-                if (i === 1) {
-                    wrapper.innerHTML = template; 
-                } else {
-                    wrapper.innerHTML = `
-                        <div class="relative flex flex-col h-[400px] w-full bg-white border-2 border-gray-300 rounded-2xl shadow-[8px_8px_8px_rgba(0,0,0,0.18)] p-2 pt-8 mt-3 opacity-70 grayscale">
-                            <div class="absolute -top-[21px] left-1/2 -translate-x-1/2 w-[90%] max-w-[280px] h-9 bg-gray-300 border-[2px] border-dashed border-black rounded-full flex items-center justify-center z-20 shadow-sm">
-                                <span class="text-black font-extrabold text-base xl:text-lg leading-none whitespace-nowrap tracking-tight">${i}번 계산기</span>
-                            </div>
-                            <div class="flex-grow dot-grid-bg border-[1.6px] border-gray-500 rounded-xl flex items-center justify-center mt-1 z-10">
-                                <span class="text-gray-500 font-bold text-2xl bg-white px-3 py-1 rounded">준비 중</span>
-                            </div>
-                            <div class="h-[25%] mt-2 bg-gray-600 rounded-lg"></div>
-                        </div>
-                    `;
-                }
-                gridContainer.appendChild(wrapper);
+        // =====================================================================
+        // 유틸리티 함수
+        // =====================================================================
+        function styleButton(btnId, isSelected, hasSelection) {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            btn.classList.remove(...activeClasses, ...inactiveClasses, ...defaultClasses);
+            if (isSelected) {
+                btn.classList.add(...activeClasses);
+            } else if (hasSelection) {
+                btn.classList.add(...inactiveClasses);
+            } else {
+                btn.classList.add(...defaultClasses);
             }
-
-            initCustomDropdown();
-            bindEvents();
         }
 
         function formatGasNameHTML(name) {
@@ -20528,6 +20782,46 @@ document.addEventListener('DOMContentLoaded', () => {
             return `<span>${name}</span>`;
         }
 
+        // =====================================================================
+        // 타일 생성 및 초기화
+        // =====================================================================
+        function initApp() {
+            const gridContainer = document.getElementById('grid-container');
+            const template1 = document.getElementById('calculator-template').innerHTML;
+            const template2 = document.getElementById('calculator-template-2').innerHTML;
+
+            for (let i = 1; i <= 8; i++) {
+                let borderClasses = "border-dashed border-[#cbd5e1] py-4 px-1.5 lg:py-5 lg:px-2 flex justify-center w-full ";
+                const index = i - 1;
+                if (index < 7) borderClasses += "border-b-[2px] ";
+                borderClasses += "md:border-b-0 md:border-r-0 lg:border-b-0 lg:border-r-0 ";
+                if (index < 6) borderClasses += "md:border-b-[2px] ";
+                if (index % 2 === 0) borderClasses += "md:border-r-[2px] ";
+                if (index < 4) borderClasses += "lg:border-b-[2px] ";
+                if (index % 4 !== 3) borderClasses += "lg:border-r-[2px] ";
+
+                const wrapper = document.createElement('div');
+                wrapper.className = borderClasses;
+                
+                if (i === 1) {
+                    wrapper.innerHTML = template1;
+                } else if (i === 2) {
+                    wrapper.innerHTML = template2;
+                } else {
+                    wrapper.innerHTML = `<div class="relative flex flex-col h-[400px] w-full bg-white border-2 border-gray-300 rounded-2xl shadow-[8px_8px_8px_rgba(0,0,0,0.18)] px-2 pt-4 pb-1.5 mt-3 opacity-70 grayscale"><div class="absolute -top-[21px] left-1/2 -translate-x-1/2 w-[90%] max-w-[280px] h-9 bg-gray-300 border-[2px] border-dashed border-black rounded-full flex items-center justify-center z-20 shadow-sm"><span class="text-black font-extrabold text-[21px] xl:text-[23.5px] leading-none whitespace-nowrap tracking-tight">${i}번 계산기</span></div><div class="flex-grow dot-grid-bg border-[1.6px] border-gray-500 rounded-xl flex items-center justify-center mt-1 z-10"><span class="text-gray-500 font-bold text-2xl bg-white px-3 py-1 rounded">준비 중</span></div><div class="h-[32%] mt-1 flex flex-col gap-1"><div class="flex-[2] bg-gray-300 rounded-lg"></div><div class="flex-[3] bg-gray-600 rounded-lg"></div></div></div>`;
+                }
+                gridContainer.appendChild(wrapper);
+            }
+
+            initCustomDropdown();
+            initCustomDropdown2();
+            bindEvents();
+            bindEvents2();
+        }
+
+        // =====================================================================
+        // 1번 타일 기능 로직
+        // =====================================================================
         function initCustomDropdown() {
             const dropdown = document.getElementById('custom-select-dropdown');
             const trigger = document.getElementById('custom-select-trigger');
@@ -20538,19 +20832,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.innerHTML = formatGasNameHTML(gas.name);
                 
                 item.addEventListener('click', (e) => {
-                    e.stopPropagation(); 
+                    e.stopPropagation();
                     state.gasName = gas.name;
-                    dropdown.classList.add('hidden'); 
+                    dropdown.classList.add('hidden');
                     updateUI();
                 });
                 dropdown.appendChild(item);
             });
-
+            
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation();
                 dropdown.classList.toggle('hidden');
             });
-
+            
             document.addEventListener('click', () => {
                 if (!dropdown.classList.contains('hidden')) {
                     dropdown.classList.add('hidden');
@@ -20570,27 +20864,25 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btn-state-comp').addEventListener('click', () => handleStateTypeChange('압축'));
             document.getElementById('btn-state-liq-norm').addEventListener('click', () => handleStateTypeChange('액화_상온'));
             document.getElementById('btn-state-liq-low').addEventListener('click', () => handleStateTypeChange('액화_저온'));
-
+            
             document.getElementById('btn-store-tank').addEventListener('click', () => { state.storage = '저장탱크'; updateUI(); });
             document.getElementById('btn-store-small').addEventListener('click', () => { state.storage = '소형저장탱크'; updateUI(); });
             document.getElementById('btn-store-cyl').addEventListener('click', () => { state.storage = '용기'; updateUI(); });
-
+            
             document.getElementById('btn-gas-lpg').addEventListener('click', () => { state.rtGasType = 'LPG'; state.sg = '0.472'; document.getElementById('input-sg').value = '0.472'; updateUI(); });
             document.getElementById('btn-gas-butane').addEventListener('click', () => { state.rtGasType = '부탄'; state.sg = '0.540'; document.getElementById('input-sg').value = '0.540'; updateUI(); });
             document.getElementById('btn-gas-other').addEventListener('click', () => { state.rtGasType = '기타가스'; state.sg = ''; document.getElementById('input-sg').value = ''; updateUI(); });
-
+            
             document.getElementById('input-vol').addEventListener('input', (e) => { state.volume = e.target.value; updateUI(); });
             document.getElementById('input-press').addEventListener('input', (e) => { state.pressure = e.target.value; updateUI(); });
             
-            const sgInput = document.getElementById('input-sg');
-            sgInput.addEventListener('input', (e) => { 
-                state.sg = e.target.value; 
+            document.getElementById('input-sg').addEventListener('input', (e) => {
+                state.sg = e.target.value;
                 if (state.type === '액화_상온') {
                     state.rtGasType = '기타가스';
                 }
-                updateUI(); 
+                updateUI();
             });
-
             updateUI();
         }
 
@@ -20605,182 +20897,429 @@ document.addEventListener('DOMContentLoaded', () => {
             updateUI();
         }
 
-        const activeClasses = ['bg-[#0284c7]', 'border-[#0369a1]', 'text-white', 'shadow-inner', 'opacity-100'];
-        const inactiveClasses = ['bg-gray-100', 'border-gray-300', 'text-gray-400', 'shadow-none', 'hover:bg-gray-200', 'hover:text-gray-500', 'opacity-40'];
-        const defaultClasses = ['bg-[#e6f7ff]', 'border-[#0ea5e9]', 'text-gray-900', 'shadow-md', 'hover:shadow-lg', 'hover:bg-[#d0efff]', 'active:shadow-inner', 'opacity-100'];
-
-        function styleButton(btnId, isSelected, hasSelection) {
-            const btn = document.getElementById(btnId);
-            if (!btn) return;
-            
-            btn.classList.remove(...activeClasses, ...inactiveClasses, ...defaultClasses);
-            
-            if (isSelected) {
-                btn.classList.add(...activeClasses);
-            } else if (hasSelection) {
-                btn.classList.add(...inactiveClasses);
-            } else {
-                btn.classList.add(...defaultClasses);
-            }
-        }
-
         function updateUI() {
+            if (state.type === '액화_상온' && state.storage === '소형저장탱크' && state.rtGasType === '기타가스') {
+                state.rtGasType = 'LPG';
+                state.sg = '0.472';
+                document.getElementById('input-sg').value = '0.472';
+            }
+            
             const hasType = state.type !== null;
             styleButton('btn-state-comp', state.type === '압축', hasType);
             styleButton('btn-state-liq-norm', state.type === '액화_상온', hasType);
             styleButton('btn-state-liq-low', state.type === '액화_저온', hasType);
-
+            
             const hasStore = state.storage !== null;
             styleButton('btn-store-tank', state.storage === '저장탱크', hasStore);
             styleButton('btn-store-small', state.storage === '소형저장탱크', hasStore);
             styleButton('btn-store-cyl', state.storage === '용기', hasStore);
-
+            
             const hasRtGas = state.rtGasType !== null;
             styleButton('btn-gas-lpg', state.rtGasType === 'LPG', hasRtGas);
             styleButton('btn-gas-butane', state.rtGasType === '부탄', hasRtGas);
             styleButton('btn-gas-other', state.rtGasType === '기타가스', hasRtGas);
-
+            
             const rowStorage = document.getElementById('row-storage');
             const btnSmall = document.getElementById('btn-store-small');
             const rowGas = document.getElementById('row-gas');
             const customSelect = document.getElementById('custom-select-gas');
+            const wrapCValue1 = document.getElementById('wrap-c-value-1');
             const groupNorm = document.getElementById('group-gas-norm');
             const rowInputs = document.getElementById('row-inputs');
             const colPressure = document.getElementById('col-pressure');
             const colSg = document.getElementById('col-sg');
-
-            if (state.type) rowStorage.classList.remove('hidden'); else rowStorage.classList.add('hidden');
             
-            if (state.type === '압축' || state.type === '액화_저온') btnSmall.classList.add('hidden');
-            else btnSmall.classList.remove('hidden');
-
+            if (state.type) rowStorage.classList.remove('hidden'); else rowStorage.classList.add('hidden');
+            if (state.type === '압축' || state.type === '액화_저온') btnSmall.classList.add('hidden'); else btnSmall.classList.remove('hidden');
             if (state.storage) rowGas.classList.remove('hidden'); else rowGas.classList.add('hidden');
             
             document.getElementById('custom-select-text').innerHTML = formatGasNameHTML(state.gasName);
-
+            
             if (state.type === '액화_저온') {
                 customSelect.classList.remove('hidden');
+                customSelect.classList.remove('w-full');
+                customSelect.classList.add('w-[70%]');
+                wrapCValue1.classList.remove('hidden');
                 groupNorm.classList.add('hidden');
             } else if (state.type === '액화_상온') {
                 customSelect.classList.add('hidden');
+                wrapCValue1.classList.add('hidden');
                 groupNorm.classList.remove('hidden');
+                groupNorm.classList.add('w-full');
             } else {
                 customSelect.classList.add('hidden');
+                wrapCValue1.classList.add('hidden');
                 groupNorm.classList.add('hidden');
             }
-
+            
             if (state.storage) rowInputs.classList.remove('hidden'); else rowInputs.classList.add('hidden');
-
-            document.getElementById('unit-vol').textContent = state.type === '압축' ? 'm³' : 'L';
-
+            
+            document.getElementById('unit-vol').textContent = (state.type === '압축' && state.storage !== '용기') ? 'm³' : 'L';
             if (state.type === '압축') colPressure.classList.remove('hidden'); else colPressure.classList.add('hidden');
-
+            
+            const btnGasOther = document.getElementById('btn-gas-other');
+            if (state.type === '액화_상온' && state.storage === '소형저장탱크') btnGasOther.classList.add('hidden'); else btnGasOther.classList.remove('hidden');
+            
             if (state.type === '액화_상온' || (state.type === '액화_저온' && state.gasName === '기타')) {
                 colSg.classList.remove('hidden');
-                const lbl = state.type === '액화_상온' ? '상용온도 비중' : '48℃ 비중';
+                const lbl = state.type === '액화_상온' ? '상용온도 비중(d)' : '48℃ 비중(d)';
                 document.getElementById('label-sg').textContent = lbl;
                 document.getElementById('label-sg').title = lbl;
             } else {
                 colSg.classList.add('hidden');
             }
 
+            const lblVol = document.getElementById('lbl-vol');
+            const lblPress = document.getElementById('lbl-press');
+            const elFormula1 = document.getElementById('calc1-formula');
+            
+            if (state.type === '압축') {
+                if(lblVol) lblVol.innerHTML = '내용적(V<sub>1</sub>)';
+                if(lblPress) lblPress.textContent = '최고충전압(P)';
+                if(elFormula1) elFormula1.innerHTML = 'Q=(10P+1)V<sub>1</sub>';
+            } else if (state.type === '액화_상온') {
+                if(lblVol) lblVol.innerHTML = '내용적(V<sub>2</sub>)';
+                if(elFormula1) elFormula1.innerHTML = state.storage === '소형저장탱크' ? 'W=0.85dV<sub>2</sub>' : 'W=0.9dV<sub>2</sub>';
+            } else if (state.type === '액화_저온') {
+                if(lblVol) lblVol.innerHTML = '내용적(V<sub>2</sub>)';
+                if(elFormula1) elFormula1.innerHTML = 'W=V<sub>2</sub>/C';
+            } else {
+                if(lblVol) lblVol.textContent = '내용적';
+                if(lblPress) lblPress.textContent = '최고충전압력';
+                if(elFormula1) elFormula1.innerHTML = '';
+            }
+
             calculateResult();
         }
 
         function calculateResult() {
-            let calcResult = 0;
-            let calcUnit = '';
-            let calcChargeRate = '';
-
+            let calcResult = 0; 
+            let calcUnit = ''; 
+            let cValue1 = 0;
+            
             const volNum = parseFloat(state.volume);
             const pressNum = parseFloat(state.pressure);
             const sgNum = parseFloat(state.sg);
-
+            
             if (state.type === '압축') {
                 calcUnit = 'm³';
-                if (!isNaN(volNum) && !isNaN(pressNum)) {
-                    const pMpa = pressNum * 0.101325; // atm -> MPa 변환
-                    calcResult = (10 * pMpa + 1) * volNum;
+                let v1 = state.storage === '용기' ? volNum / 1000 : volNum;
+                if (!isNaN(v1) && !isNaN(pressNum)) {
+                    calcResult = (10 * (pressNum * 0.101325) + 1) * v1;
                 }
-            } 
-            else if (state.type === '액화_상온') {
+            } else if (state.type === '액화_상온') {
                 calcUnit = 'kg';
                 const chargeRate = state.storage === '소형저장탱크' ? 0.85 : 0.90;
-                calcChargeRate = `(충전율: ${chargeRate * 100}%)`;
-
                 if (!isNaN(volNum) && !isNaN(sgNum)) {
                     calcResult = chargeRate * sgNum * volNum;
                 }
-            }
-            else if (state.type === '액화_저온') {
+            } else if (state.type === '액화_저온') {
                 calcUnit = 'kg';
                 const chargeRate = state.storage === '소형저장탱크' ? 0.85 : 0.90;
-                calcChargeRate = `(충전율: ${chargeRate * 100}%)`;
-
-                if (!isNaN(volNum)) {
-                    let cValue = null;
-                    if (state.gasName === '기타') {
-                        if (!isNaN(sgNum) && sgNum > 0) {
-                            cValue = 1.05 / sgNum;
-                        }
-                    } else {
-                        const gasObj = LIQUEFIED_GASES.find(g => g.name === state.gasName);
-                        if (gasObj) cValue = gasObj.c;
-                    }
-
-                    if (cValue !== null && volNum > 0) {
-                        const baseW = volNum / cValue;
-                        calcResult = baseW * (chargeRate / 0.90);
-                    }
+                
+                if (state.gasName === '기타') {
+                    if (!isNaN(sgNum) && sgNum > 0) cValue1 = 1.05 / sgNum;
+                } else {
+                    const gasObj = LIQUEFIED_GASES.find(g => g.name === state.gasName);
+                    if (gasObj) cValue1 = gasObj.c;
+                }
+                
+                if (cValue1 > 0 && !isNaN(volNum) && volNum > 0) {
+                    calcResult = (volNum / cValue1) * (chargeRate / 0.90);
                 }
             }
-
+            
             const elResult = document.getElementById('txt-result');
             const elUnit = document.getElementById('txt-unit');
             const elConverted = document.getElementById('txt-converted');
-            const elCharge = document.getElementById('txt-charge-rate');
-
+            const elC1 = document.getElementById('calc1-c');
+            
+            if (elC1) {
+                elC1.textContent = cValue1 > 0 ? cValue1.toFixed(2) : '-';
+            }
+            
             if (calcResult > 0) {
                 elResult.textContent = calcResult.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 0 });
-                if (state.type !== '압축') {
-                    const convM3 = calcResult / 10;
-                    elConverted.textContent = `압축가스로 환산 시 ${convM3.toLocaleString(undefined, { maximumFractionDigits: 2 })}m³`;
-                } else {
-                    elConverted.textContent = '';
-                }
+                // 환산 수식에 괄호를 씌워 표시
+                elConverted.textContent = state.type !== '압축' ? `(압축가스로 환산 시 ${(calcResult / 10).toLocaleString(undefined, { maximumFractionDigits: 2 })}m³)` : '';
             } else {
                 elResult.textContent = '0';
                 elConverted.textContent = '';
             }
-
             elUnit.textContent = calcUnit;
-            elCharge.textContent = calcChargeRate;
         }
 
-        window.addEventListener('DOMContentLoaded', initApp);
+        // =====================================================================
+        // 2번 타일 기능 로직
+        // =====================================================================
+        function initCustomDropdown2() {
+            const dropdown = document.getElementById('custom-select-dropdown-2');
+            const trigger = document.getElementById('custom-select-trigger-2');
+            
+            REF_GASES.forEach(gas => {
+                const item = document.createElement('div');
+                item.className = "px-1.5 py-1 text-[14px] font-black cursor-pointer hover:bg-blue-100 border-b border-gray-200 last:border-0 tracking-tighter truncate";
+                item.textContent = gas.name;
+                
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    state2.gasName = gas.name;
+                    dropdown.classList.add('hidden');
+                    updateUI2();
+                });
+                dropdown.appendChild(item);
+            });
+            
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('hidden');
+            });
+            
+            document.addEventListener('click', () => {
+                if (!dropdown.classList.contains('hidden')) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        function changeCompType(type) {
+            state2.compType = type;
+            state2.in1 = '';
+            state2.in2 = '';
+            state2.in3 = '';
+            state2.in4 = '';
+            state2.in5 = '';
+            for(let i=1; i<=5; i++) {
+                document.getElementById(`input-2-${i}`).value = '';
+            }
+            document.getElementById('select-2-1').value = '';
+            document.getElementById('select-2-2').value = '';
+            updateUI2();
+        }
+
+        function bindEvents2() {
+            document.getElementById('btn-reset-2').addEventListener('click', () => {
+                state2 = { compType: null, gasName: REF_GASES[0].name, volType: 'under', manualVol: false, in1: '', in2: '', in3: '', in4: '', in5: '' };
+                for(let i=1; i<=5; i++) {
+                    document.getElementById(`input-2-${i}`).value = '';
+                }
+                document.getElementById('select-2-1').value = '';
+                document.getElementById('select-2-2').value = '';
+                updateUI2();
+            });
+
+            document.getElementById('btn-comp-centri').addEventListener('click', () => changeCompType('원심식'));
+            document.getElementById('btn-comp-absorp').addEventListener('click', () => changeCompType('흡수식'));
+            document.getElementById('btn-comp-recip').addEventListener('click', () => changeCompType('왕복동'));
+            document.getElementById('btn-comp-screw').addEventListener('click', () => changeCompType('스크류'));
+            document.getElementById('btn-comp-multi').addEventListener('click', () => changeCompType('다단'));
+            document.getElementById('btn-comp-rotary').addEventListener('click', () => changeCompType('회전피스톤'));
+            document.getElementById('btn-comp-other').addEventListener('click', () => changeCompType('기타'));
+
+            document.getElementById('btn-vol-under').addEventListener('click', () => { state2.volType = 'under'; state2.manualVol = true; updateUI2(); });
+            document.getElementById('btn-vol-over').addEventListener('click', () => { state2.volType = 'over'; state2.manualVol = true; updateUI2(); });
+
+            for(let i=1; i<=5; i++) {
+                document.getElementById(`input-2-${i}`).addEventListener('input', (e) => {
+                    state2[`in${i}`] = e.target.value;
+                    autoDetectVolume();
+                    updateUI2();
+                });
+            }
+
+            document.getElementById('select-2-1').addEventListener('change', (e) => { state2.in1 = e.target.value; updateUI2(); });
+            document.getElementById('select-2-2').addEventListener('change', (e) => { state2.in2 = e.target.value; updateUI2(); });
+
+            document.getElementById('btn-open-rotary').addEventListener('click', () => {
+                document.getElementById('rotary-overlay-container').style.display = 'block';
+            });
+            document.getElementById('btn-close-overlay').addEventListener('click', () => {
+                document.getElementById('rotary-overlay-container').style.display = 'none';
+            });
+
+            updateUI2();
+        }
+
+        function autoDetectVolume() {
+            if (state2.manualVol) return;
+            let vc = 0;
+            const in2 = parseFloat(state2.in2) || 0;
+            const in3 = parseFloat(state2.in3) || 0;
+            
+            if (state2.compType === '왕복동') {
+                vc = 0.785 * in2 * in2 * in3 * 1000000;
+            } else if (state2.compType === '스크류') {
+                const in4 = parseFloat(state2.in4) || 0;
+                vc = 0.785 * in3 * in3 * in4 * 1000000;
+            } else if (state2.compType === '회전피스톤') {
+                const in1 = parseFloat(state2.in1) || 0;
+                const d2 = parseFloat(state2.in2) || 0;
+                const d3 = parseFloat(state2.in3) || 0;
+                if (d2 > d3) {
+                    vc = 0.785 * (d2 * d2 - d3 * d3) * in1 * 1000000;
+                }
+            }
+            if (vc > 0) state2.volType = vc > 5000 ? 'over' : 'under';
+        }
+
+        function updateUI2() {
+            const hasComp = state2.compType !== null;
+            styleButton('btn-comp-centri', state2.compType === '원심식', hasComp);
+            styleButton('btn-comp-absorp', state2.compType === '흡수식', hasComp);
+            styleButton('btn-comp-recip', state2.compType === '왕복동', hasComp);
+            styleButton('btn-comp-screw', state2.compType === '스크류', hasComp);
+            styleButton('btn-comp-multi', state2.compType === '다단', hasComp);
+            styleButton('btn-comp-rotary', state2.compType === '회전피스톤', hasComp);
+            styleButton('btn-comp-other', state2.compType === '기타', hasComp);
+            styleButton('btn-vol-under', state2.volType === 'under', true);
+            styleButton('btn-vol-over', state2.volType === 'over', true);
+
+            const conf = COMP2_CONFIG[state2.compType || '기본'];
+            const rowGas2 = document.getElementById('row-gas-2');
+            
+            if (conf.hideGas) {
+                rowGas2.className = "flex gap-1 w-full mt-1 relative z-40 items-end transition-opacity duration-200 opacity-0 pointer-events-none";
+            } else {
+                rowGas2.className = "flex gap-1 w-full mt-1 relative z-40 items-end transition-opacity duration-200 opacity-100";
+            }
+            
+            document.getElementById('lbl-vol-title').textContent = '기통 1개당 체적(cm³)';
+
+            for(let i=1; i<=5; i++) {
+                const wrap = document.getElementById(`wrap-in${i}`);
+                const lbl = document.getElementById(`lbl-in${i}`);
+                const unit = document.getElementById(`unit-in${i}`);
+                
+                if (conf.show[i-1]) {
+                    wrap.style.display = 'flex';
+                    wrap.style.gridColumn = `span ${conf.cols[i-1]} / span ${conf.cols[i-1]}`;
+                    
+                    lbl.classList.remove('invisible');
+                    lbl.textContent = conf.labels[i-1];
+
+                    if (conf.isRotaryButton && i === 5) {
+                        lbl.classList.add('invisible');
+                    }
+                    
+                    if (unit) unit.textContent = conf.units[i-1];
+                } else {
+                    wrap.style.display = 'none';
+                }
+            }
+
+            const dIn1 = document.getElementById('div-input-1'), dSel1 = document.getElementById('div-select-1');
+            const dIn2 = document.getElementById('div-input-2'), dSel2 = document.getElementById('div-select-2');
+            const dIn5 = document.getElementById('div-input-5'), dRot = document.getElementById('btn-open-rotary');
+
+            if (conf.isScrewSelect) {
+                dIn1.classList.add('hidden'); dSel1.classList.remove('hidden'); dSel1.classList.add('flex');
+                dIn2.classList.add('hidden'); dSel2.classList.remove('hidden'); dSel2.classList.add('flex');
+                
+                if (state2.in1 !== '대칭' && state2.in1 !== '비대칭') state2.in1 = '';
+                if (state2.in2 !== '3' && state2.in2 !== '2') state2.in2 = '';
+                
+                document.getElementById('select-2-1').value = state2.in1;
+                document.getElementById('select-2-2').value = state2.in2;
+            } else {
+                dIn1.classList.remove('hidden'); dSel1.classList.add('hidden'); dSel1.classList.remove('flex');
+                dIn2.classList.remove('hidden'); dSel2.classList.add('hidden'); dSel2.classList.remove('flex');
+            }
+
+            if (conf.isRotaryButton) {
+                dIn5.classList.add('hidden'); dRot.classList.remove('hidden');
+            } else {
+                dIn5.classList.remove('hidden'); dRot.classList.add('hidden');
+            }
+
+            calculateResult2();
+        }
+
+        function calculateResult2() {
+            let V = 0, C = 0, R = 0;
+            const conf = COMP2_CONFIG[state2.compType || '기본'];
+            const in1 = parseFloat(state2.in1) || 0;
+            const in2 = parseFloat(state2.in2) || 0;
+            const in3 = parseFloat(state2.in3) || 0;
+            const in4 = parseFloat(state2.in4) || 0;
+            const in5 = parseFloat(state2.in5) || 0;
+            
+            const elV = document.getElementById('calc2-v');
+            const elVUnit = document.getElementById('calc2-v-unit');
+            const elC = document.getElementById('calc2-c');
+            const elFormula = document.getElementById('calc2-formula');
+
+            if (elFormula) {
+                elFormula.innerHTML = conf.formula || '';
+            }
+
+            if (state2.compType === '원심식') { 
+                R = in1 > 0 ? in1 / 1.2 : 0; 
+                elV.textContent = '-'; elVUnit.textContent = ''; elC.textContent = '-'; 
+            } else if (state2.compType === '흡수식') { 
+                R = in1 > 0 ? in1 / 6640 : 0; 
+                elV.textContent = '-'; elVUnit.textContent = ''; elC.textContent = '-'; 
+            } else {
+                if (state2.compType === '다단') {
+                    V = in2 + 0.08 * in1;
+                } else if (state2.compType === '회전피스톤') { 
+                    if (in2 > in3) V = 60 * 0.785 * in1 * in4 * (in2 * in2 - in3 * in3); 
+                } else if (state2.compType === '스크류') {
+                    let K = 0;
+                    if (state2.in1 === '대칭' && state2.in2 === '3') K = 0.476; 
+                    else if (state2.in1 === '대칭' && state2.in2 === '2') K = 0.450; 
+                    else if (state2.in1 === '비대칭' && state2.in2 === '3') K = 0.486; 
+                    else if (state2.in1 === '비대칭' && state2.in2 === '2') K = 0.460;
+                    
+                    const D = parseFloat(state2.in3) || 0;
+                    const L = parseFloat(state2.in4) || 0;
+                    const n = parseFloat(state2.in5) || 0;
+                    
+                    if (D > 0 && K > 0) {
+                        V = K * Math.pow(D, 3) * (L / D) * n * 60;
+                    }
+                } else if (state2.compType === '왕복동') {
+                    V = 0.785 * (in2 * in2) * in3 * in5 * in4 * 60;
+                } else if (state2.compType === '기타') {
+                    V = in1;
+                }
+                
+                const gasObj = REF_GASES.find(g => g.name === state2.gasName);
+                if (gasObj) {
+                    C = state2.volType === 'over' ? gasObj.c_over : gasObj.c_under;
+                }
+                
+                if (C > 0 && V > 0) {
+                    R = V / C;
+                }
+                
+                elV.textContent = V > 0 ? V.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '0.00'; 
+                elVUnit.textContent = 'm³/h'; 
+                elC.textContent = C > 0 ? C.toFixed(1) : '0.0';
+            }
+            document.getElementById('calc2-r').textContent = R > 0 ? R.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '0.00';
+        }
 
         // =====================================================================
-        // [모바일 UX 개선] 스마트 키보드 숨김 제어 로직
+        // 초기화 및 전역 이벤트 바인딩
         // =====================================================================
+        window.addEventListener('DOMContentLoaded', initApp);
+
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. 화면 빈 공간(입력창, 버튼 외) 터치 시 키보드 내리기
             document.body.addEventListener('click', function(e) {
                 const tagName = e.target.tagName;
-                if (tagName !== 'INPUT' && tagName !== 'BUTTON') {
+                if (tagName !== 'INPUT' && tagName !== 'BUTTON' && tagName !== 'SELECT' && tagName !== 'OPTION') {
                     const activeElement = document.activeElement;
                     if (activeElement && activeElement.tagName === 'INPUT') {
-                        activeElement.blur(); 
+                        activeElement.blur();
                     }
                 }
             });
-
-            // 2. 키보드에서 '엔터(이동/완료)' 키를 눌렀을 때 키보드 내리기
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     const activeElement = document.activeElement;
-                    if (activeElement && activeElement.tagName === 'INPUT') {
+                    if (activeElement && activeElement.tagName === 'INPUT') { 
                         activeElement.blur(); 
-                        e.preventDefault();   
+                        e.preventDefault(); 
                     }
                 }
             });
