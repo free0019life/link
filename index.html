@@ -20486,7 +20486,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="flex flex-col justify-end h-full">
                         <!-- truncate 속성 제거 및 break-keep 추가로 글자 잘림 방지 -->
                         <label id="lbl-vol" class="text-[14px] xl:text-[15.5px] font-bold text-gray-700 leading-tight mb-1 text-center tracking-tighter w-full break-keep">내용적</label>
-                        <div class="flex items-center w-full flex-grow bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                        <div class="flex items-center w-full h-8 shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
                             <input id="input-vol" type="number" placeholder="0" class="w-full h-full bg-transparent text-[15px] font-black text-right focus:outline-none flex-grow" />
                             <span id="unit-vol" class="text-[15px] xl:text-[16.5px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">L</span>
                         </div>
@@ -20494,15 +20494,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div id="col-pressure" class="flex flex-col hidden justify-end h-full">
                         <!-- 폰트 크기 미세조정 및 break-keep 추가로 잘림 방지 -->
                         <label id="lbl-press" class="text-[12px] xl:text-[13px] font-bold text-gray-700 leading-tight mb-1 text-center tracking-tighter w-full break-keep">최고충전압력</label>
-                        <div class="flex items-center w-full flex-grow bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                        <div class="flex items-center w-full h-8 shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
                             <input id="input-press" type="number" placeholder="0" class="w-full h-full bg-transparent text-[15px] font-black text-right focus:outline-none flex-grow" />
-                            <span class="text-[15px] xl:text-[16.5px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">atm</span>
+                            <span class="text-[15px] xl:text-[16.5px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">MPa</span>
                         </div>
                     </div>
                     <div id="col-sg" class="flex flex-col hidden justify-end h-full">
                         <!-- 폰트 크기 미세조정 및 break-keep 추가로 '상용온도 비중(d)' 등 긴 글자 잘림 완벽 방지 -->
                         <label id="label-sg" title="비중" class="text-[13px] xl:text-[14px] font-extrabold text-blue-700 leading-tight mb-1 text-center tracking-tighter w-full break-keep">비중</label>
-                        <div class="flex items-center w-full flex-grow bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                        <div class="flex items-center w-full h-8 shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
                             <input id="input-sg" type="number" placeholder="0.0" class="w-full h-full bg-transparent text-[15px] font-black text-right focus:outline-none flex-grow" />
                         </div>
                     </div>
@@ -20594,11 +20594,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div id="wrap-in1" class="flex flex-col justify-end h-[38px] relative">
                         <!-- 모든 동적 라벨의 truncate를 break-keep으로 변경하여 긴 단어 잘림 100% 방지 -->
                         <label id="lbl-in1" class="text-[11px] font-extrabold text-gray-800 leading-tight mb-0.5 text-center tracking-tighter w-full break-keep">입력1</label>
-                        <div id="div-input-1" class="flex items-center w-full flex-grow bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                        <div id="div-input-1" class="flex items-center w-full h-[22px] shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
                             <input id="input-2-1" type="number" class="w-full h-full bg-transparent text-[14px] font-black text-right focus:outline-none flex-grow" />
                             <span id="unit-in1" class="text-[12px] xl:text-[13px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">-</span>
                         </div>
-                        <div id="div-select-1" class="relative items-center w-full flex-grow hidden">
+                        <div id="div-select-1" class="relative items-center w-full h-[22px] shrink-0 hidden">
                             <select id="select-2-1" class="no-arrow-select w-full h-full bg-blue-50 border-[1.6px] border-[#0ea5e9] rounded px-1 text-[13px] xl:text-[14px] font-black text-center focus:outline-none focus:border-blue-600 shadow-inner text-blue-900 cursor-pointer tracking-tighter">
                                 <option value="" disabled selected hidden>선택</option>
                                 <option value="대칭">대칭</option>
@@ -20609,11 +20609,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     <div id="wrap-in2" class="flex flex-col justify-end h-[38px] relative">
                         <label id="lbl-in2" class="text-[11px] font-extrabold text-gray-800 leading-tight mb-0.5 text-center tracking-tighter w-full break-keep">입력2</label>
-                        <div id="div-input-2" class="flex items-center w-full flex-grow bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                        <div id="div-input-2" class="flex items-center w-full h-[22px] shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
                             <input id="input-2-2" type="number" class="w-full h-full bg-transparent text-[14px] font-black text-right focus:outline-none flex-grow" />
                             <span id="unit-in2" class="text-[12px] xl:text-[13px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">m</span>
                         </div>
-                        <div id="div-select-2" class="relative items-center w-full flex-grow hidden">
+                        <div id="div-select-2" class="relative items-center w-full h-[22px] shrink-0 hidden">
                             <select id="select-2-2" class="no-arrow-select w-full h-full bg-blue-50 border-[1.6px] border-[#0ea5e9] rounded px-1 text-[13px] xl:text-[14px] font-black text-center shadow-inner text-blue-900 cursor-pointer">
                                 <option value="" disabled selected hidden>선택</option>
                                 <option value="3">3%</option>
@@ -20624,7 +20624,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     <div id="wrap-in3" class="flex flex-col justify-end h-[38px] relative">
                         <label id="lbl-in3" class="text-[11px] font-extrabold text-gray-800 leading-tight mb-0.5 text-center tracking-tighter w-full break-keep">입력3</label>
-                        <div class="flex items-center w-full flex-grow bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                        <div class="flex items-center w-full h-[22px] shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
                             <input id="input-2-3" type="number" class="w-full h-full bg-transparent text-[14px] font-black text-right focus:outline-none flex-grow" />
                             <span id="unit-in3" class="text-[12px] xl:text-[13px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">m</span>
                         </div>
@@ -20632,7 +20632,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     <div id="wrap-in4" class="flex flex-col justify-end h-[38px] relative">
                         <label id="lbl-in4" class="text-[11px] font-extrabold text-gray-800 leading-tight mb-0.5 text-center tracking-tighter w-full break-keep">입력4</label>
-                        <div class="flex items-center w-full flex-grow bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                        <div class="flex items-center w-full h-[22px] shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
                             <input id="input-2-4" type="number" class="w-full h-full bg-transparent text-[14px] font-black text-right focus:outline-none flex-grow" />
                             <span id="unit-in4" class="text-[12px] xl:text-[13px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">rpm</span>
                         </div>
@@ -20640,7 +20640,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     <div id="wrap-in5" class="flex flex-col justify-end h-[38px] relative">
                         <label id="lbl-in5" class="text-[11px] font-extrabold text-gray-800 leading-tight mb-0.5 text-center tracking-tighter w-full break-keep min-h-[14px]">입력5</label>
-                        <div class="relative flex items-center w-full flex-grow">
+                        <div class="relative flex items-center w-full h-[22px] shrink-0">
                             <div id="div-input-5" class="flex items-center w-full h-full bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500 relative">
                                 <input id="input-2-5" type="number" class="w-full h-full bg-transparent text-[14px] font-black text-right focus:outline-none flex-grow" />
                                 <span id="unit-in5" class="text-[12px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">개</span>
@@ -20727,7 +20727,7 @@ document.addEventListener('DOMContentLoaded', () => {
             '흡수식': { labels: ['입열량(Q)', '', '', '', ''], units: ['kcal/h', '', '', '', ''], show: [true, false, false, false, false], hideGas: true, cols: [6, 0, 0, 0, 0], formula: 'Q / 6640' },
             '왕복동': { labels: ['', '기통안지름(D)', '기통길이(L)', '회전수(n)', '압축기수량(N)'], units: ['', 'm', 'm', 'rpm', '개'], show: [false, true, true, true, true], hideGas: false, cols: [0, 3, 3, 3, 3], formula: '0.785×D<sup>2</sup>×L×N×n×60' },
             '스크류': { labels: ['기어형상', '지름대비 기어높이', '로우터지름(D)', '유효길이(L)', '회전수(n)'], units: ['', '', 'm', 'm', 'rpm'], show: [true, true, true, true, true], hideGas: false, isScrewSelect: true, cols: [2, 2, 2, 2, 2], formula: 'K×D<sup>3</sup>×(L/D)×n×60' },
-            '다단': { labels: ['1단 흡입량 : 전단압출량(VL)', '최종 토출량 : 최종단압출량(VH)', '', '', ''], units: ['m³/h', 'm³/h', '', '', ''], show: [true, true, false, false, false], hideGas: false, cols: [3, 3, 0, 0, 0], formula: 'VH+0.08VL' },
+            '다단': { labels: ['<span style="font-size: 1.2em;">1단 흡입량</span> : 전단압출량(VL)', '<span style="font-size: 1.2em;">최종 토출량</span> : 최종단압출량(VH)', '', '', ''], units: ['m³/h', 'm³/h', '', '', ''], show: [true, true, false, false, false], hideGas: false, cols: [3, 3, 0, 0, 0], formula: 'VH+0.08VL' },
             '회전피스톤': { labels: ['압축부두께(t)', '기통안지름(D)', '피스톤외경(d)', '회전수(n)', ''], units: ['m', 'm', 'm', 'rpm', ''], show: [true, true, true, true, true], hideGas: false, isRotaryButton: true, cols: [2, 2, 2, 2, 2], formula: '60×0.785tn(D<sup>2</sup>-d<sup>2</sup>)' },
             '기타': { labels: ['피스톤압출량(V)', '', '', '', ''], units: ['m³/h', '', '', '', ''], show: [true, false, false, false, false], hideGas: false, cols: [6, 0, 0, 0, 0], formula: 'V' },
             '기본': { labels: ['-', '-', '-', '-', '-'], units: ['', '', '', '', ''], show: [false, false, false, false, false], hideGas: false, cols: [0, 0, 0, 0, 0], formula: '' }
@@ -20787,12 +20787,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // =====================================================================
-        // 타일 생성 및 초기화
+        // 타일 생성 및 초기화 (최적화 적용)
         // =====================================================================
         function initApp() {
             const gridContainer = document.getElementById('grid-container');
-            const template1 = document.getElementById('calculator-template').innerHTML;
-            const template2 = document.getElementById('calculator-template-2').innerHTML;
+            const template1 = document.getElementById('calculator-template');
+            const template2 = document.getElementById('calculator-template-2');
+            
+            // DocumentFragment를 사용하여 리플로우 최소화 (렌더링 속도 개선)
+            const fragment = document.createDocumentFragment();
 
             for (let i = 1; i <= 8; i++) {
                 let borderClasses = "border-dashed border-[#cbd5e1] py-4 px-1.5 lg:py-5 lg:px-2 flex justify-center w-full ";
@@ -20807,15 +20810,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const wrapper = document.createElement('div');
                 wrapper.className = borderClasses;
                 
+                // template 태그의 cloneNode를 사용하여 문자열 파싱 부하 감소
                 if (i === 1) {
-                    wrapper.innerHTML = template1;
+                    wrapper.appendChild(template1.content.cloneNode(true));
                 } else if (i === 2) {
-                    wrapper.innerHTML = template2;
+                    wrapper.appendChild(template2.content.cloneNode(true));
                 } else {
                     wrapper.innerHTML = `<div class="relative flex flex-col h-[400px] w-full bg-white border-2 border-gray-300 rounded-2xl shadow-[8px_8px_8px_rgba(0,0,0,0.18)] px-2 pt-4 pb-1.5 mt-3 opacity-70 grayscale"><div class="absolute -top-[21px] left-1/2 -translate-x-1/2 w-[90%] max-w-[280px] h-9 bg-gray-300 border-[2px] border-dashed border-black rounded-full flex items-center justify-center z-20 shadow-sm"><span class="text-black font-extrabold text-[21px] xl:text-[23.5px] leading-none whitespace-nowrap tracking-tight">${i}번 계산기</span></div><div class="flex-grow dot-grid-bg border-[1.6px] border-gray-500 rounded-xl flex items-center justify-center mt-1 z-10"><span class="text-gray-500 font-bold text-2xl bg-white px-3 py-1 rounded">준비 중</span></div><div class="h-[32%] mt-1 flex flex-col gap-1"><div class="flex-[2] bg-gray-300 rounded-lg"></div><div class="flex-[3] bg-gray-600 rounded-lg"></div></div></div>`;
                 }
-                gridContainer.appendChild(wrapper);
+                fragment.appendChild(wrapper);
             }
+            
+            // 한 번에 DOM에 추가
+            gridContainer.appendChild(fragment);
 
             initCustomDropdown();
             initCustomDropdown2();
@@ -20979,7 +20986,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (state.type === '압축') {
                 if(lblVol) lblVol.innerHTML = '내용적(V<sub>1</sub>)';
-                if(lblPress) lblPress.textContent = '최고충전압(P)';
+                if(lblPress) lblPress.textContent = '최고충전압력(P)';
                 if(elFormula1) elFormula1.innerHTML = 'Q=(10P+1)V<sub>1</sub>';
             } else if (state.type === '액화_상온') {
                 if(lblVol) lblVol.innerHTML = '내용적(V<sub>2</sub>)';
@@ -21008,8 +21015,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.type === '압축') {
                 calcUnit = 'm³';
                 let v1 = state.storage === '용기' ? volNum / 1000 : volNum;
+                // 기존의 불필요한 MPa 변환계수(0.101325) 제거
                 if (!isNaN(v1) && !isNaN(pressNum)) {
-                    calcResult = (10 * (pressNum * 0.101325) + 1) * v1;
+                    calcResult = (10 * pressNum + 1) * v1;
                 }
             } else if (state.type === '액화_상온') {
                 calcUnit = 'kg';
@@ -21166,7 +21174,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function updateUI2() {
-            // [수정] 2번 타일 냉매 선택 트리거 텍스트를 실시간으로 선택 가스 이름(state2.gasName)으로 업데이트하여 치명적 UI 비동기화 오류 완벽 해결
             const customSelectText2 = document.getElementById('custom-select-text-2');
             if (customSelectText2) {
                 customSelectText2.textContent = state2.gasName;
@@ -21204,7 +21211,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     wrap.style.gridColumn = `span ${conf.cols[i-1]} / span ${conf.cols[i-1]}`;
                     
                     lbl.classList.remove('invisible');
-                    lbl.textContent = conf.labels[i-1];
+                    lbl.innerHTML = conf.labels[i-1];
 
                     if (conf.isRotaryButton && i === 5) {
                         lbl.classList.add('invisible');
