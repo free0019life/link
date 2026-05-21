@@ -20535,7 +20535,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <template id="calculator-template-2">
         <div class="relative flex flex-col h-[400px] w-full bg-white border-2 border-gray-300 rounded-2xl shadow-[8px_8px_8px_rgba(0,0,0,0.18)] px-2 pt-4 pb-1.5 mt-3">
             
-            <div class="absolute -top-[21px] left-1/2 -translate-x-1/2 w-[90%] max-w-[280px] h-9 bg-[#d1ffeb] border-[2px] border-dashed border-black rounded-full flex items-center justify-center z-20 shadow-sm">
+            <div class="absolute -top-[21px] left-1/2 -translate-x-1/2 w-[90%] max-w-[280px] h-9 bg-[#d1e8ff] border-[2px] border-dashed border-black rounded-full flex items-center justify-center z-20 shadow-sm">
                 <span class="text-black font-extrabold text-[21px] xl:text-[23.5px] leading-none whitespace-nowrap tracking-tighter">냉동능력 산출</span>
             </div>
 
@@ -20653,10 +20653,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <!-- 2단 분리된 결과 필드: 전체 높이를 h-[32%]로 크게 확장하여 하단 여백 소거, 상/하 비율 2:3 적용 -->
             <div class="h-[32%] mt-1 flex flex-col gap-1">
-                <!-- 상단 박스 (산출공식 표기) -->
-                <div class="flex-[2] bg-gray-300 rounded-lg px-3 flex items-center justify-between shadow-inner border border-gray-400">
-                    <span class="text-gray-700 text-[13px] font-extrabold tracking-tighter">산출공식</span>
-                    <span id="calc2-formula" class="text-blue-900 text-[19px] xl:text-[21px] font-black italic tracking-widest text-right"></span>
+                <!-- 상단 박스 (산출공식 표기) - 기존의 큼직한 폰트(19px/21px)와 넓은 자간으로 롤백, 라벨 방어속성(overflow-hidden 등)은 꼼꼼히 유지 -->
+                <div class="flex-[2] bg-gray-300 rounded-lg px-3 flex items-center justify-between shadow-inner border border-gray-400 overflow-hidden">
+                    <span class="text-gray-700 text-[13px] font-extrabold tracking-tighter shrink-0 whitespace-nowrap">산출공식</span>
+                    <span id="calc2-formula" class="text-blue-900 text-[19px] xl:text-[21px] font-black italic tracking-widest text-right w-full ml-2"></span>
                 </div>
                 
                 <!-- 하단 박스 (압출량과 냉동능력을 1:3으로 분할) -->
@@ -20674,6 +20674,122 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="w-full flex items-baseline justify-end pt-3 pr-1">
                             <span id="calc2-r" class="text-orange-500 text-[32px] xl:text-[40px] font-black tracking-tighter leading-none">0.00</span>
                             <span class="text-white text-base xl:text-lg font-bold leading-none ml-1.5">RT</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- [3번 타일] 용기 보관수량 산출 템플릿 신규 추가 -->
+    <template id="calculator-template-3">
+        <div class="relative flex flex-col h-[400px] w-full bg-white border-2 border-gray-300 rounded-2xl shadow-[8px_8px_8px_rgba(0,0,0,0.18)] px-2 pt-4 pb-1.5 mt-3">
+            
+            <div class="absolute -top-[21px] left-1/2 -translate-x-1/2 w-[90%] max-w-[280px] h-9 bg-[#d1e8ff] border-[2px] border-dashed border-black rounded-full flex items-center justify-center z-20 shadow-sm">
+                <span class="text-black font-extrabold text-[21px] xl:text-[23.5px] leading-none whitespace-nowrap tracking-tighter">용기 보관수량 산출</span>
+            </div>
+
+            <div class="flex-grow dot-grid-bg border-[1.6px] border-gray-500 rounded-xl p-2 z-10 flex flex-col gap-1 relative mt-1">
+                <button id="btn-reset-3" class="absolute top-1 right-1.5 px-2 py-0.5 bg-yellow-300 hover:bg-yellow-400 border-[1.5px] border-black rounded text-[10px] font-extrabold text-gray-900 shadow-md active-tremble transition-colors z-30 cursor-pointer">
+                    초기화
+                </button>
+
+                <!-- 1열: 보관실 크기 (가로, 세로) -->
+                <div class="flex items-end gap-1.5 w-full mt-4 h-[48px]">
+                    <div class="flex flex-col justify-end pb-0.5 shrink-0">
+                        <span class="text-[13.5px] xl:text-[14.5px] font-extrabold text-gray-800 leading-tight tracking-tighter break-keep pr-1">용기보관실<br>규격 입력</span>
+                    </div>
+                    <div class="flex-1 flex gap-1.5 h-full">
+                        <div class="flex-1 flex flex-col justify-end h-full">
+                            <label class="text-[12px] xl:text-[13px] font-bold text-gray-700 leading-tight mb-1 text-center tracking-tighter w-full break-keep">가로(m)</label>
+                            <div class="flex items-center w-full h-8 shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                                <input id="input-3-w" type="number" placeholder="0" class="w-full h-full bg-transparent text-[15px] font-black text-right focus:outline-none flex-grow" />
+                                <span class="text-[14px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">m</span>
+                            </div>
+                        </div>
+                        <div class="flex-1 flex flex-col justify-end h-full">
+                            <label class="text-[12px] xl:text-[13px] font-bold text-gray-700 leading-tight mb-1 text-center tracking-tighter w-full break-keep">세로(m)</label>
+                            <div class="flex items-center w-full h-8 shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                                <input id="input-3-l" type="number" placeholder="0" class="w-full h-full bg-transparent text-[15px] font-black text-right focus:outline-none flex-grow" />
+                                <span class="text-[14px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">m</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2열: 용기 선택 - [수정1] mt-3을 mt-1.5로 줄여 첫 번째 붉은선 여백 최소화 -->
+                <div class="flex flex-col w-full mt-1.5">
+                    <span class="text-[14px] font-extrabold text-gray-800 leading-none mb-1 ml-0.5 tracking-tighter">보관 용기 선택</span>
+                    <div class="flex gap-1 w-full h-9">
+                        <button id="btn-3-comp" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">압축가스</button>
+                        <button id="btn-3-liq" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">액화가스</button>
+                        <button id="btn-3-other" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">기타용기</button>
+                    </div>
+                </div>
+
+                <!-- 2.5열: 직경 입력 (기타용기 선택 시 표시) - [수정] mt-1.5를 mt-1로 줄임 -->
+                <div id="row-3-diameter" class="flex w-full mt-1 animate-fade-in-down hidden">
+                    <div class="flex items-center justify-end w-full gap-2 h-8">
+                        <label class="text-[13.5px] xl:text-[14px] font-extrabold text-blue-700 tracking-tighter whitespace-nowrap pt-0.5">기타 용기 직경</label>
+                        <div class="flex items-center w-[38%] h-full shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                            <input id="input-3-d" type="number" placeholder="0" class="w-full h-full bg-transparent text-[15px] font-black text-right focus:outline-none flex-grow" />
+                            <span class="text-[14px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">cm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2단 분리된 결과 필드 - [수정2] h-[46%]를 h-[45%]로 줄이고, mt-2를 mt-1로 줄여 두 번째 붉은선 여백 최소화 / gap-1.5를 gap-1로 줄여 세 번째 붉은선 최소화 -->
+            <div class="h-[45%] mt-1 mb-1 flex flex-col gap-1">
+                <!-- 상단 박스 (산출공식 표기) -->
+                <div class="flex-[2.5] bg-gray-300 rounded-lg px-3 flex items-center justify-between shadow-inner border border-gray-400 overflow-hidden min-h-[48px]">
+                    <div class="flex flex-col shrink-0 items-start justify-center pt-0.5">
+                        <span class="text-gray-700 text-[14px] xl:text-[15.5px] font-extrabold tracking-tighter whitespace-nowrap leading-none">산출공식</span>
+                        <span class="text-gray-600 text-[10px] xl:text-[11px] font-bold tracking-tighter whitespace-nowrap mt-1.5 leading-none">(소수점 아래 버림)</span>
+                    </div>
+                    <span class="text-blue-900 text-[18px] xl:text-[20px] font-black tracking-tighter text-right w-full ml-2">실효면적 ÷ 용기1개당 면적</span>
+                </div>
+                
+                <!-- 하단 박스 (3열 정보와 최종 결과 출력 분할) -->
+                <!-- [수정3] 내부 패딩 p-2를 px-2 py-1로 축소하여 네 번째 붉은선(하단 테두리 밀림)을 원천 차단 -->
+                <div class="flex-[6] bg-gray-800 border-[3px] border-[#39ff14] rounded-lg px-2 py-1 flex relative shadow-inner items-stretch gap-1">
+                    
+                    <!-- 3열 정보 출력 영역 (좌측) -->
+                    <div class="flex-[6] flex flex-col justify-between h-full border-r border-gray-600 pr-2 py-0.5">
+                        <div class="flex justify-between items-baseline pt-0.5">
+                            <span class="text-gray-400 text-[13.5px] xl:text-[14.5px] font-bold tracking-tighter shrink-0">용기보관실 전체면적</span>
+                            <div class="text-right truncate pl-1">
+                                <span id="calc3-ta" class="text-white text-[17px] xl:text-[19px] font-black">0.00</span>
+                                <span class="text-gray-400 text-[12px] ml-0.5">m²</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-baseline mt-1">
+                            <span class="text-gray-400 text-[13.5px] xl:text-[14.5px] font-bold tracking-tighter shrink-0">작업공간 등(70%)</span>
+                            <div class="text-right truncate pl-1">
+                                <span id="calc3-wa" class="text-gray-300 text-[17px] xl:text-[19px] font-black">0.00</span>
+                                <span class="text-gray-400 text-[12px] ml-0.5">m²</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-baseline pt-1.5 mt-auto border-t border-gray-600">
+                            <span class="text-gray-400 text-[13.5px] xl:text-[13.5px] font-bold tracking-tighter shrink-0">가스종류</span>
+                            <span id="calc3-type" class="text-white text-[13px] xl:text-[13.5px] font-bold tracking-tighter truncate text-right pl-1">-</span>
+                        </div>
+                    </div>
+
+                    <!-- 용기보관수량 및 실효면적 결과 출력 영역 (우측) -->
+                    <div class="flex-[4] flex flex-col justify-between h-full pl-1 py-0.5">
+                        <div class="flex flex-col w-full pt-0.5">
+                            <span class="text-white text-[14px] xl:text-[15px] font-bold leading-none tracking-tighter text-left">용기보관수량</span>
+                            <div class="w-full flex items-baseline justify-end pr-1 -mt-1.5">
+                                <span id="calc3-q" class="text-orange-500 text-[38px] xl:text-[45px] font-black tracking-tighter leading-none">0</span>
+                                <span class="text-white text-base xl:text-lg font-bold leading-none ml-1">개</span>
+                            </div>
+                        </div>
+                        
+                        <div class="w-full flex justify-end items-baseline pt-1.5 mt-auto border-t border-gray-600 pr-1">
+                            <span class="text-gray-400 text-[12.5px] xl:text-[13.5px] font-bold tracking-tighter mr-1">실효면적(30%)</span>
+                            <span id="calc3-sa" class="text-[#a8ff3e] text-[15px] xl:text-[17px] font-black leading-none">0.00</span>
+                            <span class="text-gray-400 text-[11px] ml-0.5 leading-none">m²</span>
                         </div>
                     </div>
                 </div>
@@ -20725,10 +20841,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const COMP2_CONFIG = {
             '원심식': { labels: ['정격출력(P)', '', '', '', ''], units: ['kW', '', '', '', ''], show: [true, false, false, false, false], hideGas: true, cols: [6, 0, 0, 0, 0], formula: 'P / 1.2' },
             '흡수식': { labels: ['입열량(Q)', '', '', '', ''], units: ['kcal/h', '', '', '', ''], show: [true, false, false, false, false], hideGas: true, cols: [6, 0, 0, 0, 0], formula: 'Q / 6640' },
-            '왕복동': { labels: ['', '기통안지름(D)', '기통길이(L)', '회전수(n)', '압축기수량(N)'], units: ['', 'm', 'm', 'rpm', '개'], show: [false, true, true, true, true], hideGas: false, cols: [0, 3, 3, 3, 3], formula: '0.785×D<sup>2</sup>×L×N×n×60' },
+            '왕복동': { labels: ['', '기통안지름(D)', '기통길이(L)', '회전수(n)', '압축기수량(N)'], units: ['', 'm', 'm', 'rpm', '개'], show: [false, true, true, true, true], hideGas: false, cols: [0, 3, 3, 3, 3], formula: '<span style="font-size: 0.75em; letter-spacing: -0.02em;">0.785×D<sup>2</sup>×L×N×n×60</span>' },
             '스크류': { labels: ['기어형상', '지름대비 기어높이', '로우터지름(D)', '유효길이(L)', '회전수(n)'], units: ['', '', 'm', 'm', 'rpm'], show: [true, true, true, true, true], hideGas: false, isScrewSelect: true, cols: [2, 2, 2, 2, 2], formula: 'K×D<sup>3</sup>×(L/D)×n×60' },
             '다단': { labels: ['<span style="font-size: 1.2em;">1단 흡입량</span> : 전단압출량(VL)', '<span style="font-size: 1.2em;">최종 토출량</span> : 최종단압출량(VH)', '', '', ''], units: ['m³/h', 'm³/h', '', '', ''], show: [true, true, false, false, false], hideGas: false, cols: [3, 3, 0, 0, 0], formula: 'VH+0.08VL' },
-            '회전피스톤': { labels: ['압축부두께(t)', '기통안지름(D)', '피스톤외경(d)', '회전수(n)', ''], units: ['m', 'm', 'm', 'rpm', ''], show: [true, true, true, true, true], hideGas: false, isRotaryButton: true, cols: [2, 2, 2, 2, 2], formula: '60×0.785tn(D<sup>2</sup>-d<sup>2</sup>)' },
+            '회전피스톤': { labels: ['압축부두께(t)', '기통안지름(D)', '피스톤외경(d)', '회전수(n)', ''], units: ['m', 'm', 'm', 'rpm', ''], show: [true, true, true, true, true], hideGas: false, isRotaryButton: true, cols: [2, 2, 2, 2, 2], formula: '<span style="font-size: 0.75em; letter-spacing: -0.02em;">60×0.785tn(D<sup>2</sup>-d<sup>2</sup>)</span>' },
             '기타': { labels: ['피스톤압출량(V)', '', '', '', ''], units: ['m³/h', '', '', '', ''], show: [true, false, false, false, false], hideGas: false, cols: [6, 0, 0, 0, 0], formula: 'V' },
             '기본': { labels: ['-', '-', '-', '-', '-'], units: ['', '', '', '', ''], show: [false, false, false, false, false], hideGas: false, cols: [0, 0, 0, 0, 0], formula: '' }
         };
@@ -20756,6 +20872,14 @@ document.addEventListener('DOMContentLoaded', () => {
             in3: '',
             in4: '',
             in5: ''
+        };
+
+        // [3번 타일 전용 상태 객체]
+        let state3 = {
+            width: '',
+            length: '',
+            cylType: null, // 'comp', 'liq', 'other'
+            diameter: ''
         };
 
         const activeClasses = ['bg-[#0284c7]', 'border-[#0369a1]', 'text-white', 'shadow-inner', 'opacity-100'];
@@ -20787,15 +20911,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // =====================================================================
-        // 타일 생성 및 초기화 (최적화 적용)
+        // 타일 생성 및 초기화
         // =====================================================================
         function initApp() {
             const gridContainer = document.getElementById('grid-container');
-            const template1 = document.getElementById('calculator-template');
-            const template2 = document.getElementById('calculator-template-2');
-            
-            // DocumentFragment를 사용하여 리플로우 최소화 (렌더링 속도 개선)
-            const fragment = document.createDocumentFragment();
+            const template1 = document.getElementById('calculator-template').innerHTML;
+            const template2 = document.getElementById('calculator-template-2').innerHTML;
+            const template3 = document.getElementById('calculator-template-3').innerHTML;
 
             for (let i = 1; i <= 8; i++) {
                 let borderClasses = "border-dashed border-[#cbd5e1] py-4 px-1.5 lg:py-5 lg:px-2 flex justify-center w-full ";
@@ -20810,24 +20932,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const wrapper = document.createElement('div');
                 wrapper.className = borderClasses;
                 
-                // template 태그의 cloneNode를 사용하여 문자열 파싱 부하 감소
                 if (i === 1) {
-                    wrapper.appendChild(template1.content.cloneNode(true));
+                    wrapper.innerHTML = template1;
                 } else if (i === 2) {
-                    wrapper.appendChild(template2.content.cloneNode(true));
+                    wrapper.innerHTML = template2;
+                } else if (i === 3) {
+                    wrapper.innerHTML = template3;
                 } else {
                     wrapper.innerHTML = `<div class="relative flex flex-col h-[400px] w-full bg-white border-2 border-gray-300 rounded-2xl shadow-[8px_8px_8px_rgba(0,0,0,0.18)] px-2 pt-4 pb-1.5 mt-3 opacity-70 grayscale"><div class="absolute -top-[21px] left-1/2 -translate-x-1/2 w-[90%] max-w-[280px] h-9 bg-gray-300 border-[2px] border-dashed border-black rounded-full flex items-center justify-center z-20 shadow-sm"><span class="text-black font-extrabold text-[21px] xl:text-[23.5px] leading-none whitespace-nowrap tracking-tight">${i}번 계산기</span></div><div class="flex-grow dot-grid-bg border-[1.6px] border-gray-500 rounded-xl flex items-center justify-center mt-1 z-10"><span class="text-gray-500 font-bold text-2xl bg-white px-3 py-1 rounded">준비 중</span></div><div class="h-[32%] mt-1 flex flex-col gap-1"><div class="flex-[2] bg-gray-300 rounded-lg"></div><div class="flex-[3] bg-gray-600 rounded-lg"></div></div></div>`;
                 }
-                fragment.appendChild(wrapper);
+                gridContainer.appendChild(wrapper);
             }
-            
-            // 한 번에 DOM에 추가
-            gridContainer.appendChild(fragment);
 
             initCustomDropdown();
             initCustomDropdown2();
+            
             bindEvents();
             bindEvents2();
+            bindEvents3();
         }
 
         // =====================================================================
@@ -20986,7 +21108,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (state.type === '압축') {
                 if(lblVol) lblVol.innerHTML = '내용적(V<sub>1</sub>)';
-                if(lblPress) lblPress.textContent = '최고충전압력(P)';
+                if(lblPress) lblPress.textContent = '최고충전압(P)';
                 if(elFormula1) elFormula1.innerHTML = 'Q=(10P+1)V<sub>1</sub>';
             } else if (state.type === '액화_상온') {
                 if(lblVol) lblVol.innerHTML = '내용적(V<sub>2</sub>)';
@@ -21015,9 +21137,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.type === '압축') {
                 calcUnit = 'm³';
                 let v1 = state.storage === '용기' ? volNum / 1000 : volNum;
-                // 기존의 불필요한 MPa 변환계수(0.101325) 제거
                 if (!isNaN(v1) && !isNaN(pressNum)) {
-                    calcResult = (10 * pressNum + 1) * v1;
+                    calcResult = (10 * (pressNum * 0.101325) + 1) * v1;
                 }
             } else if (state.type === '액화_상온') {
                 calcUnit = 'kg';
@@ -21310,6 +21431,82 @@ document.addEventListener('DOMContentLoaded', () => {
                 elC.textContent = C > 0 ? C.toFixed(1) : '0.0';
             }
             document.getElementById('calc2-r').textContent = R > 0 ? R.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '0.00';
+        }
+
+        // =====================================================================
+        // 3번 타일 기능 로직 신규 추가 (용기 보관수량 산출)
+        // =====================================================================
+        function bindEvents3() {
+            document.getElementById('btn-reset-3').addEventListener('click', () => {
+                state3 = { width: '', length: '', cylType: null, diameter: '' };
+                document.getElementById('input-3-w').value = '';
+                document.getElementById('input-3-l').value = '';
+                document.getElementById('input-3-d').value = '';
+                updateUI3();
+            });
+
+            document.getElementById('input-3-w').addEventListener('input', (e) => { state3.width = e.target.value; updateUI3(); });
+            document.getElementById('input-3-l').addEventListener('input', (e) => { state3.length = e.target.value; updateUI3(); });
+            document.getElementById('input-3-d').addEventListener('input', (e) => { state3.diameter = e.target.value; updateUI3(); });
+
+            document.getElementById('btn-3-comp').addEventListener('click', () => { state3.cylType = 'comp'; updateUI3(); });
+            document.getElementById('btn-3-liq').addEventListener('click', () => { state3.cylType = 'liq'; updateUI3(); });
+            document.getElementById('btn-3-other').addEventListener('click', () => { state3.cylType = 'other'; updateUI3(); });
+
+            updateUI3();
+        }
+
+        function updateUI3() {
+            const hasCylType = state3.cylType !== null;
+            styleButton('btn-3-comp', state3.cylType === 'comp', hasCylType);
+            styleButton('btn-3-liq', state3.cylType === 'liq', hasCylType);
+            styleButton('btn-3-other', state3.cylType === 'other', hasCylType);
+
+            const rowDiameter = document.getElementById('row-3-diameter');
+            if (state3.cylType === 'other') {
+                rowDiameter.classList.remove('hidden');
+            } else {
+                rowDiameter.classList.add('hidden');
+            }
+
+            calculateResult3();
+        }
+
+        function calculateResult3() {
+            const w = parseFloat(state3.width) || 0;
+            const l = parseFloat(state3.length) || 0;
+            
+            const roomArea = w * l;
+            const storageArea = roomArea * 0.3; // 보관면적 30%
+            const workArea = roomArea * 0.7;    // 작업공간 등 70%
+            
+            let cylArea = 0;
+            let cylText = '-';
+
+            if (state3.cylType === 'comp') {
+                cylArea = 0.3 * 0.3; // 0.09 m²
+                cylText = '압축(30cm×30cm)';
+            } else if (state3.cylType === 'liq') {
+                cylArea = 0.55 * 0.55; // 0.3025 m²
+                cylText = '액화(55cm×55cm)';
+            } else if (state3.cylType === 'other') {
+                const d = parseFloat(state3.diameter) || 0;
+                cylArea = (d / 100) * (d / 100); // cm를 m로 변환 후 면적 산출
+                cylText = d > 0 ? `기타(${d}cm×${d}cm)` : '-';
+            }
+
+            // 고시 및 규정에 따라 잔여 공간에 용기를 초과 보관할 수 없으므로 무조건 내림(Math.floor) 처리 적용
+            let qty = 0;
+            if (storageArea > 0 && cylArea > 0) {
+                qty = Math.floor(storageArea / cylArea); 
+            }
+
+            // UI 텍스트 출력 적용 (전체면적 항목 추가 및 보관면적 위치 이동 대응)
+            document.getElementById('calc3-ta').textContent = roomArea > 0 ? roomArea.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '0.00';
+            document.getElementById('calc3-sa').textContent = storageArea > 0 ? storageArea.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '0.00';
+            document.getElementById('calc3-wa').textContent = workArea > 0 ? workArea.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '0.00';
+            document.getElementById('calc3-type').textContent = cylText;
+            document.getElementById('calc3-q').textContent = qty > 0 ? qty.toLocaleString() : '0';
         }
 
         // =====================================================================
