@@ -20481,10 +20481,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
 
-                <!-- 4열: 값 입력창 (글자 잘림 방지 개선) -->
+                <!-- 4열: 값 입력창 -->
                 <div id="row-inputs" class="grid grid-cols-3 gap-1 lg:gap-1.5 w-full mt-auto mb-1 h-[56px] animate-fade-in-down hidden">
                     <div class="flex flex-col justify-end h-full">
-                        <!-- truncate 속성 제거 및 break-keep 추가로 글자 잘림 방지 -->
                         <label id="lbl-vol" class="text-[14px] xl:text-[15.5px] font-bold text-gray-700 leading-tight mb-1 text-center tracking-tighter w-full break-keep">내용적</label>
                         <div class="flex items-center w-full h-8 shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
                             <input id="input-vol" type="number" placeholder="0" class="w-full h-full bg-transparent text-[15px] font-black text-right focus:outline-none flex-grow" />
@@ -20492,7 +20491,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div id="col-pressure" class="flex flex-col hidden justify-end h-full">
-                        <!-- 폰트 크기 미세조정 및 break-keep 추가로 잘림 방지 -->
                         <label id="lbl-press" class="text-[12px] xl:text-[13px] font-bold text-gray-700 leading-tight mb-1 text-center tracking-tighter w-full break-keep">최고충전압력</label>
                         <div class="flex items-center w-full h-8 shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
                             <input id="input-press" type="number" placeholder="0" class="w-full h-full bg-transparent text-[15px] font-black text-right focus:outline-none flex-grow" />
@@ -20500,7 +20498,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <div id="col-sg" class="flex flex-col hidden justify-end h-full">
-                        <!-- 폰트 크기 미세조정 및 break-keep 추가로 '상용온도 비중(d)' 등 긴 글자 잘림 완벽 방지 -->
                         <label id="label-sg" title="비중" class="text-[13px] xl:text-[14px] font-extrabold text-blue-700 leading-tight mb-1 text-center tracking-tighter w-full break-keep">비중</label>
                         <div class="flex items-center w-full h-8 shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
                             <input id="input-sg" type="number" placeholder="0.0" class="w-full h-full bg-transparent text-[15px] font-black text-right focus:outline-none flex-grow" />
@@ -20561,7 +20558,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 <!-- 2열: 냉매, C값 및 기통체적 토글 -->
-                <div id="row-gas-2" class="flex gap-1 w-full mt-1 relative z-40 items-end transition-opacity duration-200">
+                <div id="row-gas-2" class="flex gap-1 w-full mt-1 relative z-40 items-end transition-opacity duration-200 hidden animate-fade-in-down">
                     <div id="custom-select-gas-2" class="relative w-[35%]">
                         <span class="text-[14.5px] font-extrabold text-gray-800 leading-none mb-0.5 ml-0.5 tracking-tighter block">냉매 종류</span>
                         <div id="custom-select-trigger-2" class="w-full border-[1.6px] border-gray-500 px-1 py-1 rounded text-[15px] font-black bg-white text-gray-900 leading-none h-7 shadow-inner flex items-center justify-between cursor-pointer select-none">
@@ -20580,7 +20577,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
 
                     <div class="flex flex-col w-[45%] h-full justify-end">
-                        <!-- truncate 속성을 제거하고 break-keep 추가. 데스크톱 폰트 미세 조정으로 한글 단어 잘림 방지 -->
                         <span id="lbl-vol-title" class="text-[14px] xl:text-[15px] font-extrabold text-blue-700 leading-tight mb-0.5 ml-0.5 tracking-tighter block text-center break-keep">기통 1개당 체적(cm³)</span>
                         <div class="flex w-full h-7">
                             <button id="btn-vol-under" class="flex-1 p-0 text-[15px] xl:text-[16px] font-black leading-none rounded-l border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">5000이하</button>
@@ -20589,10 +20585,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
 
-                <!-- 3열: 동적 입력창 (글자 잘림 방지 개선 적용) -->
-                <div class="grid grid-cols-6 gap-x-1 gap-y-1 w-full mt-auto mb-1">
+                <!-- 3열: 동적 입력창 -->
+                <div id="row-inputs-2" class="grid grid-cols-6 gap-x-1 gap-y-1 w-full mt-auto mb-1 animate-fade-in-down hidden">
                     <div id="wrap-in1" class="flex flex-col justify-end h-[38px] relative">
-                        <!-- 모든 동적 라벨의 truncate를 break-keep으로 변경하여 긴 단어 잘림 100% 방지 -->
                         <label id="lbl-in1" class="text-[11px] font-extrabold text-gray-800 leading-tight mb-0.5 text-center tracking-tighter w-full break-keep">입력1</label>
                         <div id="div-input-1" class="flex items-center w-full h-[22px] shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
                             <input id="input-2-1" type="number" class="w-full h-full bg-transparent text-[14px] font-black text-right focus:outline-none flex-grow" />
@@ -20651,9 +20646,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
 
-            <!-- 2단 분리된 결과 필드: 전체 높이를 h-[32%]로 크게 확장하여 하단 여백 소거, 상/하 비율 2:3 적용 -->
+            <!-- 2단 분리된 결과 필드 -->
             <div class="h-[32%] mt-1 flex flex-col gap-1">
-                <!-- 상단 박스 (산출공식 표기) - 기존의 큼직한 폰트(19px/21px)와 넓은 자간으로 롤백, 라벨 방어속성(overflow-hidden 등)은 꼼꼼히 유지 -->
+                <!-- 상단 박스 (산출공식 표기) -->
                 <div class="flex-[2] bg-gray-300 rounded-lg px-3 flex items-center justify-between shadow-inner border border-gray-400 overflow-hidden">
                     <span class="text-gray-700 text-[13px] font-extrabold tracking-tighter shrink-0 whitespace-nowrap">산출공식</span>
                     <span id="calc2-formula" class="text-blue-900 text-[19px] xl:text-[21px] font-black italic tracking-widest text-right w-full ml-2"></span>
@@ -20689,27 +20684,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="text-black font-extrabold text-[21px] xl:text-[23.5px] leading-none whitespace-nowrap tracking-tighter">용기 보관수량 산출</span>
             </div>
 
-            <div class="flex-grow dot-grid-bg border-[1.6px] border-gray-500 rounded-xl p-2 z-10 flex flex-col gap-1 relative mt-1">
-                <button id="btn-reset-3" class="absolute top-1 right-1.5 px-2 py-0.5 bg-yellow-300 hover:bg-yellow-400 border-[1.5px] border-black rounded text-[10px] font-extrabold text-gray-900 shadow-md active-tremble transition-colors z-30 cursor-pointer">
+            <!-- 상단 래퍼 패딩 축소 (p-2 -> p-1.5) 로 내부 공간 확보 -->
+            <div class="flex-grow dot-grid-bg border-[1.6px] border-gray-500 rounded-xl p-1.5 z-10 flex flex-col gap-1 relative mt-1">
+                <button id="btn-reset-3" class="absolute top-1 right-1.5 px-2 py-0.5 bg-yellow-300 hover:bg-yellow-400 border-[1.5px] border-black rounded text-[10px] font-extrabold text-gray-900 shadow-md active-tremble transition-colors z-30 cursor-pointer z-50">
                     초기화
                 </button>
 
                 <!-- 1열: 보관실 크기 (가로, 세로) -->
-                <div class="flex items-end gap-1.5 w-full mt-4 h-[48px]">
+                <div class="flex items-end gap-1.5 w-full mt-1.5 h-[42px]">
                     <div class="flex flex-col justify-end pb-0.5 shrink-0">
                         <span class="text-[13.5px] xl:text-[14.5px] font-extrabold text-gray-800 leading-tight tracking-tighter break-keep pr-1">용기보관실<br>규격 입력</span>
                     </div>
                     <div class="flex-1 flex gap-1.5 h-full">
-                        <div class="flex-1 flex flex-col justify-end h-full">
-                            <label class="text-[12px] xl:text-[13px] font-bold text-gray-700 leading-tight mb-1 text-center tracking-tighter w-full break-keep">가로(m)</label>
-                            <div class="flex items-center w-full h-8 shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                        <!-- [수정1] 라벨 삭제 및 가로 텍스트 내부 삽입 -->
+                        <div class="flex-1 flex flex-col justify-end h-full relative">
+                            <div class="flex items-center w-full h-[28px] shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                                <span class="text-[12.5px] font-extrabold text-gray-700 whitespace-nowrap mr-1 tracking-tighter">가로</span>
                                 <input id="input-3-w" type="number" placeholder="0" class="w-full h-full bg-transparent text-[15px] font-black text-right focus:outline-none flex-grow" />
                                 <span class="text-[14px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">m</span>
                             </div>
                         </div>
-                        <div class="flex-1 flex flex-col justify-end h-full">
-                            <label class="text-[12px] xl:text-[13px] font-bold text-gray-700 leading-tight mb-1 text-center tracking-tighter w-full break-keep">세로(m)</label>
-                            <div class="flex items-center w-full h-8 shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                        <!-- [수정1] 라벨 삭제 및 세로 텍스트 내부 삽입 -->
+                        <div class="flex-1 flex flex-col justify-end h-full relative">
+                            <div class="flex items-center w-full h-[28px] shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
+                                <span class="text-[12.5px] font-extrabold text-gray-700 whitespace-nowrap mr-1 tracking-tighter">세로</span>
                                 <input id="input-3-l" type="number" placeholder="0" class="w-full h-full bg-transparent text-[15px] font-black text-right focus:outline-none flex-grow" />
                                 <span class="text-[14px] font-bold text-gray-500 whitespace-nowrap ml-1.5 min-w-max text-right">m</span>
                             </div>
@@ -20717,8 +20715,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
 
-                <!-- 2열: 용기 선택 - [수정1] mt-3을 mt-1.5로 줄여 첫 번째 붉은선 여백 최소화 -->
-                <div class="flex flex-col w-full mt-1.5">
+                <!-- 2열: 용기 선택 -->
+                <div id="row-3-cyl-type" class="flex flex-col w-full mt-1 animate-fade-in-down hidden">
                     <span class="text-[14px] font-extrabold text-gray-800 leading-none mb-1 ml-0.5 tracking-tighter">보관 용기 선택</span>
                     <div class="flex gap-1 w-full h-9">
                         <button id="btn-3-comp" class="flex-1 px-0.5 py-1 text-[18.5px] xl:text-[20px] font-black leading-tight rounded-lg border-[1.5px] transition-all duration-200 flex items-center justify-center select-none cursor-pointer tracking-tighter active-tremble">압축가스</button>
@@ -20727,9 +20725,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
 
-                <!-- 2.5열: 직경 입력 (기타용기 선택 시 표시) - [수정] mt-1.5를 mt-1로 줄임 -->
-                <div id="row-3-diameter" class="flex w-full mt-1 animate-fade-in-down hidden">
-                    <div class="flex items-center justify-end w-full gap-2 h-8">
+                <!-- 2.5열: 직경 입력 (기타용기 선택 시 표시) -->
+                <div id="row-3-diameter" class="flex w-full mt-0.5 animate-fade-in-down hidden">
+                    <div class="flex items-center justify-end w-full gap-2 h-[28px]">
                         <label class="text-[13.5px] xl:text-[14px] font-extrabold text-blue-700 tracking-tighter whitespace-nowrap pt-0.5">기타 용기 직경</label>
                         <div class="flex items-center w-[38%] h-full shrink-0 bg-white border-[1.6px] border-gray-500 rounded px-1.5 shadow-inner focus-within:border-blue-500">
                             <input id="input-3-d" type="number" placeholder="0" class="w-full h-full bg-transparent text-[15px] font-black text-right focus:outline-none flex-grow" />
@@ -20737,59 +20735,64 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 </div>
+
+                <div id="row-3-note" class="flex flex-col gap-1 mt-2 pl-0.5 pr-1 w-full max-w-full overflow-hidden animate-fade-in-down hidden">
+                    <span class="block w-full text-[13px] xl:text-[14.5px] font-bold text-gray-500 leading-tight whitespace-normal break-keep">실효면적 = 용기보관실 전체면적 X 30%</span>
+                    <span class="block w-full text-[13px] xl:text-[14.5px] font-bold text-gray-500 leading-tight whitespace-normal break-keep">용기1개당 면적 = 압축(30CmX30Cm), 액화(55CmX55Cm)</span>
+                </div>
             </div>
 
-            <!-- 2단 분리된 결과 필드 - [수정2] h-[46%]를 h-[45%]로 줄이고, mt-2를 mt-1로 줄여 두 번째 붉은선 여백 최소화 / gap-1.5를 gap-1로 줄여 세 번째 붉은선 최소화 -->
-            <div class="h-[45%] mt-1 mb-1 flex flex-col gap-1">
-                <!-- 상단 박스 (산출공식 표기) -->
-                <div class="flex-[2.5] bg-gray-300 rounded-lg px-3 flex items-center justify-between shadow-inner border border-gray-400 overflow-hidden min-h-[48px]">
-                    <div class="flex flex-col shrink-0 items-start justify-center pt-0.5">
-                        <span class="text-gray-700 text-[14px] xl:text-[15.5px] font-extrabold tracking-tighter whitespace-nowrap leading-none">산출공식</span>
-                        <span class="text-gray-600 text-[10px] xl:text-[11px] font-bold tracking-tighter whitespace-nowrap mt-1.5 leading-none">(소수점 아래 버림)</span>
+            <!-- 2단 분리된 결과 필드 -->
+            <div class="h-[32%] mt-1 flex flex-col gap-1">
+                <!-- 상단 박스 (산출공식 표기) - [수정2] flex-col 삭제 및 산출공식을 1줄 텍스트로 통합 -->
+                <div class="flex-[2] bg-gray-300 rounded-lg px-2 flex items-center justify-between shadow-inner border border-gray-400 overflow-hidden">
+                    <div class="flex items-center shrink-0">
+                        <span class="text-gray-700 text-[13px] xl:text-[14.5px] font-extrabold tracking-tighter whitespace-nowrap leading-none">
+                            산출공식<span class="text-[10px] xl:text-[11px] font-bold text-gray-600 ml-0.5 tracking-tighter">(소수점 버림)</span>
+                        </span>
                     </div>
-                    <span class="text-blue-900 text-[18px] xl:text-[20px] font-black tracking-tighter text-right w-full ml-2">실효면적 ÷ 용기1개당 면적</span>
+                    <span class="text-blue-900 text-[16px] xl:text-[18px] font-black tracking-tighter text-right w-full ml-1 leading-tight">실효면적 ÷ 용기1개당 면적</span>
                 </div>
                 
                 <!-- 하단 박스 (3열 정보와 최종 결과 출력 분할) -->
-                <!-- [수정3] 내부 패딩 p-2를 px-2 py-1로 축소하여 네 번째 붉은선(하단 테두리 밀림)을 원천 차단 -->
-                <div class="flex-[6] bg-gray-800 border-[3px] border-[#39ff14] rounded-lg px-2 py-1 flex relative shadow-inner items-stretch gap-1">
+                <div class="flex-[3] bg-gray-800 border-[3px] border-[#39ff14] rounded-lg px-1.5 py-1 flex relative shadow-inner items-stretch gap-1">
                     
                     <!-- 3열 정보 출력 영역 (좌측) -->
-                    <div class="flex-[6] flex flex-col justify-between h-full border-r border-gray-600 pr-2 py-0.5">
-                        <div class="flex justify-between items-baseline pt-0.5">
-                            <span class="text-gray-400 text-[13.5px] xl:text-[14.5px] font-bold tracking-tighter shrink-0">용기보관실 전체면적</span>
+                    <div class="w-[57%] flex flex-col justify-between h-full border-r border-gray-600 pr-1 py-0.5">
+                        <div class="flex justify-between items-baseline">
+                            <span class="text-gray-400 text-[12px] xl:text-[13px] font-bold tracking-tighter shrink-0">전체면적</span>
                             <div class="text-right truncate pl-1">
-                                <span id="calc3-ta" class="text-white text-[17px] xl:text-[19px] font-black">0.00</span>
-                                <span class="text-gray-400 text-[12px] ml-0.5">m²</span>
+                                <span id="calc3-ta" class="text-white text-[15px] xl:text-[17px] font-black">0.00</span>
+                                <span class="text-gray-400 text-[11px] ml-0.5">m²</span>
                             </div>
                         </div>
-                        <div class="flex justify-between items-baseline mt-1">
-                            <span class="text-gray-400 text-[13.5px] xl:text-[14.5px] font-bold tracking-tighter shrink-0">작업공간 등(70%)</span>
+                        <div class="flex justify-between items-baseline mt-0.5">
+                            <span class="text-gray-400 text-[12px] xl:text-[13px] font-bold tracking-tighter shrink-0">작업공간 등</span>
                             <div class="text-right truncate pl-1">
-                                <span id="calc3-wa" class="text-gray-300 text-[17px] xl:text-[19px] font-black">0.00</span>
-                                <span class="text-gray-400 text-[12px] ml-0.5">m²</span>
+                                <span id="calc3-wa" class="text-gray-300 text-[15px] xl:text-[17px] font-black">0.00</span>
+                                <span class="text-gray-400 text-[11px] ml-0.5">m²</span>
                             </div>
                         </div>
-                        <div class="flex justify-between items-baseline pt-1.5 mt-auto border-t border-gray-600">
-                            <span class="text-gray-400 text-[13.5px] xl:text-[13.5px] font-bold tracking-tighter shrink-0">가스종류</span>
-                            <span id="calc3-type" class="text-white text-[13px] xl:text-[13.5px] font-bold tracking-tighter truncate text-right pl-1">-</span>
+                        <div class="flex justify-between items-baseline mt-auto border-t border-gray-600 pt-0.5">
+                            <span class="text-gray-400 text-[12px] xl:text-[13px] font-bold tracking-tighter shrink-0">가스종류</span>
+                            <span id="calc3-type" class="text-white text-[12px] xl:text-[12.5px] font-bold tracking-tighter truncate text-right pl-1">-</span>
                         </div>
                     </div>
 
                     <!-- 용기보관수량 및 실효면적 결과 출력 영역 (우측) -->
-                    <div class="flex-[4] flex flex-col justify-between h-full pl-1 py-0.5">
-                        <div class="flex flex-col w-full pt-0.5">
-                            <span class="text-white text-[14px] xl:text-[15px] font-bold leading-none tracking-tighter text-left">용기보관수량</span>
-                            <div class="w-full flex items-baseline justify-end pr-1 -mt-1.5">
-                                <span id="calc3-q" class="text-orange-500 text-[38px] xl:text-[45px] font-black tracking-tighter leading-none">0</span>
-                                <span class="text-white text-base xl:text-lg font-bold leading-none ml-1">개</span>
+                    <div class="w-[43%] flex flex-col justify-between h-full pl-1 py-0.5">
+                        <div class="flex flex-col w-full">
+                            <span class="text-white text-[13px] xl:text-[14px] font-bold leading-none tracking-tighter text-left">용기보관수량</span>
+                            <div class="w-full flex items-baseline justify-end pr-0.5 mt-0.5">
+                                <span id="calc3-q" class="text-orange-500 text-[32px] xl:text-[38px] font-black tracking-tighter leading-none">0</span>
+                                <span class="text-white text-sm xl:text-base font-bold leading-none ml-1">개</span>
                             </div>
                         </div>
                         
-                        <div class="w-full flex justify-end items-baseline pt-1.5 mt-auto border-t border-gray-600 pr-1">
-                            <span class="text-gray-400 text-[12.5px] xl:text-[13.5px] font-bold tracking-tighter mr-1">실효면적(30%)</span>
-                            <span id="calc3-sa" class="text-[#a8ff3e] text-[15px] xl:text-[17px] font-black leading-none">0.00</span>
-                            <span class="text-gray-400 text-[11px] ml-0.5 leading-none">m²</span>
+                        <div class="w-full flex justify-end items-baseline mt-auto border-t border-gray-600 pt-0.5 pr-0.5">
+                            <span class="text-gray-400 text-[11.5px] xl:text-[12.5px] font-bold tracking-tighter mr-1">실효면적(30%)</span>
+                            <span id="calc3-sa" class="text-[#a8ff3e] text-[14px] xl:text-[16px] font-black leading-none">0.0</span>
+                            <span class="text-gray-400 text-[10px] ml-0.5 leading-none">m²</span>
                         </div>
                     </div>
                 </div>
@@ -21311,58 +21314,66 @@ document.addEventListener('DOMContentLoaded', () => {
             styleButton('btn-vol-under', state2.volType === 'under', true);
             styleButton('btn-vol-over', state2.volType === 'over', true);
 
-            const conf = COMP2_CONFIG[state2.compType || '기본'];
             const rowGas2 = document.getElementById('row-gas-2');
-            
-            if (conf.hideGas) {
-                rowGas2.className = "flex gap-1 w-full mt-1 relative z-40 items-end transition-opacity duration-200 opacity-0 pointer-events-none";
+            const rowInputs2 = document.getElementById('row-inputs-2');
+
+            if (!state2.compType) {
+                rowGas2.className = "flex gap-1 w-full mt-1 relative z-40 items-end transition-opacity duration-200 hidden";
+                rowInputs2.classList.add('hidden');
             } else {
-                rowGas2.className = "flex gap-1 w-full mt-1 relative z-40 items-end transition-opacity duration-200 opacity-100";
-            }
-            
-            document.getElementById('lbl-vol-title').textContent = '기통 1개당 체적(cm³)';
-
-            for(let i=1; i<=5; i++) {
-                const wrap = document.getElementById(`wrap-in${i}`);
-                const lbl = document.getElementById(`lbl-in${i}`);
-                const unit = document.getElementById(`unit-in${i}`);
+                rowInputs2.classList.remove('hidden');
+                const conf = COMP2_CONFIG[state2.compType || '기본'];
                 
-                if (conf.show[i-1]) {
-                    wrap.style.display = 'flex';
-                    wrap.style.gridColumn = `span ${conf.cols[i-1]} / span ${conf.cols[i-1]}`;
-                    
-                    lbl.classList.remove('invisible');
-                    lbl.innerHTML = conf.labels[i-1];
-
-                    if (conf.isRotaryButton && i === 5) {
-                        lbl.classList.add('invisible');
-                    }
-                    
-                    if (unit) unit.textContent = conf.units[i-1];
+                if (conf.hideGas) {
+                    rowGas2.className = "flex gap-1 w-full mt-1 relative z-40 items-end transition-opacity duration-200 opacity-0 pointer-events-none animate-fade-in-down";
                 } else {
-                    wrap.style.display = 'none';
+                    rowGas2.className = "flex gap-1 w-full mt-1 relative z-40 items-end transition-opacity duration-200 opacity-100 animate-fade-in-down";
                 }
-            }
-
-            const dIn1 = document.getElementById('div-input-1'), dSel1 = document.getElementById('div-select-1');
-            const dIn2 = document.getElementById('div-input-2'), dSel2 = document.getElementById('div-select-2');
-            const dIn5 = document.getElementById('div-input-5'), dRot = document.getElementById('btn-open-rotary');
-
-            if (conf.isScrewSelect) {
-                dIn1.classList.add('hidden'); dSel1.classList.remove('hidden'); dSel1.classList.add('flex');
-                dIn2.classList.add('hidden'); dSel2.classList.remove('hidden'); dSel2.classList.add('flex');
                 
-                document.getElementById('select-2-1').value = state2.in1;
-                document.getElementById('select-2-2').value = state2.in2;
-            } else {
-                dIn1.classList.remove('hidden'); dSel1.classList.add('hidden'); dSel1.classList.remove('flex');
-                dIn2.classList.remove('hidden'); dSel2.classList.add('hidden'); dSel2.classList.remove('flex');
-            }
+                document.getElementById('lbl-vol-title').textContent = '기통 1개당 체적(cm³)';
 
-            if (conf.isRotaryButton) {
-                dIn5.classList.add('hidden'); dRot.classList.remove('hidden');
-            } else {
-                dIn5.classList.remove('hidden'); dRot.classList.add('hidden');
+                for(let i=1; i<=5; i++) {
+                    const wrap = document.getElementById(`wrap-in${i}`);
+                    const lbl = document.getElementById(`lbl-in${i}`);
+                    const unit = document.getElementById(`unit-in${i}`);
+                    
+                    if (conf.show[i-1]) {
+                        wrap.style.display = 'flex';
+                        wrap.style.gridColumn = `span ${conf.cols[i-1]} / span ${conf.cols[i-1]}`;
+                        
+                        lbl.classList.remove('invisible');
+                        lbl.innerHTML = conf.labels[i-1];
+
+                        if (conf.isRotaryButton && i === 5) {
+                            lbl.classList.add('invisible');
+                        }
+                        
+                        if (unit) unit.textContent = conf.units[i-1];
+                    } else {
+                        wrap.style.display = 'none';
+                    }
+                }
+
+                const dIn1 = document.getElementById('div-input-1'), dSel1 = document.getElementById('div-select-1');
+                const dIn2 = document.getElementById('div-input-2'), dSel2 = document.getElementById('div-select-2');
+                const dIn5 = document.getElementById('div-input-5'), dRot = document.getElementById('btn-open-rotary');
+
+                if (conf.isScrewSelect) {
+                    dIn1.classList.add('hidden'); dSel1.classList.remove('hidden'); dSel1.classList.add('flex');
+                    dIn2.classList.add('hidden'); dSel2.classList.remove('hidden'); dSel2.classList.add('flex');
+                    
+                    document.getElementById('select-2-1').value = state2.in1;
+                    document.getElementById('select-2-2').value = state2.in2;
+                } else {
+                    dIn1.classList.remove('hidden'); dSel1.classList.add('hidden'); dSel1.classList.remove('flex');
+                    dIn2.classList.remove('hidden'); dSel2.classList.add('hidden'); dSel2.classList.remove('flex');
+                }
+
+                if (conf.isRotaryButton) {
+                    dIn5.classList.add('hidden'); dRot.classList.remove('hidden');
+                } else {
+                    dIn5.classList.remove('hidden'); dRot.classList.add('hidden');
+                }
             }
 
             calculateResult2();
@@ -21434,7 +21445,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // =====================================================================
-        // 3번 타일 기능 로직 신규 추가 (용기 보관수량 산출)
+        // 3번 타일 기능 로직 (용기 보관수량 산출)
         // =====================================================================
         function bindEvents3() {
             document.getElementById('btn-reset-3').addEventListener('click', () => {
@@ -21461,6 +21472,18 @@ document.addEventListener('DOMContentLoaded', () => {
             styleButton('btn-3-comp', state3.cylType === 'comp', hasCylType);
             styleButton('btn-3-liq', state3.cylType === 'liq', hasCylType);
             styleButton('btn-3-other', state3.cylType === 'other', hasCylType);
+
+            const rowCylType = document.getElementById('row-3-cyl-type');
+            const rowNote = document.getElementById('row-3-note');
+            const hasDimension = state3.width.trim() !== '' || state3.length.trim() !== '';
+
+            if (hasDimension) {
+                rowCylType.classList.remove('hidden');
+                rowNote.classList.remove('hidden');
+            } else {
+                rowCylType.classList.add('hidden');
+                rowNote.classList.add('hidden');
+            }
 
             const rowDiameter = document.getElementById('row-3-diameter');
             if (state3.cylType === 'other') {
@@ -21501,9 +21524,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 qty = Math.floor(storageArea / cylArea); 
             }
 
-            // UI 텍스트 출력 적용 (전체면적 항목 추가 및 보관면적 위치 이동 대응)
+            // UI 텍스트 출력 적용 (지시사항에 따른 1.7:1.3 비율 구조 내 실효면적 반올림 적용)
             document.getElementById('calc3-ta').textContent = roomArea > 0 ? roomArea.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '0.00';
-            document.getElementById('calc3-sa').textContent = storageArea > 0 ? storageArea.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '0.00';
+            document.getElementById('calc3-sa').textContent = storageArea > 0 ? storageArea.toLocaleString(undefined, { maximumFractionDigits: 1 }) : '0.0';
             document.getElementById('calc3-wa').textContent = workArea > 0 ? workArea.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '0.00';
             document.getElementById('calc3-type').textContent = cylText;
             document.getElementById('calc3-q').textContent = qty > 0 ? qty.toLocaleString() : '0';
@@ -21536,7 +21559,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     </script>
 </body>
-</html></textarea>
+</html>
+</textarea>
 
 
     <!-- =========================================================
