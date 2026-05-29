@@ -20264,8 +20264,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </body>
 </html></textarea>
 
-    <!-- 12. 고(액) 필수계산기 (신규) -->
-    <textarea id="source-12" class="source-code-storage"><!DOCTYPE html>
+    <!-- 12. 고(액) 필수계산기 (신규) --><!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -20962,6 +20961,90 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         </div>
     </template>
+<!-- [5번 타일] 용기 재검사기간 계산 -->
+    <template id="calculator-template-5">
+        <div class="relative flex flex-col h-[400px] w-full bg-white border-2 border-gray-300 rounded-2xl shadow-[8px_8px_8px_rgba(0,0,0,0.18)] px-2 pt-4 pb-1.5 mt-3">
+            <div class="absolute -top-[21px] left-1/2 -translate-x-1/2 w-[90%] max-w-[280px] h-9 bg-[#d1e8ff] border-[2px] border-dashed border-black rounded-full flex items-center justify-center z-20 shadow-sm">
+                <span class="text-black font-extrabold text-[21px] xl:text-[23.5px] leading-none whitespace-nowrap tracking-tight">용기 재검사기간 계산</span>
+            </div>
+
+            <div class="flex-grow dot-grid-bg border-[1.6px] border-gray-500 rounded-xl p-1.5 z-10 flex flex-col gap-1 relative mt-1 overflow-hidden">
+                <button id="btn-reset-5" class="absolute top-1 right-1.5 px-2 py-0.5 bg-yellow-300 hover:bg-yellow-400 border-[1.5px] border-black rounded text-[10px] font-extrabold text-gray-900 shadow-md active-tremble transition-colors z-30 cursor-pointer">
+                    초기화
+                </button>
+
+                <!-- 1열: 메인 버튼군 3x2 배열 -->
+                <div class="grid grid-cols-3 gap-1 w-full mt-2 h-[56px]">
+                    <div class="input-wrap !h-[26px] focus-within:border-blue-500">
+                        <input id="input-5-vol" type="number" placeholder="내용적" class="input-elem !text-[13px] !font-black" />
+                        <span class="text-[12px] font-bold text-gray-500 whitespace-nowrap ml-1 text-right">L</span>
+                    </div>
+                    <button id="btn-5-lpg" class="btn-calc active-tremble !h-[26px] !text-[13px]">LPG용기</button>
+                    <button id="btn-5-high" class="btn-calc active-tremble !h-[26px] !text-[13px]">고압용기</button>
+                    
+                    <button id="btn-5-acc" class="btn-calc active-tremble !h-[26px] !text-[13px]">용기부속품</button>
+                    <button id="btn-5-fork" class="btn-calc active-tremble !h-[26px] !text-[13px]">지게차용</button>
+                    <button id="btn-5-disp" class="btn-calc active-tremble !h-[26px] !text-[13px]">1회용</button>
+                </div>
+
+                <!-- 2열: 서브 버튼군 (동적) -->
+                <div id="row-5-sub1" class="flex gap-1 w-full h-[26px] mt-0.5 hidden animate-fade-in-down"></div>
+                <div id="row-5-sub2" class="flex gap-1 w-full h-[26px] mt-0.5 hidden animate-fade-in-down"></div>
+
+                <!-- 3열: 날짜 입력군 -->
+                <div id="row-5-dates" class="grid grid-cols-2 gap-2 w-full mt-auto mb-1 px-1">
+                    <div class="flex flex-col gap-0.5">
+                        <span class="text-[11.5px] font-extrabold text-blue-700 tracking-tighter">신규(제조)년월</span>
+                        <div class="flex gap-1">
+                            <input id="input-5-ny" type="number" placeholder="YYYY" class="w-[60%] border-[1.5px] border-gray-400 rounded px-1 py-0.5 text-[13px] font-black text-center focus:border-blue-500 focus:outline-none bg-white shadow-inner" />
+                            <select id="sel-5-nm" class="no-arrow-select w-[40%] border-[1.5px] border-gray-400 rounded px-1 py-0.5 text-[13px] font-black text-center bg-gray-100 shadow-inner outline-none focus:border-blue-500 cursor-pointer"></select>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-0.5">
+                        <span class="text-[11.5px] font-extrabold text-blue-700 tracking-tighter">최근검사년월</span>
+                        <div class="flex gap-1">
+                            <input id="input-5-ry" type="number" placeholder="YYYY" class="w-[60%] border-[1.5px] border-gray-400 rounded px-1 py-0.5 text-[13px] font-black text-center focus:border-blue-500 focus:outline-none bg-white shadow-inner" />
+                            <select id="sel-5-rm" class="no-arrow-select w-[40%] border-[1.5px] border-gray-400 rounded px-1 py-0.5 text-[13px] font-black text-center bg-gray-100 shadow-inner outline-none focus:border-blue-500 cursor-pointer">
+                                <option value="">-</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 결과 필드 -->
+            <div class="h-[32%] mt-1 flex flex-col gap-1">
+                <div class="flex-[2] bg-gray-300 rounded-lg px-2 flex items-center justify-between shadow-inner border border-gray-400 overflow-hidden">
+                    <span class="text-gray-700 text-[13px] font-extrabold tracking-tighter shrink-0 whitespace-nowrap">법정주기</span>
+                    <span id="calc5-formula" class="text-blue-900 text-[14px] xl:text-[15px] font-black tracking-tighter text-right w-full ml-1 leading-tight break-keep">-</span>
+                </div>
+                <div class="flex-[3] bg-gray-800 border-[3px] border-[#39ff14] rounded-lg p-1.5 flex relative shadow-inner gap-1">
+                    <div class="w-[43%] flex flex-col justify-between h-full border-r border-gray-600 pr-1 py-0.5">
+                        <div class="flex justify-between items-baseline">
+                            <span class="text-gray-400 text-[11px] font-bold tracking-tighter shrink-0">최초</span>
+                            <span id="calc5-out-ny" class="text-white text-[12px] font-black truncate pl-1">-</span>
+                        </div>
+                        <div class="flex justify-between items-baseline">
+                            <span class="text-gray-400 text-[11px] font-bold tracking-tighter shrink-0">최근</span>
+                            <span id="calc5-out-ry" class="text-gray-300 text-[12px] font-black truncate pl-1">-</span>
+                        </div>
+                       <div class="flex justify-between items-baseline mt-auto border-t border-gray-600 pt-0.5">
+                            <span class="text-gray-400 text-[11px] font-bold tracking-tighter shrink-0">경과연수</span>
+                            <span id="calc5-out-age-disp" class="text-[#a8ff3e] text-[11px] font-bold tracking-tighter truncate text-right pl-1">-</span>
+                        </div>
+                    </div>
+
+<div class="w-[57%] flex flex-col justify-center items-end h-full pl-1 py-0.5 relative">
+                        <div class="absolute top-0 left-1 flex items-baseline">
+                            <span class="text-white text-[12px] font-bold leading-none tracking-tighter">차기 검사일(판정)</span>
+                            <span id="calc5-status" class="text-[12px] font-black tracking-tighter ml-1"></span>
+                        </div>
+                        <span id="calc5-result" class="text-orange-500 text-[18px] xl:text-[20px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
 
     <!-- ======================================================================= -->
     <!-- 3. Javascript 영역 (기능 로직 전용 - 예외처리 및 CSS 클래스 제어)           -->
@@ -21071,7 +21154,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('calculator-template').innerHTML,
                 document.getElementById('calculator-template-2').innerHTML,
                 document.getElementById('calculator-template-3').innerHTML,
-                document.getElementById('calculator-template-4').innerHTML
+                document.getElementById('calculator-template-4').innerHTML,
+                document.getElementById('calculator-template-5').innerHTML // [수정] 5번 템플릿 로드 추가
             ];
 
             for (let i = 1; i <= 8; i++) {
@@ -21087,7 +21171,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const wrapper = document.createElement('div');
                 wrapper.className = borderClasses;
                 
-                if (i <= 4) {
+                if (i <= 5) {
                     wrapper.innerHTML = templates[i - 1];
                 } else {
                     wrapper.innerHTML = `<div class="relative flex flex-col h-[400px] w-full bg-white border-2 border-gray-300 rounded-2xl shadow-[8px_8px_8px_rgba(0,0,0,0.18)] px-2 pt-4 pb-1.5 mt-3 opacity-70 grayscale"><div class="absolute -top-[21px] left-1/2 -translate-x-1/2 w-[90%] max-w-[280px] h-9 bg-gray-300 border-[2px] border-dashed border-black rounded-full flex items-center justify-center z-20 shadow-sm"><span class="text-black font-extrabold text-[21px] xl:text-[23.5px] leading-none whitespace-nowrap tracking-tight">${i}번 계산기</span></div><div class="flex-grow dot-grid-bg border-[1.6px] border-gray-500 rounded-xl flex items-center justify-center mt-1 z-10"><span class="text-gray-500 font-bold text-2xl bg-white px-3 py-1 rounded">준비 중</span></div><div class="h-[32%] mt-1 flex flex-col gap-1"><div class="flex-[2] bg-gray-300 rounded-lg"></div><div class="flex-[3] bg-gray-600 rounded-lg"></div></div></div>`;
@@ -21102,6 +21186,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bindEvents2();
             bindEvents3();
             bindEvents4();
+            bindEvents5();
         }
 
         /* ==== 1번 타일 로직 ==== */
@@ -21659,6 +21744,334 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (e) { console.error("Calculator 4 Error:", e); }
         }
+
+/* ==== 5번 타일 로직 ==== */
+        let state5 = { vol: '', mainType: null, subType: null, accType: null, ny: '', nm: '1', ry: '', rm: '' };
+
+        function initDateSelects5() {
+            const selNm = document.getElementById('sel-5-nm');
+            const selRm = document.getElementById('sel-5-rm');
+            for(let i=1; i<=12; i++) {
+                let m = i.toString().padStart(2, '0');
+                selNm.innerHTML += `<option value="${m}">${m}월</option>`;
+                selRm.innerHTML += `<option value="${m}">${m}월</option>`;
+            }
+        }
+
+        function bindEvents5() {
+            initDateSelects5();
+            
+            document.getElementById('btn-reset-5').addEventListener('click', () => {
+                state5 = { vol: '', mainType: null, subType: null, accType: null, ny: '', nm: '01', ry: '', rm: '' };
+                document.getElementById('input-5-vol').value = ''; document.getElementById('input-5-ny').value = ''; document.getElementById('input-5-ry').value = '';
+                document.getElementById('sel-5-nm').value = '01'; document.getElementById('sel-5-rm').value = '';
+                updateUI5();
+            });
+
+            document.getElementById('input-5-vol').addEventListener('input', (e) => { state5.vol = e.target.value; updateUI5(); });
+            document.getElementById('input-5-ny').addEventListener('input', (e) => { state5.ny = e.target.value; updateUI5(); });
+            document.getElementById('sel-5-nm').addEventListener('change', (e) => { state5.nm = e.target.value; updateUI5(); });
+            document.getElementById('input-5-ry').addEventListener('input', (e) => { state5.ry = e.target.value; updateUI5(); });
+            document.getElementById('sel-5-rm').addEventListener('change', (e) => { state5.rm = e.target.value; updateUI5(); });
+
+            const checkVol = () => {
+                if (!state5.vol) { alert("내용적을 입력하세요"); document.getElementById('input-5-vol').focus(); return false; }
+                return true;
+            };
+
+            document.getElementById('btn-5-lpg').addEventListener('click', () => { if(checkVol()) { state5.mainType = 'LPG'; state5.subType = null; state5.accType = null; updateUI5(); }});
+            document.getElementById('btn-5-high').addEventListener('click', () => { if(checkVol()) { state5.mainType = '고압'; state5.subType = null; state5.accType = null; updateUI5(); }});
+            document.getElementById('btn-5-acc').addEventListener('click', () => { state5.mainType = '부속품'; state5.subType = null; state5.accType = null; updateUI5(); });
+            document.getElementById('btn-5-fork').addEventListener('click', () => { if(checkVol()) { state5.mainType = '지게차'; state5.subType = null; state5.accType = null; updateUI5(); }});
+            document.getElementById('btn-5-disp').addEventListener('click', () => { state5.mainType = '1회용'; state5.subType = null; state5.accType = null; updateUI5(); });
+
+            updateUI5();
+        }
+
+        function createSubBtn(id, text, onClick) {
+            const btn = document.createElement('button');
+            btn.id = id; btn.className = "btn-calc flex-1 active-tremble !h-[26px] !text-[12.5px] !px-0 whitespace-nowrap overflow-hidden";
+            btn.textContent = text; btn.addEventListener('click', onClick);
+            return btn;
+        }
+<!-- 5번계산기 UI 자바스크립트 시작점==================================================================== -->
+function updateUI5() {
+            const is1Time = state5.mainType === '1회용';
+            ['input-5-vol', 'input-5-ny', 'sel-5-nm', 'input-5-ry', 'sel-5-rm'].forEach(id => { document.getElementById(id).disabled = is1Time; });
+
+            ['lpg', 'high', 'acc', 'fork', 'disp'].forEach(type => {
+                const mt = { 'lpg':'LPG', 'high':'고압', 'acc':'부속품', 'fork':'지게차', 'disp':'1회용' }[type];
+                styleButton(`btn-5-${type}`, state5.mainType === mt, state5.mainType !== null);
+            });
+
+            const row1 = document.getElementById('row-5-sub1'); row1.innerHTML = ''; row1.classList.add('hidden');
+            const row2 = document.getElementById('row-5-sub2'); row2.innerHTML = ''; row2.classList.add('hidden');
+
+            if (state5.mainType === 'LPG') {
+                row1.classList.remove('hidden');
+                row1.append(
+                    createSubBtn('sub-lpg-1', '용접용기', () => { state5.subType = '용접'; updateUI5(); }),
+                    createSubBtn('sub-lpg-2', '복합재료', () => { state5.subType = '복합'; updateUI5(); }),
+                    createSubBtn('sub-lpg-3', '난방기용', () => { state5.subType = '난방기'; updateUI5(); })
+                );
+            } else if (state5.mainType === '고압') {
+                row1.classList.remove('hidden');
+                row1.append(
+                    createSubBtn('sub-hi-1', '초저온(SUS)', () => { state5.subType = '초저온'; updateUI5(); }),
+                    createSubBtn('sub-hi-2', '용접용기', () => { state5.subType = '용접'; updateUI5(); }),
+                    createSubBtn('sub-hi-3', '이음매없는용기', () => { state5.subType = '무계목'; updateUI5(); })
+                );
+                row2.classList.remove('hidden');
+                
+                // 크기 동일화를 위한 투명 더미 버튼 삽입
+                const dummy1 = createSubBtn('dummy-hi-1', '', () => {}); dummy1.style.visibility = 'hidden';
+                const dummy2 = createSubBtn('dummy-hi-2', '', () => {}); dummy2.style.visibility = 'hidden';
+                
+                row2.append(
+                    createSubBtn('sub-hi-4', '복합재료용기', () => { state5.subType = '복합_고압'; updateUI5(); }),
+                    dummy1,
+                    dummy2
+                );
+            } else if (state5.mainType === '부속품') {
+                row1.classList.remove('hidden');
+                row1.append(
+                    createSubBtn('sub-ac-1', '용기에 부착된 것', () => {
+                        if(!state5.vol) { alert("내용적을 입력하세요"); document.getElementById('input-5-vol').focus(); return; }
+                        state5.subType = '부착O'; state5.accType = null; updateUI5();
+                    }),
+                    createSubBtn('sub-ac-2', '부착되지 않은 것', () => { state5.subType = '부착X'; state5.accType = null; updateUI5(); })
+                );
+                if (state5.subType === '부착O') {
+                    row2.classList.remove('hidden');
+                    row2.append(
+                        createSubBtn('sub-ac-3', '밸브 등', () => { state5.accType = '밸브'; updateUI5(); }),
+                        createSubBtn('sub-ac-4', '아세틸렌 가용전', () => { state5.accType = '가용전'; updateUI5(); })
+                    );
+                }
+            }
+
+            // 하위 버튼 스타일링 처리
+            ['sub-lpg-1','sub-lpg-2','sub-lpg-3','sub-hi-1','sub-hi-2','sub-hi-3','sub-hi-4','sub-ac-1','sub-ac-2'].forEach(id => {
+                const el = document.getElementById(id); if(!el) return;
+                const txt = el.textContent;
+                const isActive = (state5.subType === '용접' && txt.includes('용접')) ||
+                                 (state5.subType === '복합' && txt === '복합재료') ||
+                                 (state5.subType === '난방기' && txt === '난방기용') ||
+                                 (state5.subType === '초저온' && txt === '초저온(SUS)') ||
+                                 (state5.subType === '무계목' && txt === '이음매없는용기') ||
+                                 (state5.subType === '복합_고압' && txt === '복합재료용기') ||
+                                 (state5.subType === '부착O' && txt === '용기에 부착된 것') ||
+                                 (state5.subType === '부착X' && txt === '부착되지 않은 것');
+                styleButton(id, isActive, state5.subType !== null);
+            });
+            ['sub-ac-3','sub-ac-4'].forEach(id => {
+                const el = document.getElementById(id); if(!el) return;
+                styleButton(id, (state5.accType === '밸브' && el.textContent === '밸브 등') || (state5.accType === '가용전' && el.textContent.includes('가용전')), state5.accType !== null);
+            });
+
+            calculateResult5();
+        }
+<!-- 5번계산기 UI 자바스크립트 종   점==================================================================== -->
+
+
+
+<!-- 자주 수정하는 자바스크립트 시작점==================================================================== -->
+
+function calculateResult5() {
+            const elFormula = document.getElementById('calc5-formula');
+            const elNy = document.getElementById('calc5-out-ny');
+            const elRy = document.getElementById('calc5-out-ry');
+            const elAgeDisp = document.getElementById('calc5-out-age-disp');
+            const elResult = document.getElementById('calc5-result');
+            const elStatus = document.getElementById('calc5-status');
+
+            if (elStatus) elStatus.textContent = "";
+
+            if (state5.mainType === '1회용') {
+                elFormula.textContent = "사용 후 폐기"; elNy.textContent = "-"; elRy.textContent = "-"; elAgeDisp.textContent = "-";
+                elResult.textContent = "사용 후 폐기"; elResult.className = "text-[#ff003c] text-[18px] xl:text-[22px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2 flex items-center justify-end"; return;
+            }
+
+            const currentDate = new Date();
+            const cy = currentDate.getFullYear();
+            const cm = currentDate.getMonth() + 1;
+
+            const ny = parseInt(state5.ny); const nm = state5.nm;
+            const ry = parseInt(state5.ry); const rm = state5.rm;
+            
+            elNy.textContent = ny ? `${ny}.${nm}` : '-';
+            elRy.textContent = ry ? `${ry}.${rm}` : '-';
+            
+            elResult.className = "text-orange-500 text-[18px] xl:text-[22px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2";
+
+            if (!ny) { 
+                elFormula.textContent = "신규제조년월 필요"; elResult.textContent = "-"; 
+                elAgeDisp.textContent = "-";
+                return; 
+            }
+
+            const isRy = !isNaN(ry);
+            let targetY = isRy ? ry : ny;
+            let targetM = isRy ? rm : nm;
+
+            let base_Y = isRy ? ry : cy;
+            let base_M = isRy ? parseInt(rm) : cm;
+            let diffY = base_Y - ny;
+            let diffM = base_M - parseInt(nm);
+            if (diffM < 0) { diffY--; diffM += 12; }
+            elAgeDisp.textContent = `${diffY}년 ${diffM}개월`;
+
+            let curDiffY = cy - ny;
+            if (cm < parseInt(nm)) { curDiffY--; }
+            const currentAge = curDiffY;         
+            const inspectionAge = diffY;         
+
+            const vol = parseFloat(state5.vol) || 0;
+            let p = 0; let formula = ""; let special = null;
+
+            if (state5.mainType === '지게차') {
+                if (isRy) {
+                    formula = "첫검사(10), <span class='text-[#ff003c]'>이후(3)</span>"; p = 3;
+                } else {
+                    formula = "<span class='text-[#ff003c]'>첫검사(10)</span>, 이후(3)"; p = 10;
+                }
+            } else if (state5.mainType === 'LPG') {
+                if (state5.subType === '복합') { 
+                    formula = "경과무관 <span class='text-[#ff003c]'>5년주기</span> (15년폐기)"; p = 5; 
+                }
+                else if (state5.subType === '난방기' && vol < 500) { 
+                    // [핵심 수정] 내용적이 500L 미만일 때만 난방기 특례(6년) 적용
+                    if (inspectionAge < 15) { 
+                        formula = "<span class='text-[#ff003c]'>특례 15미만(6)</span>, 일반 15~20(5), 20이상(2)"; p = 6;
+                    } else if (inspectionAge < 20) {
+                        formula = "특례 15미만(6), <span class='text-[#ff003c]'>일반 15~20(5)</span>, 20이상(2)"; p = 5;
+                    } else {
+                        formula = "특례 15미만(6), 일반 15~20(5), <span class='text-[#ff003c]'>20이상(2)</span>"; p = 2;
+                    }
+                }
+                else { // 용접 (난방기용이더라도 500L 이상이면 특례 제외되어 이곳 일반 기준으로 편입)
+                    if (vol >= 45 && vol < 125 && ny <= 1988 && state5.subType !== '난방기') { 
+                        formula = "<span class='text-[#ff003c]'>88년이전 제조 45~125L 폐기</span>";
+                        special = "제조후 26년 경과(폐기)";
+                        elResult.className = "text-[#ff003c] text-[18px] xl:text-[22px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2";
+                    }
+                    else if (vol >= 500) { 
+                        if (inspectionAge < 15) { formula = "<span class='text-[#ff003c]'>15미만(5)</span>, 15~20(2), 20이상(1)"; p = 5; }
+                        else if (inspectionAge < 20) { formula = "15미만(5), <span class='text-[#ff003c]'>15~20(2)</span>, 20이상(1)"; p = 2; }
+                        else { formula = "15미만(5), 15~20(2), <span class='text-[#ff003c]'>20이상(1)</span>"; p = 1; }
+                    }
+                    else { 
+                        if (inspectionAge < 20) {
+                            formula = "<span class='text-[#ff003c]'>20년미만(5)</span>, 20년이상(2)"; p = 5;
+                        } else {
+                            formula = "20년미만(5), <span class='text-[#ff003c]'>20년이상(2)</span>"; p = 2;
+                        }
+                    }
+                }
+            } else if (state5.mainType === '고압') {
+                if (state5.subType === '초저온' && vol < 500) { 
+                    if (inspectionAge < 15) {
+                        formula = "<span class='text-[#ff003c]'>특례 15미만(5)</span>, 일반 15~20(2), 20이상(1)"; p = 5; 
+                    } else if (inspectionAge < 20) {
+                        formula = "특례 15미만(5), <span class='text-[#ff003c]'>일반 15~20(2)</span>, 20이상(1)"; p = 2;
+                    } else {
+                        formula = "특례 15미만(5), 일반 15~20(2), <span class='text-[#ff003c]'>20이상(1)</span>"; p = 1;
+                    }
+                }
+                else if (state5.subType === '초저온') { // 500L 이상
+                    if (inspectionAge < 15) { formula = "<span class='text-[#ff003c]'>15미만(5)</span>, 15~20(2), 20이상(1)"; p = 5; }
+                    else if (inspectionAge < 20) { formula = "15미만(5), <span class='text-[#ff003c]'>15~20(2)</span>, 20이상(1)"; p = 2; }
+                    else { formula = "15미만(5), 15~20(2), <span class='text-[#ff003c]'>20이상(1)</span>"; p = 1; }
+                }
+                else if (state5.subType === '무계목') { 
+                    if (vol >= 500) {
+                        formula = "<span class='text-[#ff003c]'>500L이상(5년)</span>"; p = 5;
+                    } else {
+                        if (inspectionAge <= 10) { formula = "<span class='text-[#ff003c]'>10년이하(5)</span>, 10년초과(3)"; p = 5; }
+                        else { formula = "10년이하(5), <span class='text-[#ff003c]'>10년초과(3)</span>"; p = 3; }
+                    }
+                }
+                else if (state5.subType === '복합_고압') { 
+                    if (vol >= 500) {
+                        formula = "<span class='text-[#ff003c]'>500L이상(5년)</span>"; p = 5;
+                    } else {
+                        if (inspectionAge <= 10) { formula = "<span class='text-[#ff003c]'>10년이하(5)</span>, 10년초과(3)"; p = 5; }
+                        else { formula = "10년이하(5), <span class='text-[#ff003c]'>10년초과(3)</span>"; p = 3; }
+                    }
+                }
+                else { // 용접 및 기타
+                    if (vol >= 500) { 
+                        if (inspectionAge < 15) { formula = "<span class='text-[#ff003c]'>15미만(5)</span>, 15~20(2), 20이상(1)"; p = 5; }
+                        else if (inspectionAge < 20) { formula = "15미만(5), <span class='text-[#ff003c]'>15~20(2)</span>, 20이상(1)"; p = 2; }
+                        else { formula = "15미만(5), 15~20(2), <span class='text-[#ff003c]'>20이상(1)</span>"; p = 1; }
+                    }
+                    else { 
+                        if (inspectionAge < 15) { formula = "<span class='text-[#ff003c]'>15미만(3)</span>, 15~20(2), 20이상(1)"; p = 3; }
+                        else if (inspectionAge < 20) { formula = "15미만(3), <span class='text-[#ff003c]'>15~20(2)</span>, 20이상(1)"; p = 2; }
+                        else { formula = "15미만(3), 15~20(2), <span class='text-[#ff003c]'>20이상(1)</span>"; p = 1; }
+                    }
+                }
+            } else if (state5.mainType === '부속품') {
+                if (state5.subType === '부착X') { formula = "<span class='text-[#ff003c]'>부착전 2년마다</span>"; p = 2; }
+                else if (state5.accType === '가용전') { 
+                    formula = "-"; special = "이상없는 경우 계속 사용"; 
+                    elResult.className = "text-[#39ff14] text-[15px] xl:text-[18px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2"; 
+                }
+                else if (state5.accType === '밸브') {
+                    if (vol < 125) { 
+                        formula = "<span class='text-[#ff003c]'>부착 125L미만 제조후 2년경과시 폐기</span>"; p = 2; 
+                        if (currentAge >= 2 && isRy) {
+                            special = "재검사 시 폐기";
+                            elResult.className = "text-[#ff003c] text-[18px] xl:text-[22px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2";
+                        }
+                    }
+                    else { formula = "<span class='text-[#ff003c]'>용기 주기와 동일</span>"; special = "부착된 용기주기 산정"; }
+                } else { formula = "하위 항목 선택"; }
+            }
+
+            elFormula.innerHTML = formula || "-";
+            
+            if (special) { elResult.textContent = special; return; }
+            
+            if (p > 0) {
+                let nextY = targetY + p;
+                let nextM = parseInt(targetM);
+                let strNextM = targetM;
+                let isCapped = false;
+
+                if (state5.subType === '복합' || state5.subType === '복합_고압') {
+                    let disposeY = ny + 15;
+                    let disposeM = parseInt(nm);
+                    
+                    if (nextY > disposeY || (nextY === disposeY && nextM >= disposeM) || currentAge >= 15) {
+                        nextY = disposeY;
+                        nextM = disposeM;
+                        strNextM = disposeM.toString().padStart(2, '0');
+                        isCapped = true;
+                    }
+                }
+
+                if (isCapped) {
+                    elResult.innerHTML = `<span class="text-[0.55em] align-middle mr-1 tracking-normal font-bold">사용연한</span>${nextY}년 ${strNextM}월`;
+                    elResult.className = "text-[#ff003c] text-[18px] xl:text-[22px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2 flex items-center justify-end";
+                } else {
+                    elResult.textContent = `${nextY}년 ${strNextM}월`;
+                }
+                
+                if (elStatus) {
+                    if (cy > nextY || (cy === nextY && cm > nextM)) {
+                        elStatus.textContent = "기한초과";
+                        elStatus.className = "text-[#ff003c] text-[12px] font-black tracking-tighter ml-1";
+                    } else {
+                        elStatus.textContent = "적합";
+                        elStatus.className = "text-[#39ff14] text-[12px] font-black tracking-tighter ml-1";
+                    }
+                }
+            } else { elResult.textContent = "-"; }
+        }
+
+<!-- 자주 수정하는 자바스크립트 종점====================================================================== ->
+
 
         /* 전역 이벤트 바인딩 */
         window.addEventListener('DOMContentLoaded', initApp);
