@@ -21014,10 +21014,10 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
 
             <!-- 결과 필드 -->
-            <div class="h-[32%] mt-1 flex flex-col gap-1">
-                <div class="flex-[2] bg-gray-300 rounded-lg px-2 flex items-center justify-between shadow-inner border border-gray-400 overflow-hidden">
-                    <span class="text-gray-700 text-[13px] font-extrabold tracking-tighter shrink-0 whitespace-nowrap">법정주기</span>
-                    <span id="calc5-formula" class="text-blue-900 text-[14px] xl:text-[15px] font-black tracking-tighter text-right w-full ml-1 leading-tight break-keep">-</span>
+<div class="h-[32%] mt-1 flex flex-col gap-1">
+                <div class="flex-[2] bg-gray-300 rounded-lg px-1.5 flex items-center justify-between shadow-inner border border-gray-400 overflow-hidden">
+                    <span class="text-gray-700 text-[12.5px] font-extrabold tracking-tighter shrink-0 whitespace-nowrap">법정주기</span>
+                    <span id="calc5-formula" class="text-blue-900 text-[13.5px] xl:text-[14.5px] font-black tracking-tighter text-right w-full ml-0.5 leading-tight whitespace-nowrap">-</span>
                 </div>
                 <div class="flex-[3] bg-gray-800 border-[3px] border-[#39ff14] rounded-lg p-1.5 flex relative shadow-inner gap-1">
                     <div class="w-[43%] flex flex-col justify-between h-full border-r border-gray-600 pr-1 py-0.5">
@@ -21833,7 +21833,8 @@ function updateUI5() {
                     dummy1,
                     dummy2
                 );
-            } else if (state5.mainType === '부속품') {
+
+} else if (state5.mainType === '부속품') {
                 row1.classList.remove('hidden');
                 row1.append(
                     createSubBtn('sub-ac-1', '용기에 부착된 것', () => {
@@ -21849,20 +21850,30 @@ function updateUI5() {
                         createSubBtn('sub-ac-4', '아세틸렌 가용전', () => { state5.accType = '가용전'; updateUI5(); })
                     );
                 }
+            } else if (state5.mainType === '지게차') {
+                row1.classList.remove('hidden');
+                row1.append(
+                    createSubBtn('sub-fk-1', 'LPG용접용기', () => { state5.subType = 'LPG용접'; updateUI5(); }),
+                    createSubBtn('sub-fk-2', '고압용접용기', () => { state5.subType = '고압용접'; updateUI5(); }),
+                    createSubBtn('sub-fk-3', '이음매없는용기', () => { state5.subType = '무계목'; updateUI5(); }),
+                    createSubBtn('sub-fk-4', '복합재료용기', () => { state5.subType = '복합'; updateUI5(); })
+                );
             }
 
-            // 하위 버튼 스타일링 처리
-            ['sub-lpg-1','sub-lpg-2','sub-lpg-3','sub-hi-1','sub-hi-2','sub-hi-3','sub-hi-4','sub-ac-1','sub-ac-2'].forEach(id => {
+// 하위 버튼 스타일링 처리
+            ['sub-lpg-1','sub-lpg-2','sub-lpg-3','sub-hi-1','sub-hi-2','sub-hi-3','sub-hi-4','sub-ac-1','sub-ac-2','sub-fk-1','sub-fk-2','sub-fk-3','sub-fk-4'].forEach(id => {
                 const el = document.getElementById(id); if(!el) return;
                 const txt = el.textContent;
-                const isActive = (state5.subType === '용접' && txt.includes('용접')) ||
-                                 (state5.subType === '복합' && txt === '복합재료') ||
+                const isActive = (state5.subType === '용접' && txt.includes('용접') && state5.mainType !== '지게차') ||
+                                 (state5.subType === '복합' && txt.includes('복합재료')) ||
                                  (state5.subType === '난방기' && txt === '난방기용') ||
                                  (state5.subType === '초저온' && txt === '초저온(SUS)') ||
-                                 (state5.subType === '무계목' && txt === '이음매없는용기') ||
+                                 (state5.subType === '무계목' && txt.includes('이음매없는')) ||
                                  (state5.subType === '복합_고압' && txt === '복합재료용기') ||
                                  (state5.subType === '부착O' && txt === '용기에 부착된 것') ||
-                                 (state5.subType === '부착X' && txt === '부착되지 않은 것');
+                                 (state5.subType === '부착X' && txt === '부착되지 않은 것') ||
+                                 (state5.subType === 'LPG용접' && txt === 'LPG용접용기') ||
+                                 (state5.subType === '고압용접' && txt === '고압용접용기');
                 styleButton(id, isActive, state5.subType !== null);
             });
             ['sub-ac-3','sub-ac-4'].forEach(id => {
@@ -21930,13 +21941,89 @@ function calculateResult5() {
             const vol = parseFloat(state5.vol) || 0;
             let p = 0; let formula = ""; let special = null;
 
-            if (state5.mainType === '지게차') {
-                if (isRy) {
-                    formula = "첫검사(10), <span class='text-[#ff003c]'>이후(3)</span>"; p = 3;
+
+if (state5.mainType === '지게차') {
+                if (!state5.subType) {
+                    formula = "하위 항목 선택"; p = 0;
                 } else {
-                    formula = "<span class='text-[#ff003c]'>첫검사(10)</span>, 이후(3)"; p = 10;
+                    let hl = 0; let p_val = 0;
+                    if (!isRy) { hl = 0; p_val = 10; }
+
+                    if (state5.subType === 'LPG용접') {
+                        if (vol >= 500) {
+                            if (isRy) {
+                                if (inspectionAge < 15) { hl = 1; p_val = 5; }
+                                else if (inspectionAge < 20) { hl = 2; p_val = 2; }
+                                else { hl = 3; p_val = 1; }
+                            }
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
+                                      (hl===1?"<span class='text-[#ff003c]'>15미만(5)</span>":"15미만(5)") + ", " +
+                                      (hl===2?"<span class='text-[#ff003c]'>15~20(2)</span>":"15~20(2)") + ", " +
+                                      (hl===3?"<span class='text-[#ff003c]'>20이상(1)</span>":"20이상(1)");
+                        } else {
+                            if (isRy) {
+                                if (inspectionAge < 20) { hl = 1; p_val = 5; }
+                                else { hl = 2; p_val = 2; }
+                            }
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
+                                      (hl===1?"<span class='text-[#ff003c]'>20미만(5)</span>":"20미만(5)") + ", " +
+                                      (hl===2?"<span class='text-[#ff003c]'>20이상(2)</span>":"20이상(2)");
+                        }
+                    } else if (state5.subType === '고압용접') {
+                        if (vol >= 500) {
+                            if (isRy) {
+                                if (inspectionAge < 15) { hl = 1; p_val = 5; }
+                                else if (inspectionAge < 20) { hl = 2; p_val = 2; }
+                                else { hl = 3; p_val = 1; }
+                            }
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
+                                      (hl===1?"<span class='text-[#ff003c]'>15미만(5)</span>":"15미만(5)") + ", " +
+                                      (hl===2?"<span class='text-[#ff003c]'>15~20(2)</span>":"15~20(2)") + ", " +
+                                      (hl===3?"<span class='text-[#ff003c]'>20이상(1)</span>":"20이상(1)");
+                        } else {
+                            if (isRy) {
+                                if (inspectionAge < 15) { hl = 1; p_val = 3; }
+                                else if (inspectionAge < 20) { hl = 2; p_val = 2; }
+                                else { hl = 3; p_val = 1; }
+                            }
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
+                                      (hl===1?"<span class='text-[#ff003c]'>15미만(3)</span>":"15미만(3)") + ", " +
+                                      (hl===2?"<span class='text-[#ff003c]'>15~20(2)</span>":"15~20(2)") + ", " +
+                                      (hl===3?"<span class='text-[#ff003c]'>20이상(1)</span>":"20이상(1)");
+                        }
+                    } else if (state5.subType === '무계목') {
+                        if (vol >= 500) {
+                            if (isRy) { hl = 1; p_val = 5; }
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
+                                      (hl===1?"<span class='text-[#ff003c]'>이후(5)</span>":"이후(5)");
+                        } else {
+                            if (isRy) {
+                                if (inspectionAge <= 10) { hl = 1; p_val = 5; }
+                                else { hl = 2; p_val = 3; }
+                            }
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
+                                      (hl===1?"<span class='text-[#ff003c]'>10이하(5)</span>":"10이하(5)") + ", " +
+                                      (hl===2?"<span class='text-[#ff003c]'>10초과(3)</span>":"10초과(3)");
+                        }
+                    } else if (state5.subType === '복합') {
+                        if (vol >= 500) {
+                            if (isRy) { hl = 1; p_val = 5; }
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
+                                      (hl===1?"<span class='text-[#ff003c]'>이후(5)</span>":"이후(5)") + " <span class='text-[0.8em]'>(15년폐기)</span>";
+                        } else {
+                            if (isRy) {
+                                if (inspectionAge <= 10) { hl = 1; p_val = 5; }
+                                else { hl = 2; p_val = 3; }
+                            }
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
+                                      (hl===1?"<span class='text-[#ff003c]'>10이하(5)</span>":"10이하(5)") + ", " +
+                                      (hl===2?"<span class='text-[#ff003c]'>10초과(3)</span>":"10초과(3)") + " <span class='text-[0.8em]'>(15년폐기)</span>";
+                        }
+                    }
+                    p = p_val;
                 }
-            } else if (state5.mainType === 'LPG') {
+
+} else if (state5.mainType === 'LPG') {
                 if (state5.subType === '복합') { 
                     formula = "경과무관 <span class='text-[#ff003c]'>5년주기</span> (15년폐기)"; p = 5; 
                 }
@@ -21960,6 +22047,14 @@ function calculateResult5() {
                         if (inspectionAge < 15) { formula = "<span class='text-[#ff003c]'>15미만(5)</span>, 15~20(2), 20이상(1)"; p = 5; }
                         else if (inspectionAge < 20) { formula = "15미만(5), <span class='text-[#ff003c]'>15~20(2)</span>, 20이상(1)"; p = 2; }
                         else { formula = "15미만(5), 15~20(2), <span class='text-[#ff003c]'>20이상(1)</span>"; p = 1; }
+                    }
+                    else if (vol < 20) {
+                        if (!isRy) { 
+                            formula = "<span class='text-[#ff003c]'>첫검사(10)</span>, 20년미만(5), 20년이상(2)"; p = 10; 
+                        } else { 
+                            if (inspectionAge < 20) { formula = "첫검사(10), <span class='text-[#ff003c]'>20년미만(5)</span>, 20년이상(2)"; p = 5; }
+                            else { formula = "첫검사(10), 20년미만(5), <span class='text-[#ff003c]'>20년이상(2)</span>"; p = 2; }
+                        }
                     }
                     else { 
                         if (inspectionAge < 20) {
@@ -22005,6 +22100,15 @@ function calculateResult5() {
                         if (inspectionAge < 15) { formula = "<span class='text-[#ff003c]'>15미만(5)</span>, 15~20(2), 20이상(1)"; p = 5; }
                         else if (inspectionAge < 20) { formula = "15미만(5), <span class='text-[#ff003c]'>15~20(2)</span>, 20이상(1)"; p = 2; }
                         else { formula = "15미만(5), 15~20(2), <span class='text-[#ff003c]'>20이상(1)</span>"; p = 1; }
+                    }
+                    else if (state5.subType === '용접' && vol < 20) {
+                        if (!isRy) { 
+                            formula = "<span class='text-[#ff003c]'>첫검사(10)</span>, 15미만(3), 15~20(2), 20이상(1)"; p = 10; 
+                        } else { 
+                            if (inspectionAge < 15) { formula = "첫검사(10), <span class='text-[#ff003c]'>15미만(3)</span>, 15~20(2), 20이상(1)"; p = 3; }
+                            else if (inspectionAge < 20) { formula = "첫검사(10), 15미만(3), <span class='text-[#ff003c]'>15~20(2)</span>, 20이상(1)"; p = 2; }
+                            else { formula = "첫검사(10), 15미만(3), 15~20(2), <span class='text-[#ff003c]'>20이상(1)</span>"; p = 1; }
+                        }
                     }
                     else { 
                         if (inspectionAge < 15) { formula = "<span class='text-[#ff003c]'>15미만(3)</span>, 15~20(2), 20이상(1)"; p = 3; }
@@ -22098,7 +22202,8 @@ function calculateResult5() {
         });
     </script>
 </body>
-</html></textarea>
+</html>
+</textarea>
 
 
     <!-- =========================================================
