@@ -21014,37 +21014,156 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
 
             <!-- 결과 필드 -->
-<div class="h-[32%] mt-1 flex flex-col gap-1">
-                <div class="flex-[2] bg-gray-300 rounded-lg px-1.5 flex items-center justify-between shadow-inner border border-gray-400 overflow-hidden">
+<div class="h-[40%] mt-1 flex flex-col gap-1">
+                <div class="h-[28px] shrink-0 bg-gray-300 rounded-lg px-2 flex items-center justify-between shadow-inner border border-gray-400 overflow-hidden">
                     <span class="text-gray-700 text-[12.5px] font-extrabold tracking-tighter shrink-0 whitespace-nowrap">법정주기</span>
-                    <span id="calc5-formula" class="text-blue-900 text-[13.5px] xl:text-[14.5px] font-black tracking-tighter text-right w-full ml-0.5 leading-tight whitespace-nowrap">-</span>
+                    <span id="calc5-formula" class="text-blue-900 text-[13.5px] xl:text-[14.5px] font-black tracking-tighter text-right w-full ml-1 leading-tight break-keep">-</span>
                 </div>
-                <div class="flex-[3] bg-gray-800 border-[3px] border-[#39ff14] rounded-lg p-1.5 flex relative shadow-inner gap-1">
-                    <div class="w-[43%] flex flex-col justify-between h-full border-r border-gray-600 pr-1 py-0.5">
-                        <div class="flex justify-between items-baseline">
-                            <span class="text-gray-400 text-[11px] font-bold tracking-tighter shrink-0">최초</span>
-                            <span id="calc5-out-ny" class="text-white text-[12px] font-black truncate pl-1">-</span>
+                
+                <div class="flex-[1.5] bg-gray-900 rounded-lg border border-gray-700 flex items-center justify-center px-2 py-0.5 shadow-inner overflow-hidden">
+                    <span id="calc5-notice" class="text-[#a8ff3e] text-[13px] xl:text-[14.5px] font-bold tracking-tighter leading-tight text-center break-keep whitespace-normal w-full">-</span>
+                </div>
+                
+                <div class="flex-[3] bg-gray-800 border-[3px] border-[#39ff14] rounded-lg p-1.5 flex relative shadow-inner overflow-hidden">
+                    <div class="w-[50%] flex flex-col justify-center h-full border-r border-gray-600 pr-1.5 gap-[1px]">
+                        <span class="text-gray-300 text-[11.5px] xl:text-[12.5px] font-extrabold tracking-tighter leading-none mb-[2px]">※ 경과년도</span>
+                        <div class="flex justify-between items-baseline pl-1">
+                            <span class="text-gray-400 text-[11px] xl:text-[12px] font-bold tracking-tighter shrink-0">재검사일 기준 :</span>
+                            <span id="calc5-out-ny" class="text-white text-[13px] xl:text-[14.5px] font-black truncate pl-1">-</span>
                         </div>
-                        <div class="flex justify-between items-baseline">
-                            <span class="text-gray-400 text-[11px] font-bold tracking-tighter shrink-0">최근</span>
-                            <span id="calc5-out-ry" class="text-gray-300 text-[12px] font-black truncate pl-1">-</span>
+                        <div class="flex justify-between items-baseline pl-1">
+                            <span class="text-gray-400 text-[11px] xl:text-[12px] font-bold tracking-tighter shrink-0">금&nbsp;&nbsp;&nbsp;&nbsp;일&nbsp;&nbsp; 기&nbsp;&nbsp;준 :</span>
+                            <span id="calc5-out-ry" class="text-gray-300 text-[13px] xl:text-[14.5px] font-black truncate pl-1">-</span>
                         </div>
-                       <div class="flex justify-between items-baseline mt-auto border-t border-gray-600 pt-0.5">
-                            <span class="text-gray-400 text-[11px] font-bold tracking-tighter shrink-0">경과연수</span>
-                            <span id="calc5-out-age-disp" class="text-[#a8ff3e] text-[11px] font-bold tracking-tighter truncate text-right pl-1">-</span>
-                        </div>
+                        <span id="calc5-out-age-disp" class="hidden"></span>
                     </div>
-
-<div class="w-[57%] flex flex-col justify-center items-end h-full pl-1 py-0.5 relative">
+                      <div class="w-[50%] flex flex-col justify-center items-end h-full pl-1 relative">
                         <div class="absolute top-0 left-1 flex items-baseline">
-                            <span class="text-white text-[12px] font-bold leading-none tracking-tighter">차기 검사일(판정)</span>
-                            <span id="calc5-status" class="text-[12px] font-black tracking-tighter ml-1"></span>
+                            <span class="text-white text-[11.5px] font-bold leading-none tracking-tighter whitespace-nowrap">차기 검사일(판정)</span>
+                            <span id="calc5-overdue" class="text-red-500 text-[11.5px] font-black ml-1 tracking-tight hidden">기한초과</span>
                         </div>
-                        <span id="calc5-result" class="text-orange-500 text-[18px] xl:text-[20px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2">-</span>
+                        <span id="calc5-result" class="text-orange-500 text-[18px] xl:text-[21.5px] font-black tracking-tighter leading-none text-right whitespace-nowrap w-full mt-2">-</span>
                     </div>
                 </div>
             </div>
         </div>
+    </template>
+<!-- [6번 타일] 특정설비 재검사기간 -->
+    <template id="calculator-template-6">
+        <div class="relative flex flex-col h-[400px] w-full bg-white border-2 border-gray-300 rounded-2xl shadow-[8px_8px_8px_rgba(0,0,0,0.18)] px-2 pt-4 pb-1.5 mt-3">
+            <div class="absolute -top-[21px] left-1/2 -translate-x-1/2 w-[90%] max-w-[280px] h-9 bg-[#d1e8ff] border-[2px] border-dashed border-black rounded-full flex items-center justify-center z-20 shadow-sm">
+                <span class="text-black font-extrabold text-[21px] xl:text-[23.5px] leading-none whitespace-nowrap tracking-tight">특정설비 재검사기간</span>
+            </div>
+
+            <!-- 재검사 제외대상 모달 팝업 -->
+            <div id="modal-6-exclude" class="absolute inset-0 z-50 bg-black/70 hidden rounded-2xl flex flex-col items-center justify-center p-2 backdrop-blur-sm">
+                <div class="bg-white rounded-lg shadow-2xl w-full max-h-[96%] flex flex-col overflow-hidden border-2 border-red-500">
+                    <div class="bg-red-600 text-white font-black text-[15px] px-3 py-2 flex justify-between items-center shrink-0">
+                        <span>[재검사에서 제외되는 특정설비의 종류]</span>
+                        <button id="btn-6-modal-close" class="text-white hover:text-red-200 text-xl leading-none px-2 active-tremble">&times;</button>
+                    </div>
+                    <div class="p-3 overflow-y-auto text-[12.5px] font-bold text-gray-700 leading-snug space-y-1 custom-scrollbar pb-4 break-keep">
+                        <p>가. 평저형 및 이중각 진공단열형 저온저장탱크</p>
+                        <p>나. 역화방지장치</p>
+                        <p>다. 독성가스배관용 밸브</p>
+                        <p>라. 자동차용가스 자동주입기</p>
+                        <p>마. 냉동용특정설비</p>
+                        <p>바. 대기식 기화장치</p>
+                        <p class="text-red-600">사. 저장탱크 또는 차량에 고정된 탱크에 부착되지 않은 안전밸브 및 긴급차단밸브</p>
+                        <p>아. 저장탱크 및 압력용기 중 다음에서 정한 것</p>
+                        <div class="pl-3 space-y-0.5 text-gray-600">
+                            <p>1) 초저온 저장탱크</p>
+                            <p>2) 초저온 압력용기</p>
+                            <p>3) 분리할 수 없는 이중관식 열교환기</p>
+                            <p>4) 그 밖에 산업통상자원부장관이 재검사를 실시하는 것이 현저히 곤란하다고 인정하는 저장탱크 또는 압력용기</p>
+                        </div>
+                        <p>자. 고압가스용 실린더캐비닛</p>
+                        <p>차. 자동차용 압축천연가스 완속충전설비</p>
+                        <p>카. 액화석유가스용 용기잔류가스회수장치</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-grow dot-grid-bg border-[1.6px] border-gray-500 rounded-xl p-1.5 z-10 flex flex-col gap-1 relative mt-1 overflow-hidden">
+                <button id="btn-reset-6" class="absolute top-1 right-1.5 px-2 py-0.5 bg-yellow-300 hover:bg-yellow-400 border-[1.5px] border-black rounded text-[10px] font-extrabold text-gray-900 shadow-md active-tremble transition-colors z-30 cursor-pointer">
+                    초기화
+                </button>
+
+                <!-- 1열: 메인 버튼군 3x2 배열 -->
+                <div class="grid grid-cols-3 gap-1 w-full mt-2">
+                    <button id="btn-6-vehicle" class="btn-calc active-tremble !h-[26px] !text-[12.5px] !px-0">차량고정탱크</button>
+                    <button id="btn-6-tank" class="btn-calc active-tremble !h-[26px] !text-[13px]">저장탱크</button>
+                    <button id="btn-6-pressure" class="btn-calc active-tremble !h-[26px] !text-[13px]">압력용기</button>
+                    <button id="btn-6-safety" class="btn-calc active-tremble !h-[26px] !text-[13px]">안전밸브</button>
+                    <button id="btn-6-emergency" class="btn-calc active-tremble !h-[26px] !text-[11.5px] !px-0 whitespace-nowrap">긴급차단장치</button>
+                    <button id="btn-6-vaporizer" class="btn-calc active-tremble !h-[26px] !text-[13px]">기화장치</button>
+                </div>
+                
+                <!-- 재검사 제외대상 버튼 (2칸 차지) -->
+                <div class="flex gap-1 w-full mt-0.5">
+                    <button id="btn-6-exclude" class="btn-calc active-tremble !h-[26px] !text-[13px] flex-[2] bg-red-50 border-red-500 text-red-700 shadow-sm hover:bg-red-100">재검사 제외대상 확인</button>
+                    <div class="flex-[1]"></div>
+                </div>
+
+                <!-- 2열: 서브 버튼군 (동적) -->
+                <div id="row-6-sub1" class="flex gap-1 w-full h-[26px] mt-1 hidden animate-fade-in-down"></div>
+                <div id="row-6-sub2" class="flex gap-1 w-full h-[26px] mt-0.5 hidden animate-fade-in-down"></div>
+
+                <!-- 3열: 날짜 입력군 -->
+
+<div id="row-6-dates" class="grid grid-cols-2 gap-2 w-full mt-1 mb-1 px-1">
+                    <div class="flex flex-col gap-0.5">
+                        <span class="text-[11.5px] font-extrabold text-blue-700 tracking-tighter">신규(제조)년월</span>
+                        <div class="flex gap-1">
+                            <input id="input-6-ny" type="number" placeholder="YYYY" class="w-[60%] border-[1.5px] border-gray-400 rounded px-1 py-0.5 text-[13px] font-black text-center focus:border-blue-500 focus:outline-none bg-white shadow-inner" />
+                            <select id="sel-6-nm" class="no-arrow-select w-[40%] border-[1.5px] border-gray-400 rounded px-1 py-0.5 text-[13px] font-black text-center bg-gray-100 shadow-inner outline-none focus:border-blue-500 cursor-pointer"></select>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-0.5">
+                        <span class="text-[11.5px] font-extrabold text-blue-700 tracking-tighter">최근검사년월</span>
+                        <div class="flex gap-1">
+                            <input id="input-6-ry" type="number" placeholder="YYYY" class="w-[60%] border-[1.5px] border-gray-400 rounded px-1 py-0.5 text-[13px] font-black text-center focus:border-blue-500 focus:outline-none bg-white shadow-inner" />
+                            <select id="sel-6-rm" class="no-arrow-select w-[40%] border-[1.5px] border-gray-400 rounded px-1 py-0.5 text-[13px] font-black text-center bg-gray-100 shadow-inner outline-none focus:border-blue-500 cursor-pointer">
+                                <option value="">-</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+<!-- 결과 필드 (높이 46%로 확대하여 입력창 빈공간 흡수) -->
+<div class="h-[40%] mt-1 flex flex-col gap-1">
+                <div class="h-[28px] shrink-0 bg-gray-300 rounded-lg px-2 flex items-center justify-between shadow-inner border border-gray-400 overflow-hidden">
+                    <span class="text-gray-700 text-[12.5px] font-extrabold tracking-tighter shrink-0 whitespace-nowrap">법정주기</span>
+                    <span id="calc6-formula" class="text-blue-900 text-[13.5px] xl:text-[14.5px] font-black tracking-tighter text-right w-full ml-1 leading-tight break-keep">-</span>
+                </div>
+                
+                <div class="flex-[1.5] bg-gray-900 rounded-lg border border-gray-700 flex items-center justify-center px-2 py-0.5 shadow-inner overflow-hidden">
+                    <span id="calc6-notice" class="text-[#a8ff3e] text-[13px] xl:text-[14.5px] font-bold tracking-tighter leading-tight text-center break-keep whitespace-normal w-full">-</span>
+                </div>
+                <div class="flex-[3] min-h-[56px] bg-gray-800 border-[3px] border-[#39ff14] rounded-lg p-1.5 flex relative shadow-inner overflow-hidden">
+                    <div class="w-[50%] flex flex-col justify-center h-full border-r border-gray-600 pr-1.5 gap-[1px]">
+                        <span class="text-gray-300 text-[11.5px] xl:text-[12.5px] font-extrabold tracking-tighter leading-none mb-[2px]">※ 경과년도</span>
+                        <div class="flex justify-between items-baseline pl-1">
+                            <span class="text-gray-400 text-[11px] xl:text-[12px] font-bold tracking-tighter shrink-0">재검사일 기준 :</span>
+                            <span id="calc6-out-ny" class="text-white text-[13px] xl:text-[14.5px] font-black truncate pl-1">-</span>
+                        </div>
+                        <div class="flex justify-between items-baseline pl-1">
+                            <span class="text-gray-400 text-[11px] xl:text-[12px] font-bold tracking-tighter shrink-0">금&nbsp;&nbsp;&nbsp;&nbsp;일&nbsp;&nbsp; 기&nbsp;&nbsp;준 :</span>
+                            <span id="calc6-out-ry" class="text-gray-300 text-[13px] xl:text-[14.5px] font-black truncate pl-1">-</span>
+                        </div>
+                    </div>
+                    <div class="w-[50%] flex flex-col justify-center items-end h-full pl-1 relative">
+                        <div class="absolute top-0 left-1 flex items-baseline">
+                            <span class="text-white text-[11.5px] font-bold leading-none tracking-tighter">차기 검사일(판정)</span>
+                            <span id="calc6-overdue" class="text-red-500 text-[11.5px] font-black ml-1 tracking-tight hidden">기한초과</span>
+                        </div>
+                        <span id="calc6-result" class="text-orange-500 text-[18px] xl:text-[21px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2">-</span>
+                    </div>
+                </div>              
+
+        </div>
+
     </template>
 
     <!-- ======================================================================= -->
@@ -21148,7 +21267,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return `<span>${name}</span>`;
         }
 
-        // 타일 렌더링 초기화
+      // 타일 렌더링 초기화
         function initApp() {
             const gridContainer = document.getElementById('grid-container');
             const templates = [
@@ -21156,7 +21275,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('calculator-template-2').innerHTML,
                 document.getElementById('calculator-template-3').innerHTML,
                 document.getElementById('calculator-template-4').innerHTML,
-                document.getElementById('calculator-template-5').innerHTML // [수정] 5번 템플릿 로드 추가
+                document.getElementById('calculator-template-5').innerHTML,
+                document.getElementById('calculator-template-6').innerHTML // [수정] 6번 템플릿 로드 추가
             ];
 
             for (let i = 1; i <= 8; i++) {
@@ -21172,7 +21292,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const wrapper = document.createElement('div');
                 wrapper.className = borderClasses;
                 
-                if (i <= 5) {
+                // [수정] i <= 6 으로 변경하여 6번 템플릿까지 렌더링
+                if (i <= 6) {
                     wrapper.innerHTML = templates[i - 1];
                 } else {
                     wrapper.innerHTML = `<div class="relative flex flex-col h-[400px] w-full bg-white border-2 border-gray-300 rounded-2xl shadow-[8px_8px_8px_rgba(0,0,0,0.18)] px-2 pt-4 pb-1.5 mt-3 opacity-70 grayscale"><div class="absolute -top-[21px] left-1/2 -translate-x-1/2 w-[90%] max-w-[280px] h-9 bg-gray-300 border-[2px] border-dashed border-black rounded-full flex items-center justify-center z-20 shadow-sm"><span class="text-black font-extrabold text-[21px] xl:text-[23.5px] leading-none whitespace-nowrap tracking-tight">${i}번 계산기</span></div><div class="flex-grow dot-grid-bg border-[1.6px] border-gray-500 rounded-xl flex items-center justify-center mt-1 z-10"><span class="text-gray-500 font-bold text-2xl bg-white px-3 py-1 rounded">준비 중</span></div><div class="h-[32%] mt-1 flex flex-col gap-1"><div class="flex-[2] bg-gray-300 rounded-lg"></div><div class="flex-[3] bg-gray-600 rounded-lg"></div></div></div>`;
@@ -21188,6 +21309,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bindEvents3();
             bindEvents4();
             bindEvents5();
+            bindEvents6(); // [수정] 6번 이벤트 바인딩 추가
         }
 
         /* ==== 1번 타일 로직 ==== */
@@ -21833,12 +21955,11 @@ function updateUI5() {
                     dummy1,
                     dummy2
                 );
-
-} else if (state5.mainType === '부속품') {
+               } else if (state5.mainType === '부속품') {
                 row1.classList.remove('hidden');
                 row1.append(
                     createSubBtn('sub-ac-1', '용기에 부착된 것', () => {
-                        if(!state5.vol) { alert("내용적을 입력하세요"); document.getElementById('input-5-vol').focus(); return; }
+                        if (!state5.vol) { alert("내용적을 입력하세요"); document.getElementById('input-5-vol').focus(); return; }
                         state5.subType = '부착O'; state5.accType = null; updateUI5();
                     }),
                     createSubBtn('sub-ac-2', '부착되지 않은 것', () => { state5.subType = '부착X'; state5.accType = null; updateUI5(); })
@@ -21883,12 +22004,11 @@ function updateUI5() {
 
             calculateResult5();
         }
-<!-- 5번계산기 UI 자바스크립트 종   점==================================================================== -->
+<!-- 5번계산기 UI 자바스크립트 종점==================================================================== -->
 
 
 
 <!-- 자주 수정하는 자바스크립트 시작점==================================================================== -->
-
 function calculateResult5() {
             const elFormula = document.getElementById('calc5-formula');
             const elNy = document.getElementById('calc5-out-ny');
@@ -21896,30 +22016,44 @@ function calculateResult5() {
             const elAgeDisp = document.getElementById('calc5-out-age-disp');
             const elResult = document.getElementById('calc5-result');
             const elStatus = document.getElementById('calc5-status');
+            const elNotice = document.getElementById('calc5-notice'); 
+            const elOverdue = document.getElementById('calc5-overdue'); // 기한초과 뱃지
 
+            if (elNotice) {
+                elNotice.textContent = "-"; 
+                elNotice.className = "text-[#a8ff3e] text-[13px] xl:text-[14.5px] font-bold tracking-tighter leading-tight text-center break-keep whitespace-normal w-full";
+            }
+            if (elOverdue) elOverdue.classList.add('hidden');
             if (elStatus) elStatus.textContent = "";
 
             if (state5.mainType === '1회용') {
                 elFormula.textContent = "사용 후 폐기"; elNy.textContent = "-"; elRy.textContent = "-"; elAgeDisp.textContent = "-";
+                if (elNotice) elNotice.textContent = "1회용으로 제조된 용기는 사용 후 폐기한다.";
                 elResult.textContent = "사용 후 폐기"; elResult.className = "text-[#ff003c] text-[18px] xl:text-[22px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2 flex items-center justify-end"; return;
             }
 
             const currentDate = new Date();
             const cy = currentDate.getFullYear();
             const cm = currentDate.getMonth() + 1;
-
             const ny = parseInt(state5.ny); const nm = state5.nm;
             const ry = parseInt(state5.ry); const rm = state5.rm;
             
-            elNy.textContent = ny ? `${ny}.${nm}` : '-';
-            elRy.textContent = ry ? `${ry}.${rm}` : '-';
+            if (ny) {
+                let curDiffY = cy - ny, curDiffM = cm - parseInt(nm);
+                if (curDiffM < 0) { curDiffY--; curDiffM += 12; }
+                elRy.textContent = `${curDiffY}년 ${curDiffM}개월`;
+            } else { elRy.textContent = '-'; }
+
+            if (ny && !isNaN(ry)) {
+                let reDiffY = ry - ny, reDiffM = parseInt(rm) - parseInt(nm);
+                if (reDiffM < 0) { reDiffY--; reDiffM += 12; }
+                elNy.textContent = `${reDiffY}년 ${reDiffM}개월`;
+            } else { elNy.textContent = '-'; }
             
             elResult.className = "text-orange-500 text-[18px] xl:text-[22px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2";
 
             if (!ny) { 
-                elFormula.textContent = "신규제조년월 필요"; elResult.textContent = "-"; 
-                elAgeDisp.textContent = "-";
-                return; 
+                elFormula.textContent = "신규제조년월 필요"; elResult.textContent = "-"; elAgeDisp.textContent = "-"; return; 
             }
 
             const isRy = !isNaN(ry);
@@ -21939,108 +22073,83 @@ function calculateResult5() {
             const inspectionAge = diffY;         
 
             const vol = parseFloat(state5.vol) || 0;
-            let p = 0; let formula = ""; let special = null;
-
-
-if (state5.mainType === '지게차') {
+            let p = 0; let formula = ""; let special = null; let notice = ""; let isOverdue = false;
+            if (state5.mainType === '지게차') {
                 if (!state5.subType) {
                     formula = "하위 항목 선택"; p = 0;
                 } else {
+                    notice = "지게차용 용기는 10년을 첫번째 재검사주기로 한다";
                     let hl = 0; let p_val = 0;
                     if (!isRy) { hl = 0; p_val = 10; }
 
                     if (state5.subType === 'LPG용접') {
                         if (vol >= 500) {
                             if (isRy) {
-                                if (inspectionAge < 15) { hl = 1; p_val = 5; }
-                                else if (inspectionAge < 20) { hl = 2; p_val = 2; }
-                                else { hl = 3; p_val = 1; }
+                                if (inspectionAge < 15) { hl = 1; p_val = 5; } else if (inspectionAge < 20) { hl = 2; p_val = 2; } else { hl = 3; p_val = 1; }
                             }
-                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
-                                      (hl===1?"<span class='text-[#ff003c]'>15미만(5)</span>":"15미만(5)") + ", " +
-                                      (hl===2?"<span class='text-[#ff003c]'>15~20(2)</span>":"15~20(2)") + ", " +
-                                      (hl===3?"<span class='text-[#ff003c]'>20이상(1)</span>":"20이상(1)");
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " + (hl===1?"<span class='text-[#ff003c]'>15미만(5)</span>":"15미만(5)") + ", " + (hl===2?"<span class='text-[#ff003c]'>15~20(2)</span>":"15~20(2)") + ", " + (hl===3?"<span class='text-[#ff003c]'>20이상(1)</span>":"20이상(1)");
                         } else {
                             if (isRy) {
-                                if (inspectionAge < 20) { hl = 1; p_val = 5; }
-                                else { hl = 2; p_val = 2; }
+                                if (inspectionAge < 20) { hl = 1; p_val = 5; } else { hl = 2; p_val = 2; }
                             }
-                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
-                                      (hl===1?"<span class='text-[#ff003c]'>20미만(5)</span>":"20미만(5)") + ", " +
-                                      (hl===2?"<span class='text-[#ff003c]'>20이상(2)</span>":"20이상(2)");
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " + (hl===1?"<span class='text-[#ff003c]'>20미만(5)</span>":"20미만(5)") + ", " + (hl===2?"<span class='text-[#ff003c]'>20이상(2)</span>":"20이상(2)");
                         }
                     } else if (state5.subType === '고압용접') {
                         if (vol >= 500) {
                             if (isRy) {
-                                if (inspectionAge < 15) { hl = 1; p_val = 5; }
-                                else if (inspectionAge < 20) { hl = 2; p_val = 2; }
-                                else { hl = 3; p_val = 1; }
+                                if (inspectionAge < 15) { hl = 1; p_val = 5; } else if (inspectionAge < 20) { hl = 2; p_val = 2; } else { hl = 3; p_val = 1; }
                             }
-                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
-                                      (hl===1?"<span class='text-[#ff003c]'>15미만(5)</span>":"15미만(5)") + ", " +
-                                      (hl===2?"<span class='text-[#ff003c]'>15~20(2)</span>":"15~20(2)") + ", " +
-                                      (hl===3?"<span class='text-[#ff003c]'>20이상(1)</span>":"20이상(1)");
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " + (hl===1?"<span class='text-[#ff003c]'>15미만(5)</span>":"15미만(5)") + ", " + (hl===2?"<span class='text-[#ff003c]'>15~20(2)</span>":"15~20(2)") + ", " + (hl===3?"<span class='text-[#ff003c]'>20이상(1)</span>":"20이상(1)");
                         } else {
                             if (isRy) {
-                                if (inspectionAge < 15) { hl = 1; p_val = 3; }
-                                else if (inspectionAge < 20) { hl = 2; p_val = 2; }
-                                else { hl = 3; p_val = 1; }
+                                if (inspectionAge < 15) { hl = 1; p_val = 3; } else if (inspectionAge < 20) { hl = 2; p_val = 2; } else { hl = 3; p_val = 1; }
                             }
-                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
-                                      (hl===1?"<span class='text-[#ff003c]'>15미만(3)</span>":"15미만(3)") + ", " +
-                                      (hl===2?"<span class='text-[#ff003c]'>15~20(2)</span>":"15~20(2)") + ", " +
-                                      (hl===3?"<span class='text-[#ff003c]'>20이상(1)</span>":"20이상(1)");
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " + (hl===1?"<span class='text-[#ff003c]'>15미만(3)</span>":"15미만(3)") + ", " + (hl===2?"<span class='text-[#ff003c]'>15~20(2)</span>":"15~20(2)") + ", " + (hl===3?"<span class='text-[#ff003c]'>20이상(1)</span>":"20이상(1)");
                         }
                     } else if (state5.subType === '무계목') {
                         if (vol >= 500) {
                             if (isRy) { hl = 1; p_val = 5; }
-                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
-                                      (hl===1?"<span class='text-[#ff003c]'>이후(5)</span>":"이후(5)");
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " + (hl===1?"<span class='text-[#ff003c]'>이후(5)</span>":"이후(5)");
                         } else {
                             if (isRy) {
-                                if (inspectionAge <= 10) { hl = 1; p_val = 5; }
-                                else { hl = 2; p_val = 3; }
+                                if (inspectionAge <= 10) { hl = 1; p_val = 5; } else { hl = 2; p_val = 3; }
                             }
-                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
-                                      (hl===1?"<span class='text-[#ff003c]'>10이하(5)</span>":"10이하(5)") + ", " +
-                                      (hl===2?"<span class='text-[#ff003c]'>10초과(3)</span>":"10초과(3)");
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " + (hl===1?"<span class='text-[#ff003c]'>10이하(5)</span>":"10이하(5)") + ", " + (hl===2?"<span class='text-[#ff003c]'>10초과(3)</span>":"10초과(3)");
                         }
                     } else if (state5.subType === '복합') {
                         if (vol >= 500) {
                             if (isRy) { hl = 1; p_val = 5; }
-                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
-                                      (hl===1?"<span class='text-[#ff003c]'>이후(5)</span>":"이후(5)") + " <span class='text-[0.8em]'>(15년폐기)</span>";
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " + (hl===1?"<span class='text-[#ff003c]'>이후(5)</span>":"이후(5)") + " <span class='text-[0.8em]'>(15년폐기)</span>";
                         } else {
                             if (isRy) {
-                                if (inspectionAge <= 10) { hl = 1; p_val = 5; }
-                                else { hl = 2; p_val = 3; }
+                                if (inspectionAge <= 10) { hl = 1; p_val = 5; } else { hl = 2; p_val = 3; }
                             }
-                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " +
-                                      (hl===1?"<span class='text-[#ff003c]'>10이하(5)</span>":"10이하(5)") + ", " +
-                                      (hl===2?"<span class='text-[#ff003c]'>10초과(3)</span>":"10초과(3)") + " <span class='text-[0.8em]'>(15년폐기)</span>";
+                            formula = (hl===0?"<span class='text-[#ff003c]'>첫검사(10)</span>":"첫검사(10)") + ", " + (hl===1?"<span class='text-[#ff003c]'>10이하(5)</span>":"10이하(5)") + ", " + (hl===2?"<span class='text-[#ff003c]'>10초과(3)</span>":"10초과(3)") + " <span class='text-[0.8em]'>(15년폐기)</span>";
                         }
                     }
                     p = p_val;
                 }
 
-} else if (state5.mainType === 'LPG') {
+            } else if (state5.mainType === 'LPG') {
+                if (state5.subType === '용접' && vol < 20) notice = "내용적 20L 미만인 용접용기는 10년을 첫번째 재검사주기로 한다.";
+
                 if (state5.subType === '복합') { 
                     formula = "경과무관 <span class='text-[#ff003c]'>5년주기</span> (15년폐기)"; p = 5; 
+                    notice = "복합재료용기는 제조검사를 받은 날부터 15년이 되었을 때에 폐기한다.";
                 }
                 else if (state5.subType === '난방기' && vol < 500) { 
-                    // [핵심 수정] 내용적이 500L 미만일 때만 난방기 특례(6년) 적용
                     if (inspectionAge < 15) { 
                         formula = "<span class='text-[#ff003c]'>특례 15미만(6)</span>, 일반 15~20(5), 20이상(2)"; p = 6;
+                        notice = "15년 미만이고 내용적 500L 미만인 경우, 가스난방기용 용기는 6년 적용";
                     } else if (inspectionAge < 20) {
                         formula = "특례 15미만(6), <span class='text-[#ff003c]'>일반 15~20(5)</span>, 20이상(2)"; p = 5;
                     } else {
                         formula = "특례 15미만(6), 일반 15~20(5), <span class='text-[#ff003c]'>20이상(2)</span>"; p = 2;
                     }
                 }
-                else { // 용접 (난방기용이더라도 500L 이상이면 특례 제외되어 이곳 일반 기준으로 편입)
+                else { 
                     if (vol >= 45 && vol < 125 && ny <= 1988 && state5.subType !== '난방기') { 
-                        formula = "<span class='text-[#ff003c]'>88년이전 제조 45~125L 폐기</span>";
-                        special = "제조후 26년 경과(폐기)";
+                        formula = "<span class='text-[#ff003c]'>88년이전 제조 45~125L 폐기</span>"; special = "제조후 26년 경과(폐기)";
                         elResult.className = "text-[#ff003c] text-[18px] xl:text-[22px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2";
                     }
                     else if (vol >= 500) { 
@@ -22049,62 +22158,59 @@ if (state5.mainType === '지게차') {
                         else { formula = "15미만(5), 15~20(2), <span class='text-[#ff003c]'>20이상(1)</span>"; p = 1; }
                     }
                     else if (vol < 20) {
-                        if (!isRy) { 
-                            formula = "<span class='text-[#ff003c]'>첫검사(10)</span>, 20년미만(5), 20년이상(2)"; p = 10; 
-                        } else { 
+                        if (!isRy) { formula = "<span class='text-[#ff003c]'>첫검사(10)</span>, 20년미만(5), 20년이상(2)"; p = 10; } 
+                        else { 
                             if (inspectionAge < 20) { formula = "첫검사(10), <span class='text-[#ff003c]'>20년미만(5)</span>, 20년이상(2)"; p = 5; }
                             else { formula = "첫검사(10), 20년미만(5), <span class='text-[#ff003c]'>20년이상(2)</span>"; p = 2; }
                         }
                     }
                     else { 
-                        if (inspectionAge < 20) {
-                            formula = "<span class='text-[#ff003c]'>20년미만(5)</span>, 20년이상(2)"; p = 5;
-                        } else {
-                            formula = "20년미만(5), <span class='text-[#ff003c]'>20년이상(2)</span>"; p = 2;
-                        }
+                        if (inspectionAge < 20) { formula = "<span class='text-[#ff003c]'>20년미만(5)</span>, 20년이상(2)"; p = 5; } 
+                        else { formula = "20년미만(5), <span class='text-[#ff003c]'>20년이상(2)</span>"; p = 2; }
                     }
                 }
             } else if (state5.mainType === '고압') {
+                if (state5.subType === '용접' && vol < 20) notice = "내용적 20L 미만인 용접용기는 10년을 첫번째 재검사주기로 한다.";
+
                 if (state5.subType === '초저온' && vol < 500) { 
                     if (inspectionAge < 15) {
                         formula = "<span class='text-[#ff003c]'>특례 15미만(5)</span>, 일반 15~20(2), 20이상(1)"; p = 5; 
+                        notice = "15년 미만이고 내용적 500L 미만인 경우, 내식성재료로 제조된 초저온 용기는 5년";
                     } else if (inspectionAge < 20) {
                         formula = "특례 15미만(5), <span class='text-[#ff003c]'>일반 15~20(2)</span>, 20이상(1)"; p = 2;
                     } else {
                         formula = "특례 15미만(5), 일반 15~20(2), <span class='text-[#ff003c]'>20이상(1)</span>"; p = 1;
                     }
                 }
-                else if (state5.subType === '초저온') { // 500L 이상
+                else if (state5.subType === '초저온') {
                     if (inspectionAge < 15) { formula = "<span class='text-[#ff003c]'>15미만(5)</span>, 15~20(2), 20이상(1)"; p = 5; }
                     else if (inspectionAge < 20) { formula = "15미만(5), <span class='text-[#ff003c]'>15~20(2)</span>, 20이상(1)"; p = 2; }
                     else { formula = "15미만(5), 15~20(2), <span class='text-[#ff003c]'>20이상(1)</span>"; p = 1; }
                 }
                 else if (state5.subType === '무계목') { 
-                    if (vol >= 500) {
-                        formula = "<span class='text-[#ff003c]'>500L이상(5년)</span>"; p = 5;
-                    } else {
+                    if (vol >= 500) { formula = "<span class='text-[#ff003c]'>500L이상(5년)</span>"; p = 5; } 
+                    else {
                         if (inspectionAge <= 10) { formula = "<span class='text-[#ff003c]'>10년이하(5)</span>, 10년초과(3)"; p = 5; }
                         else { formula = "10년이하(5), <span class='text-[#ff003c]'>10년초과(3)</span>"; p = 3; }
                     }
                 }
                 else if (state5.subType === '복합_고압') { 
-                    if (vol >= 500) {
-                        formula = "<span class='text-[#ff003c]'>500L이상(5년)</span>"; p = 5;
-                    } else {
+                    notice = "복합재료용기는 제조검사를 받은 날부터 15년이 되었을 때에 폐기한다.";
+                    if (vol >= 500) { formula = "<span class='text-[#ff003c]'>500L이상(5년)</span>"; p = 5; } 
+                    else {
                         if (inspectionAge <= 10) { formula = "<span class='text-[#ff003c]'>10년이하(5)</span>, 10년초과(3)"; p = 5; }
                         else { formula = "10년이하(5), <span class='text-[#ff003c]'>10년초과(3)</span>"; p = 3; }
                     }
                 }
-                else { // 용접 및 기타
+                else { 
                     if (vol >= 500) { 
                         if (inspectionAge < 15) { formula = "<span class='text-[#ff003c]'>15미만(5)</span>, 15~20(2), 20이상(1)"; p = 5; }
                         else if (inspectionAge < 20) { formula = "15미만(5), <span class='text-[#ff003c]'>15~20(2)</span>, 20이상(1)"; p = 2; }
                         else { formula = "15미만(5), 15~20(2), <span class='text-[#ff003c]'>20이상(1)</span>"; p = 1; }
                     }
                     else if (state5.subType === '용접' && vol < 20) {
-                        if (!isRy) { 
-                            formula = "<span class='text-[#ff003c]'>첫검사(10)</span>, 15미만(3), 15~20(2), 20이상(1)"; p = 10; 
-                        } else { 
+                        if (!isRy) { formula = "<span class='text-[#ff003c]'>첫검사(10)</span>, 15미만(3), 15~20(2), 20이상(1)"; p = 10; } 
+                        else { 
                             if (inspectionAge < 15) { formula = "첫검사(10), <span class='text-[#ff003c]'>15미만(3)</span>, 15~20(2), 20이상(1)"; p = 3; }
                             else if (inspectionAge < 20) { formula = "첫검사(10), 15미만(3), <span class='text-[#ff003c]'>15~20(2)</span>, 20이상(1)"; p = 2; }
                             else { formula = "첫검사(10), 15미만(3), 15~20(2), <span class='text-[#ff003c]'>20이상(1)</span>"; p = 1; }
@@ -22117,26 +22223,53 @@ if (state5.mainType === '지게차') {
                     }
                 }
             } else if (state5.mainType === '부속품') {
-                if (state5.subType === '부착X') { formula = "<span class='text-[#ff003c]'>부착전 2년마다</span>"; p = 2; }
+                let chk_Y = cy - targetY;
+                let chk_M = cm - parseInt(targetM);
+                if (chk_M < 0) { chk_Y--; chk_M += 12; }
+
+                let chk_Y_ny = cy - ny;
+                let chk_M_ny = cm - parseInt(nm);
+                if (chk_M_ny < 0) { chk_Y_ny--; chk_M_ny += 12; }
+
+                if (state5.subType === '부착X') { 
+                    if (chk_Y >= 2) {
+                        formula = "부착 전 검사"; notice = "용기에 부착되기 전(검사 후 2년이 지난 것만 해당)"; p = 2; isOverdue = true;
+                    } else {
+                        formula = "<span class='text-[#ff003c]'>부착전 2년마다</span>"; p = 2; 
+                    }
+                }
                 else if (state5.accType === '가용전') { 
                     formula = "-"; special = "이상없는 경우 계속 사용"; 
                     elResult.className = "text-[#39ff14] text-[15px] xl:text-[18px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2"; 
                 }
                 else if (state5.accType === '밸브') {
                     if (vol < 125) { 
-                        formula = "<span class='text-[#ff003c]'>부착 125L미만 제조후 2년경과시 폐기</span>"; p = 2; 
-                        if (currentAge >= 2 && isRy) {
-                            special = "재검사 시 폐기";
-                            elResult.className = "text-[#ff003c] text-[18px] xl:text-[22px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2";
+                        if (chk_Y_ny >= 2) {
+                            formula = "용기 재검사 시 폐기"; notice = "제조(수입) 시의 검사를 받은 날부터 2년이 지난 후 용기의 첫 번째 재검사를 받을 때 폐기"; special = "용기 재검사 시 폐기";
+                            elResult.className = "text-gray-400 text-[18px] xl:text-[22px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2";
+                        } else {
+                            formula = "검사 후 2년 미 경과"; notice = "검사 후 2년 미 경과"; special = "용기 재검사 시";
+                            elResult.className = "text-gray-400 text-[18px] xl:text-[22px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2";
+                        }
+                    } else { 
+                        if (chk_Y >= 2) {
+                            formula = "용기 재검사 시"; notice = "검사 후 2년이 지나 해당 용기의 재검사를 받을 때마다"; special = "용기 재검사 시";
+                            elResult.className = "text-gray-400 text-[18px] xl:text-[22px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2";
+                        } else {
+                            formula = "검사 후 2년 미 경과"; notice = "검사 후 2년 미 경과"; special = "용기 재검사 시";
+                            elResult.className = "text-gray-400 text-[18px] xl:text-[22px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2";
                         }
                     }
-                    else { formula = "<span class='text-[#ff003c]'>용기 주기와 동일</span>"; special = "부착된 용기주기 산정"; }
                 } else { formula = "하위 항목 선택"; }
             }
 
             elFormula.innerHTML = formula || "-";
+            if (elNotice && notice) elNotice.textContent = notice;
             
-            if (special) { elResult.textContent = special; return; }
+            if (special) { 
+                elResult.textContent = special; 
+                return; 
+            }
             
             if (p > 0) {
                 let nextY = targetY + p;
@@ -22149,12 +22282,11 @@ if (state5.mainType === '지게차') {
                     let disposeM = parseInt(nm);
                     
                     if (nextY > disposeY || (nextY === disposeY && nextM >= disposeM) || currentAge >= 15) {
-                        nextY = disposeY;
-                        nextM = disposeM;
-                        strNextM = disposeM.toString().padStart(2, '0');
-                        isCapped = true;
+                        nextY = disposeY; nextM = disposeM; strNextM = disposeM.toString().padStart(2, '0'); isCapped = true;
                     }
                 }
+
+                if (nextY < cy || (nextY === cy && nextM < cm)) { isOverdue = true; }
 
                 if (isCapped) {
                     elResult.innerHTML = `<span class="text-[0.55em] align-middle mr-1 tracking-normal font-bold">사용연한</span>${nextY}년 ${strNextM}월`;
@@ -22163,20 +22295,283 @@ if (state5.mainType === '지게차') {
                     elResult.textContent = `${nextY}년 ${strNextM}월`;
                 }
                 
-                if (elStatus) {
-                    if (cy > nextY || (cy === nextY && cm > nextM)) {
-                        elStatus.textContent = "기한초과";
-                        elStatus.className = "text-[#ff003c] text-[12px] font-black tracking-tighter ml-1";
-                    } else {
-                        elStatus.textContent = "적합";
-                        elStatus.className = "text-[#39ff14] text-[12px] font-black tracking-tighter ml-1";
-                    }
-                }
+                if (isOverdue && elOverdue) elOverdue.classList.remove('hidden');
             } else { elResult.textContent = "-"; }
         }
-
 <!-- 자주 수정하는 자바스크립트 종점====================================================================== ->
 
+<!-- 6번계산기 자바스크립트 로직 ==================================================================== -->
+        let state6 = { mainType: null, subType: null, subSubType: null, ny: '', nm: '1', ry: '', rm: '' };
+
+        function initDateSelects6() {
+            const selNm = document.getElementById('sel-6-nm');
+            const selRm = document.getElementById('sel-6-rm');
+            for(let i=1; i<=12; i++) {
+                let m = i.toString().padStart(2, '0');
+                if(selNm) selNm.innerHTML += `<option value="${m}">${m}월</option>`;
+                if(selRm) selRm.innerHTML += `<option value="${m}">${m}월</option>`;
+            }
+        }
+
+        function bindEvents6() {
+            initDateSelects6();
+            
+            // 모달 이벤트 바인딩
+            document.getElementById('btn-6-exclude').addEventListener('click', () => {
+                document.getElementById('modal-6-exclude').classList.remove('hidden');
+            });
+            document.getElementById('btn-6-modal-close').addEventListener('click', () => {
+                document.getElementById('modal-6-exclude').classList.add('hidden');
+            });
+
+            document.getElementById('btn-reset-6').addEventListener('click', () => {
+                state6 = { mainType: null, subType: null, subSubType: null, ny: '', nm: '01', ry: '', rm: '' };
+                document.getElementById('input-6-ny').value = ''; document.getElementById('input-6-ry').value = '';
+                document.getElementById('sel-6-nm').value = '01'; document.getElementById('sel-6-rm').value = '';
+                updateUI6();
+            });
+
+            document.getElementById('input-6-ny').addEventListener('input', (e) => { state6.ny = e.target.value; updateUI6(); });
+            document.getElementById('sel-6-nm').addEventListener('change', (e) => { state6.nm = e.target.value; updateUI6(); });
+            document.getElementById('input-6-ry').addEventListener('input', (e) => { state6.ry = e.target.value; updateUI6(); });
+            document.getElementById('sel-6-rm').addEventListener('change', (e) => { state6.rm = e.target.value; updateUI6(); });
+
+            const btns = [
+                { id: 'btn-6-vehicle', type: '차량고정' }, { id: 'btn-6-tank', type: '저장탱크' },
+                { id: 'btn-6-pressure', type: '압력용기' }, { id: 'btn-6-safety', type: '안전밸브' },
+                { id: 'btn-6-emergency', type: '긴급차단' }, { id: 'btn-6-vaporizer', type: '기화장치' }
+            ];
+
+            btns.forEach(b => {
+                document.getElementById(b.id).addEventListener('click', () => {
+                    state6.mainType = b.type; state6.subType = null; state6.subSubType = null; updateUI6();
+                });
+            });
+
+            updateUI6();
+        }
+
+        function createSubBtn6(id, text, onClick) {
+            const btn = document.createElement('button');
+            btn.id = id; btn.className = "btn-calc flex-1 active-tremble !h-[26px] !text-[12.5px] !px-0 whitespace-nowrap overflow-hidden";
+            btn.textContent = text; btn.addEventListener('click', onClick);
+            return btn;
+        }
+function updateUI6() {
+            // 메인 버튼 스타일 초기화
+            const types = { 'btn-6-vehicle':'차량고정', 'btn-6-tank':'저장탱크', 'btn-6-pressure':'압력용기', 'btn-6-safety':'안전밸브', 'btn-6-emergency':'긴급차단', 'btn-6-vaporizer':'기화장치' };
+            for (let id in types) { styleButton(id, state6.mainType === types[id], state6.mainType !== null); }
+
+            const row1 = document.getElementById('row-6-sub1'); row1.innerHTML = ''; row1.classList.add('hidden');
+            const row2 = document.getElementById('row-6-sub2'); row2.innerHTML = ''; row2.classList.add('hidden');
+
+            // 하위 메뉴 생성 (요청에 따라 버튼명 변경)
+            if (state6.mainType === '저장탱크') {
+                row1.classList.remove('hidden');
+                row1.append(
+                    createSubBtn6('sub6-tank-1', '부적합(수리)이력 없음', () => { state6.subType = '정상'; state6.subSubType = null; updateUI6(); }),
+                    createSubBtn6('sub6-tank-2', '부적합 후 수리한것', () => { state6.subType = '수리'; state6.subSubType = null; updateUI6(); })
+                );
+                if (state6.subType) {
+                    row2.classList.remove('hidden');
+                    row2.append(
+                        createSubBtn6('sub6-tank-3', '음향방출시험 미실시', () => { state6.subSubType = '음향미실시'; updateUI6(); }),
+                        createSubBtn6('sub6-tank-4', '음향방출시험 합격', () => { state6.subSubType = '음향합격'; updateUI6(); })
+                    );
+                }
+            } else if (state6.mainType === '기화장치') {
+                row1.classList.remove('hidden');
+                row1.append(
+                    createSubBtn6('sub6-vap-1', '탱크와함께 설치', () => { state6.subType = '탱크함께'; updateUI6(); }),
+                    createSubBtn6('sub6-vap-2', '탱크 없이 설치', () => { state6.subType = '탱크없이'; updateUI6(); }),
+                    createSubBtn6('sub6-vap-3', '미설치 상태', () => { state6.subType = '미설치'; updateUI6(); })
+                );
+            }
+
+            // 하위 버튼 스타일 적용 (글자 매칭 안전성 보강)
+            ['sub6-tank-1', 'sub6-tank-2', 'sub6-vap-1', 'sub6-vap-2', 'sub6-vap-3'].forEach(id => {
+                const el = document.getElementById(id); if(!el) return;
+                const isActive = (state6.subType === '정상' && el.textContent.includes('이력')) ||
+                                 (state6.subType === '수리' && el.textContent.includes('수리한것')) ||
+                                 (state6.subType === '탱크함께' && el.textContent === '탱크와함께 설치') ||
+                                 (state6.subType === '탱크없이' && el.textContent === '탱크 없이 설치') ||
+                                 (state6.subType === '미설치' && el.textContent === '미설치 상태');
+                styleButton(id, isActive, state6.subType !== null);
+            });
+            ['sub6-tank-3', 'sub6-tank-4'].forEach(id => {
+                const el = document.getElementById(id); if(!el) return;
+                const isActive = (state6.subSubType === '음향미실시' && el.textContent.includes('미실시')) ||
+                                 (state6.subSubType === '음향합격' && el.textContent.includes('합격'));
+                styleButton(id, isActive, state6.subSubType !== null);
+            });
+
+            calculateResult6();
+        }
+
+function calculateResult6() {
+            const elFormula = document.getElementById('calc6-formula');
+            const elNy = document.getElementById('calc6-out-ny');
+            const elRy = document.getElementById('calc6-out-ry');
+            const elResult = document.getElementById('calc6-result');
+            const elNotice = document.getElementById('calc6-notice');
+            const elOverdue = document.getElementById('calc6-overdue'); // 기한초과 뱃지 요소
+
+            const currentDate = new Date();
+            const cy = currentDate.getFullYear();
+            const cm = currentDate.getMonth() + 1;
+
+            const ny = parseInt(state6.ny); const nm = state6.nm;
+            const ry = parseInt(state6.ry); const rm = state6.rm;
+            
+            // 초기화
+            elResult.className = "text-orange-500 text-[17px] xl:text-[20px] font-black tracking-tighter leading-none text-right break-keep w-full mt-2";
+            elNotice.textContent = "-"; 
+            elNotice.className = "text-[#a8ff3e] text-[13px] xl:text-[14.5px] font-bold tracking-tighter leading-tight text-center break-keep whitespace-normal w-full";
+            if (elOverdue) elOverdue.classList.add('hidden'); // 기한초과 뱃지 숨김 초기화
+
+            if (!state6.mainType) {
+                elFormula.textContent = "설비종류를 선택하세요"; elResult.textContent = "-"; elNy.textContent = "-"; elRy.textContent = "-"; return;
+            }
+
+            if (!ny) { 
+                elFormula.textContent = "신규제조년월 필요"; elResult.textContent = "-"; elNy.textContent = "-"; elRy.textContent = "-"; return; 
+            }
+
+            const isRy = !isNaN(ry);
+            let targetY = isRy ? ry : ny;
+            let targetM = isRy ? rm : nm;
+
+            // 1. 금일 기준 경과년 (현재 - 신규)
+            let curDiffY = cy - ny;
+            let curDiffM = cm - parseInt(nm);
+            if (curDiffM < 0) { curDiffY--; curDiffM += 12; }
+            elRy.textContent = `${curDiffY}년 ${curDiffM}개월`;
+
+            // 2. 재검일 기준 경과년 (최근 - 신규)
+            if (isRy) {
+                let reDiffY = ry - ny;
+                let reDiffM = parseInt(rm) - parseInt(nm);
+                if (reDiffM < 0) { reDiffY--; reDiffM += 12; }
+                elNy.textContent = `${reDiffY}년 ${reDiffM}개월`;
+            } else {
+                elNy.textContent = "-";
+            }
+
+            // 3. 판정 로직용 법정 경과연수 계산 (기준일 - 신규)
+            let base_Y = isRy ? ry : cy;
+            let base_M = isRy ? parseInt(rm) : cm;
+            let diffY = base_Y - ny;
+            let diffM = base_M - parseInt(nm);
+            if (diffM < 0) { diffY--; diffM += 12; }
+            const inspectionAge = diffY;
+
+            let p = 0; let formula = ""; let notice = ""; let specialResult = null;
+            let isOverdue = false; // 기한초과 판별 플래그
+
+            if (state6.mainType === '차량고정') {
+                if (inspectionAge < 15) { formula = "<span class='text-[#ff003c]'>15미만(5년)</span>, 15~20(2년), 20이상(1년)"; p = 5; }
+                else if (inspectionAge < 20) { formula = "15미만(5년), <span class='text-[#ff003c]'>15~20(2년)</span>, 20이상(1년)"; p = 2; }
+                else { formula = "15미만(5년), 15~20(2년), <span class='text-[#ff003c]'>20이상(1년)</span>"; p = 1; }
+                
+                notice = "해당 탱크를 다른 차량으로 이동하여 고정할 경우에는 이동하여 고정한 때마다 재검사";
+            } 
+
+else if (state6.mainType === '저장탱크') {
+                if (!state6.subType || !state6.subSubType) { formula = "하위 항목 선택"; }
+                else {
+                    if (state6.subType === '정상') {
+                        if (state6.subSubType === '음향합격') {
+                            formula = "7년(5년 +2년)"; p = 7; 
+                            notice = "검사 당해년도에 음향방출시험 등으로 안전성이 확인된 경우, 검사주기 2년 연장가능";
+                        } else {
+                            formula = "5년마다"; p = 5; 
+                            notice = "다른 장소로 이동하여 설치한 경우 이동하여 설치한 때마다(소탱 제외)";
+                        }
+                    } else if (state6.subType === '수리') {
+                        if (state6.subSubType === '음향미실시') { 
+                            formula = "(3년)"; p = 3; 
+                            notice = "불합격되어 수리한 것은 3년마다"; 
+                        }
+                        else { 
+                            formula = "(5년)"; p = 5; 
+                            notice = "음향방출시험에 의하여 안전성이 확인된 경우에는 5년마다"; 
+                        }
+                    }
+                }
+            }
+
+            else if (state6.mainType === '압력용기') {
+                formula = "<span class='text-[#ff003c]'>법정주기(4년)</span>"; p = 4;
+            }
+
+else if (state6.mainType === '안전밸브' || state6.mainType === '긴급차단') {
+                // 최근 검사일(최근일이 없으면 신규제조일)로부터 오늘까지 지난 기간 계산
+                let chk_Y = cy - targetY;
+                let chk_M = cm - parseInt(targetM);
+                if (chk_M < 0) { chk_Y--; chk_M += 12; }
+
+                if (chk_Y >= 2) {
+                    formula = "탱크의 재검사 주기에 따른다";
+                    specialResult = "-"; // 차기예정일 및 기한초과 뱃지 공란 처리
+                } else {
+                    formula = "검사 후 2년 이내(적합)";
+                    p = 2; // 2년 이후의 차기 검사년월 정상 표기 유도
+                }
+                notice = "검사 후 2년을 경과하여 해당 장치가 설치된 탱크의 재검사 시 마다";
+            }
+            else if (state6.mainType === '기화장치') {
+                if (!state6.subType) { formula = "하위 항목 선택"; }
+                else if (state6.subType === '탱크함께') {
+                    formula = "2~7년 마다"; 
+                    notice = "검사 후 2년을 경과하여 해당 탱크의 재검사 시마다";
+                    specialResult = "-";
+                }
+                else if (state6.subType === '탱크없이') {
+                    formula = "<span class='text-[#ff003c]'>법정주기(3년)</span>"; p = 3;
+                }
+                else if (state6.subType === '미설치') {
+                    formula = "-"; specialResult = "-";
+                    let chk_Y = cy - targetY;
+                    let chk_M = cm - parseInt(targetM);
+                    if (chk_M < 0) { chk_Y--; chk_M += 12; }
+                    
+                    if (chk_Y >= 2) {
+                        notice = "설치하기 전 검사할것";
+                    } else {
+                        notice = "2년 미 경과, 검사없이 설치가능";
+                    }
+                }
+            }
+
+            elFormula.innerHTML = formula || "-";
+            if (notice) elNotice.textContent = notice;
+
+            if (specialResult) { 
+                elResult.innerHTML = specialResult; 
+                elResult.className = "text-gray-500 text-[20px] font-black tracking-tighter leading-none text-right break-keep w-full mt-3 flex justify-end items-center";
+                if (isOverdue && elOverdue) elOverdue.classList.remove('hidden');
+                return; 
+            }
+            
+            if (p > 0) {
+                let nextY = targetY + p;
+                let nextM = parseInt(targetM);
+                let strNextM = nextM.toString().padStart(2, '0');
+                
+                if (nextY < cy || (nextY === cy && nextM < cm)) {
+                    isOverdue = true;
+                }
+                
+                elResult.innerHTML = `${nextY}년 ${strNextM}월`;
+                elResult.className = "text-orange-500 text-[18px] xl:text-[21px] font-black tracking-tighter leading-none text-right break-keep w-full mt-3 flex justify-end items-center";
+                
+                if (isOverdue && elOverdue) elOverdue.classList.remove('hidden');
+            } else { 
+                elResult.textContent = "-"; 
+                elResult.className = "text-gray-500 text-[20px] font-black tracking-tighter leading-none text-right break-keep w-full mt-3 flex justify-end items-center";
+            }
+        }
+<!-- 6번계산기 자바스크립트 로직 종점 ================================================================ -->
 
         /* 전역 이벤트 바인딩 */
         window.addEventListener('DOMContentLoaded', initApp);
