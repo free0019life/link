@@ -22577,11 +22577,11 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="h-[32%] mt-1 flex flex-col gap-1">
                 <div class="flex-[2] bg-gray-300 rounded-lg px-2 flex items-center justify-between shadow-inner border border-gray-400 overflow-hidden">
                     <div class="flex items-center shrink-0">
-                        <span class="text-gray-700 text-[13px] xl:text-[14.5px] font-extrabold tracking-tighter whitespace-nowrap leading-none">
-                            산출공식<span class="text-[10px] xl:text-[11px] font-bold text-gray-600 ml-0.5 tracking-tighter">(소수점 버림)</span>
-                        </span>
+                       <span class="text-gray-700 text-[13px] xl:text-[14.5px] font-extrabold tracking-tighter whitespace-nowrap leading-none">
+                        산출공식<span class="text-[10px] xl:text-[11px] font-bold text-gray-600 ml-0.5 tracking-tighter">(소수점 반올림)</span>
+                    </span>
                     </div>
-                    <span class="text-blue-900 text-[16px] xl:text-[18px] font-black tracking-tighter text-right w-full ml-1 leading-tight">실효면적 ÷ 용기1개당 면적</span>
+                    <span class="text-blue-900 text-[13px] xl:text-[14.5px] font-black tracking-tighter text-right w-full ml-1 leading-tight whitespace-nowrap">실효면적 ÷ 용기1개당 면적</span>
                 </div>
                 <div class="flex-[3] bg-gray-800 border-[3px] border-[#39ff14] rounded-lg px-1.5 py-1 flex relative shadow-inner items-stretch gap-1">
                     <div class="w-[57%] flex flex-col justify-between h-full border-r border-gray-600 pr-1 py-0.5">
@@ -22600,7 +22600,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>
                         <div class="flex justify-between items-baseline mt-auto border-t border-gray-600 pt-0.5">
-                            <span class="text-gray-400 text-[12px] xl:text-[13px] font-bold tracking-tighter shrink-0">가스종류</span>
+                            <span class="text-gray-400 text-[12px] xl:text-[13px] font-bold tracking-tighter shrink-0">용기1개당 면적</span>
                             <span id="calc3-type" class="text-white text-[12px] xl:text-[12.5px] font-bold tracking-tighter truncate text-right pl-1">-</span>
                         </div>
                     </div>
@@ -23428,18 +23428,18 @@ function formatGasNameHTML(name) {
                 const roomArea = w * l; const storageArea = roomArea * 0.3; const workArea = roomArea * 0.7;
                 let cylArea = 0; let cylText = '-';
 
-                if (state3.cylType === 'comp') { cylArea = 0.09; cylText = '압축(30cm×30cm)'; } 
-                else if (state3.cylType === 'liq') { cylArea = 0.3025; cylText = '액화(55cm×55cm)'; } 
+                if (state3.cylType === 'comp') { cylArea = 0.09; cylText = '0.0900 m²'; } 
+                else if (state3.cylType === 'liq') { cylArea = 0.3025; cylText = '0.3025 m²'; } 
                 else if (state3.cylType === 'other') {
                     const d = parseFloat(state3.diameter) || 0; cylArea = (d / 100) * (d / 100);
-                    cylText = d > 0 ? `기타(${d}cm×${d}cm)` : '-';
+                    cylText = d > 0 ? cylArea.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 }) + ' m²' : '-';
                 }
 
-                let qty = 0; if (storageArea > 0 && cylArea > 0) qty = Math.floor(storageArea / cylArea);
+                let qty = 0; if (storageArea > 0 && cylArea > 0) qty = Math.round(storageArea / cylArea);
 
-                document.getElementById('calc3-ta').textContent = roomArea > 0 ? roomArea.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '0.00';
-                document.getElementById('calc3-sa').textContent = storageArea > 0 ? storageArea.toLocaleString(undefined, { maximumFractionDigits: 1 }) : '0.0';
-                document.getElementById('calc3-wa').textContent = workArea > 0 ? workArea.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '0.00';
+                document.getElementById('calc3-ta').textContent = roomArea > 0 ? roomArea.toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '0.000';
+                document.getElementById('calc3-sa').textContent = storageArea > 0 ? storageArea.toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '0.000';
+                document.getElementById('calc3-wa').textContent = workArea > 0 ? workArea.toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 }) : '0.000';
                 document.getElementById('calc3-type').textContent = cylText;
                 document.getElementById('calc3-q').textContent = qty > 0 ? qty.toLocaleString() : '0';
             } catch (e) { console.error("Calculator 3 Error:", e); }
@@ -24341,8 +24341,6 @@ else if (state6.mainType === '안전밸브' || state6.mainType === '긴급차단
 </textarea>
 
     <!-- 고(액) 필수계산기 (종료) ----------------------------------------------------------------------------------------------------------------------------------------->
-
-
     <!-- =========================================================
          [통합 시스템 구동 자바스크립트] 
          ========================================================= -->
