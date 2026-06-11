@@ -22997,14 +22997,13 @@ function formatGasNameHTML(name) {
         function initApp() {
             const gridContainer = document.getElementById('grid-container');
             const templates = [
-                document.getElementById('calculator-template').innerHTML,
-                document.getElementById('calculator-template-2').innerHTML,
-                document.getElementById('calculator-template-3').innerHTML,
-                document.getElementById('calculator-template-4').innerHTML,
-                document.getElementById('calculator-template-5').innerHTML,
-                document.getElementById('calculator-template-6').innerHTML // [수정] 6번 템플릿 로드 추가
+                document.getElementById('calculator-template').innerHTML,   // 1번 자리: 저장능력 산정 (기존 유지)
+                document.getElementById('calculator-template-5').innerHTML, // 2번 자리: 용기 재검사기간 계산 (기존 5번)
+                document.getElementById('calculator-template-6').innerHTML, // 3번 자리: 특정설비 재검사기간 (기존 6번)
+                document.getElementById('calculator-template-3').innerHTML, // 4번 자리: 용기 보관수량 산출 (기존 3번)
+                document.getElementById('calculator-template-4').innerHTML, // 5번 자리: 혼합가스 독성여부 계산 (기존 4번)
+                document.getElementById('calculator-template-2').innerHTML  // 6번 자리: 냉동능력 산출 (기존 2번)
             ];
-
             for (let i = 1; i <= 8; i++) {
                 let borderClasses = "border-dashed border-[#cbd5e1] py-4 px-1.5 lg:py-5 lg:px-2 flex justify-center w-full ";
                 const index = i - 1;
