@@ -4312,6 +4312,10 @@ function updateGosiPages(c) {
 
             /* [수정] 고연령층 시인성을 위해 버튼 내 텍스트가 꽉 차도록 패딩 최소화 */
             .cat-btn { font-size: 1.05rem; min-height: 44px; padding: 2px; }
+
+            /* [추가된 라인] 긴 텍스트 버튼 2줄 강제 유지를 위한 폰트 및 자간 미세 조정 */
+            #cat-storage_tank { font-size: 0.95rem; letter-spacing: -0.5px; }
+
             .toggle-btn { padding-top: 6px !important; padding-bottom: 6px !important; padding-left: 2px !important; padding-right: 2px !important; }
             .sub-btn { font-size: 0.95rem; padding: 4px 0px; }
 
@@ -4358,7 +4362,7 @@ function updateGosiPages(c) {
 
         <!-- 카테고리 영역 초기 숨김 -->
         <div class="category-grid" id="category-grid" style="display: none;">
-            <button class="cat-btn" id="cat-storage_tank" onclick="selectCat('storage_tank', this)">저장탱크 및 차량에 고정된 탱크<br>(ISO탱크컨테이너)</button>
+            <button class="cat-btn" id="cat-storage_tank" onclick="selectCat('storage_tank', this)">저장탱크 및 차량에 고정된<br>탱크 (ISO탱크컨테이너)</button>
             <button class="cat-btn" onclick="selectCat('pressure_vessel', this)">압력용기</button>
             <button class="cat-btn" onclick="selectCat('vaporizer', this)">기화장치</button>
             <button class="cat-btn" onclick="selectCat('safety_valve', this)">안전밸브</button>
