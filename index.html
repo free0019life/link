@@ -24463,7 +24463,7 @@ function formatGasNameHTML(name) {
                 if (state.type === '압축') {
                     calcUnit = 'm³';
                     let v1 = state.storage === '용기' ? volNum / 1000 : volNum;
-                    if (!isNaN(v1) && !isNaN(pressNum)) calcResult = (10 * (pressNum * 0.101325) + 1) * v1;
+                    if (!isNaN(v1) && !isNaN(pressNum)) calcResult = (10 * pressNum + 1) * v1;
                 } else if (state.type === '액화_상온') {
                     calcUnit = 'kg'; const chargeRate = state.storage === '소형저장탱크' ? 0.85 : 0.90;
                     if (!isNaN(volNum) && !isNaN(sgNum)) calcResult = chargeRate * sgNum * volNum;
