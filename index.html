@@ -2554,7 +2554,7 @@ let liquidGases = [{val: ''}];
             // 현재 선택된 검사 종류 한글 명칭 판별
             let inspName = '';
             if (currentInsp === 'van') inspName = '완성검사';
-            else if (currentInsp === 'reg') inspName = '정기검사';
+            else if (currentInsp === 'reg') inspName = (currentCat === 'sales') ? '자율검사' : '정기검사';
             else if (currentInsp === 'mid') inspName = '중간검사';
             else if (currentInsp === 'supervision') inspName = '시공감리'; // [NEW] 시공감리 대응
 
